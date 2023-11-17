@@ -1,0 +1,32 @@
+{
+  "name": "com.flamebaitgames.fsmforunity",
+  "version": "1.0.0",
+  "displayName": "FSM For Unity",
+  "description": "This is an example package",
+  "unity": "2019.1",
+  "unityRelease": "0b5",
+  "documentationUrl": "https://example.com/",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://example.com/licensing.html",
+  "dependencies": {
+ },
+ "keywords": [
+    "FSM",
+    "Finite",
+    "State",
+    "Machine",
+    "C#"
+  ],
+  "author": {
+    "name": "Flamebait Games",
+    "email": "unity@example.com",
+    "url": "https://www.unity3d.com"
+  },
+  "samples": [
+    {
+      "displayName": "Simple Ping Pong FSM",
+      "description": "A sample that moves between two states periodically, outputting PING/PONG.",
+      "path": "Samples~/SimplePingPongFSM"
+    }
+  ]
+}
