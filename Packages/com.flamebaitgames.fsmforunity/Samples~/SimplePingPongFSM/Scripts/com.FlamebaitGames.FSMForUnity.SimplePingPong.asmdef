@@ -1,0 +1,16 @@
+{
+    "name": "com.FlamebaitGames.FSMForUnity.SimplePingPong",
+    "rootNamespace": "",
+    "references": [
+        "GUID:480eff5848e98334abc7eff4fb482e50"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

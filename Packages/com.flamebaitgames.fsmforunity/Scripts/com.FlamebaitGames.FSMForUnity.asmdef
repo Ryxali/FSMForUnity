@@ -1,3 +1,14 @@
 {
-	"name": "com.FlamebaitGames.FSMForUnity"
+    "name": "com.FlamebaitGames.FSMForUnity",
+    "rootNamespace": "FSMForUnity",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

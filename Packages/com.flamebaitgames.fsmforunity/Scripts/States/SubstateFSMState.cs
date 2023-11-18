@@ -1,6 +1,5 @@
 namespace FSMForUnity
 {
-	// a state machine in the state machine, prolly handy for tutorials & fancy things later
     /// <summary>
     /// Converts a <see cref="FSMMachine"/> into an <see cref="IFSMState"/>.
     /// With this, you can create complex state machines with states that in-themselves have multiple different states.
@@ -13,10 +12,6 @@ namespace FSMForUnity
         public SubstateFSMState(FSMMachine stateMachine)
         {
             this.stateMachine = stateMachine;
-        }
-        public void Destroy()
-        {
-            stateMachine.Destroy();
         }
 
         public void Enter()
@@ -32,6 +27,11 @@ namespace FSMForUnity
         public void Update(float delta)
         {
             stateMachine.Update(delta);
+        }
+
+        public void Destroy()
+        {
+            stateMachine.Destroy();
         }
 
         public override string ToString()

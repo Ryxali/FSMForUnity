@@ -27,6 +27,21 @@
       "displayName": "Simple Ping Pong FSM",
       "description": "A sample that moves between two states periodically, outputting PING/PONG.",
       "path": "Samples~/SimplePingPongFSM"
+    },
+    {
+      "displayName": "Ping Pong Coroutine FSM",
+      "description": "A sample that moves between two states periodically using a coroutine state, outputting PING/PONG.",
+      "path": "Samples~/PingPongWithCoroutineStates"
+    },
+    {
+      "displayName": "Main Menu FSM",
+      "description": "A sample that presents how one might implement UI behaviour with state machines, like a main menu.",
+      "path": "Samples~/StateMachineDrivenMainMenu"
+    },
+    {
+      "displayName": "AI Agent FSM",
+      "description": "A sample world with a player and an AI agent, where the AI responds to the player's movement using a state machine.",
+      "path": "Samples~/StateMachineAgent"
     }
   ]
 }
