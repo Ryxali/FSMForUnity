@@ -25,6 +25,26 @@
         }
 
         /// <summary>
+        /// Lay several states in parallel. This allows you to split up a single state
+        /// into multiple states while still sharing the same life cycle.
+        /// <param name="states">a collection of states to run in parallel</param>
+        /// </summary>
+        public static IFSMState AddParallelState(this FSMMachine.IBuilder builder, params IFSMState[] states)
+        {
+            return builder.AddState(new ParallelFSMState(states));
+        }
+
+        /// <summary>
+        /// Converts a <see cref="FSMMachine"/> into an <see cref="IFSMState"/>.
+        /// With this, you can create complex state machines with states that in-themselves have multiple different states.
+        /// This allows you to do things like submenus or sequences of tasks that can be aborted as a whole.
+        /// </summary>
+        public static IFSMState AddSubstate(this FSMMachine.IBuilder builder, FSMMachine machine)
+        {
+            return builder.AddState(new SubstateFSMState(machine));
+        }
+
+        /// <summary>
         /// Add a transition with using a transition expression that maps from a state to the desired state
         /// The state passed must have been added to the builder via <see cref="AddState(IFSMState)"/>
         /// <code>

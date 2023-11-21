@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using UnityEngine;
 
 namespace FSMForUnity
 {
+	/// <summary>
+	/// Used to minimize GC from the builder itself, instead we recycle the object
+	/// </summary>
 	internal class PooledFSMMachineBuilder : FSMMachine.IBuilder
     {
         private FSMMachineBuilder builder;
@@ -45,5 +49,10 @@ namespace FSMForUnity
             builder = null;
             return c;
         }
-    }
+
+		public void SetDebuggingInfo(string machineName, Object associatedObject)
+		{
+			((FSMMachine.IBuilder)builder).SetDebuggingInfo(machineName, associatedObject);
+		}
+	}
 }

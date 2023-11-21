@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.flamebaitgames.fsmforunity/Editor/FSMDebugger.uss?fileID=7433441132597879392&amp;guid=ed6111d43bd98c24d831d5bb34ef4a59&amp;type=3#FSMDebugger" />
+    <uie:Toolbar>
+        <ui:Label text="Header" display-tooltip-when-elided="true" name="header" style="min-width: 180px;" />
+        <uie:ToolbarMenu display-tooltip-when-elided="true">
+            <ui:Label text="Menu?" display-tooltip-when-elided="true" />
+        </uie:ToolbarMenu>
+    </uie:Toolbar>
+    <ui:Label text="State" display-tooltip-when-elided="true" />
+    <ui:ListView focusable="true" style="max-height: 40%;" />
+    <ui:Label text="Potential Transitions" display-tooltip-when-elided="true" />
+    <ui:ListView focusable="true" style="max-height: 40%;" />
+</ui:UXML>

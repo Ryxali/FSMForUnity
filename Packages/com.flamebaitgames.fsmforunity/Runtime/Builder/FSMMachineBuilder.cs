@@ -18,6 +18,9 @@ namespace FSMForUnity
 
         private IFSMState defaultState;
 
+        private string machineName;
+        private Object debugObject;
+
         public void Begin()
         {
             fsmBuild.Begin();
@@ -28,6 +31,9 @@ namespace FSMForUnity
             states.Clear();
             anyTransitions.Clear();
             transitions.Clear();
+            debugObject = null;
+            machineName = null;
+            defaultState = null;
         }
 
         public IFSMState AddState(IFSMState state)
@@ -114,7 +120,7 @@ namespace FSMForUnity
                                         value = (from g in grp select new { to = g.Item2, transition = g.Item3 })
                                     }).ToDictionary(k => k.key, v => v.value.Select(t => new TransitionMapping { to = t.to, transition = t.transition }).ToArray());
             // create machine
-            var fsm = new FSMMachine(
+            var fsm = new FSMMachine(machineName ?? "FSM Machine",
                 states: states.ToArray(),
                 anyTransitions: anyTransitions.Select(t => new TransitionMapping { to = t.Item1, transition = t.Item2 }).ToArray(),
                 stateTransitions: stateTransitions,
@@ -124,6 +130,9 @@ namespace FSMForUnity
             fsm.resetToDefaultStateOnEnable = behaviourParameters.HasFlag(FSMMachineFlags.ResetOnEnable);
             fsm.treatRedundantEnableAsReset = behaviourParameters.HasFlag(FSMMachineFlags.TreatRedundantEnableAsReset);
             fsm.debug = behaviourParameters.HasFlag(FSMMachineFlags.DebugMode);
+            if (debugObject)
+                DebuggingLinker.linkedMachines.Add(debugObject, fsm);
+            DebuggingLinker.allMachines.Add(fsm);
             fsmBuild.End();
             return fsm;
         }
@@ -131,6 +140,12 @@ namespace FSMForUnity
 		public void SetDefaultState(IFSMState state)
 		{
             defaultState = state;
+		}
+
+		public void SetDebuggingInfo(string machineName, Object associatedObject)
+		{
+            this.machineName = machineName;
+            debugObject = associatedObject;
 		}
 	}
 

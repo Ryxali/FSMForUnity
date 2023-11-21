@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace FSMForUnity
 {
+
 	/// <summary>
 	/// A standard Finite State Machine. This object contains a number of states.
 	/// Transitions map between these states and acts as the condition for transitioning between them.
@@ -11,13 +12,14 @@ namespace FSMForUnity
 	/// </summary>
 	public sealed class FSMMachine
     {
-        private static readonly ProfilerMarker fsmEnter = new ProfilerMarker("FSMState.Enter");
-        private static readonly ProfilerMarker fsmUpdate = new ProfilerMarker("FSMState.Update");
-        private static readonly ProfilerMarker fsmExit = new ProfilerMarker("FSMState.Exit");
-        private static readonly ProfilerMarker fsmDestroy = new ProfilerMarker("FSMState.Destroy");
-        private static readonly ProfilerMarker fsmMachineUpdate = new ProfilerMarker("FSMMachine.Update");
-        private static readonly ProfilerMarker fsmEvaluateTransitions = new ProfilerMarker("FSMMachine.EvaluateTransitions");
-        private static readonly ProfilerMarker fsmEvaluateTransitionPass = new ProfilerMarker("FSMMachine.EvaluateTransitionsPass");
+        private static readonly ProfilerMarker enableMarker = new ProfilerMarker("Enable");
+        private static readonly ProfilerMarker disableMarker = new ProfilerMarker("Disable");
+        private static readonly ProfilerMarker enterMarker = new ProfilerMarker("Enter");
+        private static readonly ProfilerMarker updateMarker = new ProfilerMarker("Update");
+        private static readonly ProfilerMarker exitMarker = new ProfilerMarker("Exit");
+        private static readonly ProfilerMarker destroyMarker = new ProfilerMarker("Destroy");
+        private static readonly ProfilerMarker fsmEvaluateTransitions = new ProfilerMarker("EvaluateTransitions");
+        private static readonly ProfilerMarker fsmEvaluateTransitionPass = new ProfilerMarker("EvaluateTransitionsPass");
 
         /// <summary>
         /// Is the State Machine currently in its enabled state?
@@ -39,23 +41,33 @@ namespace FSMForUnity
         /// </summary>
         public bool debug = false;
 
+        internal readonly string debugName;
+#if DEBUG
+        private readonly Dictionary<IFSMState, ProfilerMarker> stateMarkers = new Dictionary<IFSMState, ProfilerMarker>();
+        private readonly ProfilerMarker machineMarker;
+#endif
+
         private readonly IFSMState[] states;
         private readonly TransitionMapping[] anyTransitions;
         private readonly IReadOnlyDictionary<IFSMState, TransitionMapping[]> stateTransitions;
-
-#if DEBUG
-        private readonly Dictionary<IFSMState, ProfilerMarker> stateMarkers = new Dictionary<IFSMState, ProfilerMarker>();
-#endif
-        private IFSMState current;
         private readonly IFSMState defaultState;
 
-        internal FSMMachine(IFSMState[] states, TransitionMapping[] anyTransitions, IReadOnlyDictionary<IFSMState, TransitionMapping[]> stateTransitions, IFSMState defaultState)
+        private IFSMState current;
+        private TransitionMapping[] currentTransitions;
+#if DEBUG
+        private ProfilerMarker currentStateMarker;
+        internal IFSMState DebugCurrent => current;
+#endif
+
+        internal FSMMachine(string debugName, IFSMState[] states, TransitionMapping[] anyTransitions, IReadOnlyDictionary<IFSMState, TransitionMapping[]> stateTransitions, IFSMState defaultState)
         {
             this.states = states;
             this.anyTransitions = anyTransitions;
             this.stateTransitions = stateTransitions;
             this.defaultState = defaultState;
 #if DEBUG
+            this.debugName = debugName;
+            machineMarker = new ProfilerMarker(debugName);
             foreach (var state in states)
             {
                 stateMarkers.Add(state, new ProfilerMarker(state.GetType().Name));
@@ -71,35 +83,59 @@ namespace FSMForUnity
         {
             if (!IsEnabled || treatRedundantEnableAsReset)
             {
+#if DEBUG
+                enableMarker.Begin();
+                {
+                    if (IsEnabled)
+                    {
+                        currentStateMarker.Begin();
+                        {
+                            exitMarker.Begin();
+                            current.Exit();
+                            exitMarker.End();
+                        }
+                        currentStateMarker.End();
+                    }
+                    IsEnabled = true;
+
+                    if (current == null || resetToDefaultStateOnEnable)
+                    {
+                        current = defaultState;
+                        currentTransitions = stateTransitions.TryGetValue(current, out var t) ? t : null;
+#if DEBUG
+                        currentStateMarker = stateMarkers[current];
+#endif
+                    }
+
+                    if (debug)
+                        Debug.Log($"Enable Enter: {DumpState()}");
+
+                    currentStateMarker.Begin();
+                    {
+                        enterMarker.Begin();
+                        current.Enter();
+                        enterMarker.End();
+                    }
+                    currentStateMarker.End();
+                }
+                enableMarker.End();
+#else
                 if (IsEnabled)
                 {
-                    fsmExit.Begin();
-#if DEBUG
-                    stateMarkers[current].Begin();
-#endif
                     current.Exit();
-#if DEBUG
-                    stateMarkers[current].End();
-#endif
-                    fsmExit.End();
                 }
                 IsEnabled = true;
+
                 if (current == null || resetToDefaultStateOnEnable)
                 {
                     current = defaultState;
                 }
+
                 if (debug)
                     Debug.Log($"Enable Enter: {DumpState()}");
-
-                fsmEnter.Begin();
-#if DEBUG
-                stateMarkers[current].Begin();
-#endif
+                
                 current.Enter();
-#if DEBUG
-                stateMarkers[current].End();
 #endif
-                fsmEnter.End();
             }
         }
 
@@ -113,15 +149,22 @@ namespace FSMForUnity
                 IsEnabled = false;
                 if (debug)
                     Debug.Log($"Disable Exit: {DumpState()}");
-                fsmExit.Begin();
 #if DEBUG
-                stateMarkers[current].Begin();
-#endif
+                disableMarker.Begin();
+                {
+                    currentStateMarker.Begin();
+                    {
+                        exitMarker.Begin();
+                        current.Exit();
+                        exitMarker.End();
+                    }
+                    currentStateMarker.End();
+                }
+                disableMarker.End();
+
+#else
                 current.Exit();
-#if DEBUG
-                stateMarkers[current].End();
 #endif
-                fsmExit.End();
             }
         }
 
@@ -136,19 +179,29 @@ namespace FSMForUnity
         {
             if (IsEnabled)
             {
-                fsmMachineUpdate.Begin();
-                EvaluateTransitions();
-                fsmUpdate.Begin();
 #if DEBUG
-                stateMarkers[current].Begin();
-#endif
+                machineMarker.Begin();
+                {
+                    updateMarker.Begin();
+                    {
+                        EvaluateTransitions();
+                        currentStateMarker.Begin();
+                        {
+                            updateMarker.Begin();
+                            current.Update(delta);
+                            updateMarker.End();
+                        }
+                        currentStateMarker.End();
+                        EvaluateTransitions();
+                    }
+                    updateMarker.End();
+                }
+                machineMarker.End();
+#else
+                EvaluateTransitions();
                 current.Update(delta);
-#if DEBUG
-                stateMarkers[current].End();
-#endif
-                fsmUpdate.End();
                 EvaluateTransitions();
-                fsmMachineUpdate.End();
+#endif
             }
         }
 
@@ -166,35 +219,39 @@ namespace FSMForUnity
         private bool EvaluateTransitionPass()
         {
             fsmEvaluateTransitionPass.Begin();
-            if (stateTransitions.TryGetValue(current, out var transitions))
+            if (currentTransitions != null)
             {
-                for (int i = 0; i < transitions.Length; i++)
+                for (int i = 0; i < currentTransitions.Length; i++)
                 {
-                    var transition = transitions[i];
+                    var transition = currentTransitions[i];
                     if (transition.transition.ShouldTransition())
                     {
-                        fsmExit.Begin();
+                        exitMarker.Begin();
 #if DEBUG
-                        stateMarkers[current].Begin();
+                        currentStateMarker.Begin();
 #endif
                         current.Exit();
 #if DEBUG
-                        stateMarkers[current].End();
+                        currentStateMarker.End();
 #endif
-                        fsmExit.End();
+                        exitMarker.End();
                         current = transition.to;
+                        currentTransitions = stateTransitions.TryGetValue(current, out var t) ? t : null;
+#if DEBUG
+                        currentStateMarker = stateMarkers[current];
+#endif
                         transition.transition.PassThrough();
                         if (debug)
                             Debug.Log($"Transition To: {DumpState()}");
-                        fsmEnter.Begin();
+                        enterMarker.Begin();
 #if DEBUG
-                        stateMarkers[current].Begin();
+                        currentStateMarker.Begin();
 #endif
                         current.Enter();
 #if DEBUG
-                        stateMarkers[current].End();
+                        currentStateMarker.End();
 #endif
-                        fsmEnter.End();
+                        enterMarker.End();
                         fsmEvaluateTransitionPass.End();
                         return true;
                     }
@@ -205,25 +262,29 @@ namespace FSMForUnity
                 var transition = anyTransitions[i];
                 if (transition.to != current && transition.transition.ShouldTransition())
                 {
-                    fsmExit.Begin();
+                    exitMarker.Begin();
 #if DEBUG
-                    stateMarkers[current].Begin();
+                    currentStateMarker.Begin();
 #endif
                     current.Exit();
 #if DEBUG
-                    stateMarkers[current].End();
+                    currentStateMarker.End();
 #endif
-                    fsmExit.End();
+                    exitMarker.End();
                     current = transition.to;
-                    fsmEnter.Begin();
+                    currentTransitions = stateTransitions.TryGetValue(current, out var t) ? t : null;
 #if DEBUG
-                    stateMarkers[current].Begin();
+                    currentStateMarker = stateMarkers[current];
+#endif
+                    enterMarker.Begin();
+#if DEBUG
+                    currentStateMarker.Begin();
 #endif
                     current.Enter();
 #if DEBUG
-                    stateMarkers[current].End();
+                    currentStateMarker.End();
 #endif
-                    fsmEnter.End();
+                    enterMarker.End();
                     fsmEvaluateTransitionPass.End();
                     return true;
                 }
@@ -237,7 +298,7 @@ namespace FSMForUnity
         /// </summary>
         public void Destroy()
         {
-            fsmDestroy.Begin();
+            destroyMarker.Begin();
             for (int i = 0; i < states.Length; i++)
             {
                 var state = states[i];
@@ -248,13 +309,22 @@ namespace FSMForUnity
                         transitions[j].transition.Destroy();
                     }
                 }
+#if DEBUG
+                stateMarkers[state].Begin();
+                destroyMarker.Begin();
                 state.Destroy();
+                destroyMarker.End();
+                stateMarkers[state].End();
+#else
+                state.Destroy();
+#endif
             }
             for (int i = 0; i < anyTransitions.Length; i++)
             {
                 anyTransitions[i].transition.Destroy();
             }
-            fsmDestroy.End();
+            DebuggingLinker.RemoveAllReferences(this);
+            destroyMarker.End();
         }
 
         /// <summary>
@@ -272,6 +342,13 @@ namespace FSMForUnity
         /// </summary>
         public interface IBuilder
         {
+            /// <summary>
+            /// Set debugging info. Useful only when playing in editor or development mode.
+            /// </summary>
+            /// <param name="machineName">The name you'd like this machine to have in profiler and debugger.</param>
+            /// <param name="associatedObject">An associated owner of this machine. If you select this object the
+            /// machine will automatically be presented in the inspector.</param>
+            void SetDebuggingInfo(string machineName, Object associatedObject);
             /// <summary>
             /// Typically the first state added becomes the default state for the machine.
             /// Call <see cref="SetDefaultState(IFSMState)"/> to change this
