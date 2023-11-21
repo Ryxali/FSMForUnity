@@ -3,7 +3,7 @@
 	public static class FSMTransitionExts
     {
         /// <summary>
-        /// Create a <see cref="InvertTransition"/> using the supplied transition.
+        /// Create a <see cref="InvertFSMTransition"/> using the supplied transition.
         /// The ShouldTransition evaluation becomes inverted, and is useful if two
         /// states should mirror a binary value.
         /// </summary>
@@ -11,7 +11,7 @@
         /// <returns></returns>
         public static IFSMTransition Invert(this IFSMTransition transition)
         {
-            return new InvertTransition(transition);
+            return new InvertFSMTransition(transition);
         }
     }
 }

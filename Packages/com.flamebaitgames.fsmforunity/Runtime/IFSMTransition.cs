@@ -10,7 +10,7 @@ namespace FSMForUnity
     /// </list>
     /// All these methods are automatically used by the State Machine itself as part of its lifecycle.
     /// 
-    /// Only an implementation of these methods are required. See <see cref="FSMForUnity.AlwaysTransition"/>
+    /// Only an implementation of these methods are required. See <see cref="FSMForUnity.AlwaysFSMTransition"/>
     /// or <see cref="FSMForUnity.LambdaFSMTransition"/> for an example implementation.
     /// </summary>
     public interface IFSMTransition

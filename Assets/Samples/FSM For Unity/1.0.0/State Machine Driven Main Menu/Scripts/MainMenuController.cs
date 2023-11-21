@@ -104,11 +104,11 @@ public class MainMenuController : MonoBehaviour
 
         // Fade Main Menu to Settings
         builder.AddTransition(mainToSettingsOut, mainMenuState, mainMenuToSettingsFadeState);
-        builder.AddTransition(new AllPassesTransition(mainToSettingsOut, mainToSettingsIn), mainMenuToSettingsFadeState, settingsState);
+        builder.AddTransition(new AllPassesFSMTransition(mainToSettingsOut, mainToSettingsIn), mainMenuToSettingsFadeState, settingsState);
 
         // Fade Settings to Main Menu
         builder.AddTransition(mainToSettingsOut, settingsState, settingsToMainMenuFadeState);
-        builder.AddTransition(new AllPassesTransition(mainToSettingsOut, mainToSettingsIn), settingsToMainMenuFadeState, mainMenuState);
+        builder.AddTransition(new AllPassesFSMTransition(mainToSettingsOut, mainToSettingsIn), settingsToMainMenuFadeState, mainMenuState);
 
         // Fade Main Menu to loading
         builder.AddTransition(mainToLoadingOut, mainMenuState, mainMenuToLoadingFadeState);

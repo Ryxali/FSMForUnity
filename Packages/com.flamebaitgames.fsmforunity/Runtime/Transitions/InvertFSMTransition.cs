@@ -21,7 +21,7 @@
     /// invertedTransition.PassThrough();
     /// </code>
     /// </summary>
-	public sealed class InvertTransition : IFSMTransition
+	public sealed class InvertFSMTransition : IFSMTransition
     {
         private readonly IFSMTransition transition;
 
@@ -29,7 +29,7 @@
         /// Create a new instance, inverting <paramref name="transition"/>
         /// </summary>
         /// <param name="transition">The transition to invert</param>
-        public InvertTransition(IFSMTransition transition)
+        public InvertFSMTransition(IFSMTransition transition)
         {
             this.transition = transition;
         }

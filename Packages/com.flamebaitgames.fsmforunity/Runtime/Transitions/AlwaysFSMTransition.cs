@@ -12,11 +12,11 @@
 	/// var transition = builder.AddTransition(AlwaysTransition.constant, stateA, stateB);
 	/// </code>
 	/// </summary>
-	public sealed class AlwaysTransition : IFSMTransition
+	public sealed class AlwaysFSMTransition : IFSMTransition
 	{
-		public static readonly AlwaysTransition constant = new AlwaysTransition();
+		public static readonly AlwaysFSMTransition constant = new AlwaysFSMTransition();
 
-		private AlwaysTransition() { }
+		private AlwaysFSMTransition() { }
 
 		void IFSMTransition.PassThrough() {}
 

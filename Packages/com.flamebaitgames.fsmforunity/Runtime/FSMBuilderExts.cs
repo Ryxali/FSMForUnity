@@ -2,6 +2,27 @@
 {
 	public static class FSMBuilderExts
     {
+        /// <summary>
+        /// Add a state by defining it's enter/update/exit functions rather than an instance of a defined class.
+        /// Implementing each of these functions are optional, allowing you to define the state by:
+        /// <code>
+        /// var builder = FSMMachine.Build();
+		/// builder.AddLambdaState(
+		///     enter: () => { Debug.Log("Enter"); },
+		///	    update: (delta) => { Debug.Log($"Tick {delta}"); }
+        ///	    // no exit definition required!
+		///	);
+        /// </code>
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="enter"></param>
+        /// <param name="update"></param>
+        /// <param name="exit"></param>
+        /// <returns></returns>
+        public static IFSMState AddLambdaState(this FSMMachine.IBuilder builder, LambdaFSMState.Enter enter = null, LambdaFSMState.Update update = null, LambdaFSMState.Exit exit = null)
+        {
+            return builder.AddState(new LambdaFSMState(enter, update, exit));
+        }
 
         /// <summary>
         /// Add a transition with using a transition expression that maps from a state to the desired state
