@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 using System.Reflection;
@@ -17,54 +18,57 @@ namespace FSMForUnity
     {
         private readonly DeltaTime deltaTime = new DeltaTime();
 
-        private IEnumerator activeRoutine;
+        private readonly Stack<IEnumerator> routineStack = new Stack<IEnumerator>();
 
         void IFSMState.Enter()
         {
             deltaTime.value = 0f;
-            activeRoutine = Enter(deltaTime);
+            routineStack.Push(Enter(deltaTime));
         }
 
         void IFSMState.Exit()
         {
-            activeRoutine = null;
+            routineStack.Clear();
             Exit();
         }
 
         void IFSMState.Update(float delta)
         {
-            if(activeRoutine != null)
+            deltaTime.value = delta;
+
+            if(routineStack.Count > 0)
             {
-                deltaTime.value = delta;
-                var atEnd = false;
+                var activeRoutine = routineStack.Peek();
+
                 if(activeRoutine.Current != null)
                 {
                     if(activeRoutine.Current is IEnumerator en)
                     {
-                        if(en.MoveNext())
-                            atEnd = !activeRoutine.MoveNext();
+                        activeRoutine = en;
+                        routineStack.Push(en);
                     }
                     else if(activeRoutine.Current is YieldInstruction)
                     {
                         var t = activeRoutine.GetType();
-                        activeRoutine = null;
+                        routineStack.Clear();
                         throw new System.InvalidOperationException($"{t} Unity yield instructions like WaitForSeconds, WaitForFixedUpdate, and WaitForEndOfFrame not supported by this coroutine.");
                     }
                     else
                     {
                         var t = activeRoutine.GetType();
-                        activeRoutine = null;
-                        throw new System.NotSupportedException($"{t} yield value´ '{activeRoutine.Current.GetType().FullName}' was not recognized as something that can be iterated on.");
+                        routineStack.Clear();
+                        throw new System.NotSupportedException($"{t} yield value '{activeRoutine.Current.GetType().FullName}' was not recognized as something that can be iterated on.");
                     }
                 }
-                else
+                while(activeRoutine != null && !activeRoutine.MoveNext())
                 {
-                    atEnd = !activeRoutine.MoveNext();
+                    routineStack.Pop();
+                    if(routineStack.Count > 0)
+                        activeRoutine = routineStack.Peek();
+                    else
+                        activeRoutine = null;
                 }
-                if(atEnd)
-                {
-                    activeRoutine = null;
-                }
+
             }
         }
 
