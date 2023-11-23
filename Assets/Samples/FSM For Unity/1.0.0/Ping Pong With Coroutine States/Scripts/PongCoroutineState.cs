@@ -12,7 +12,7 @@ public class PongCoroutineState : CoroutineFSMState
         this.transition = transition;
     }
 
-    protected override IEnumerator OnEnter()
+    protected override IEnumerator Enter(DeltaTime deltaTime)
     {
         Debug.Log("Pong");
         var t = 0f;
@@ -22,16 +22,16 @@ public class PongCoroutineState : CoroutineFSMState
             t += deltaTime;
             yield return null;
         }
-    }
-
-    protected override void OnCoroutineEnd()
-    {
         // When the coroutine is done we want to trigger the transition
         // to the other state
         transition.Trigger();
     }
 
-    public override void Destroy()
+    protected override void Exit()
+    {
+    }
+
+    protected override void Destroy()
     {
 
     }

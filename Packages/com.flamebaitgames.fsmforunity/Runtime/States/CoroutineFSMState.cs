@@ -9,29 +9,33 @@ namespace FSMForUnity
     /// Base class that executes a Coroutine when it enters this state.
     /// The implementing class gets a callback when the coroutine is done,
     /// which in turn can be used to trigger a transition away from this state.
+    /// Notable is that this coroutine will execute as part of this <see cref="IFSMState.Update"/> call.
+    /// As such, execution timings and rate will be entirely bound to the state machine.
+    /// As with all coroutines, some GC will be generated each time this state is entered.
     /// </summary>
 	public abstract class CoroutineFSMState : IFSMState
     {
-        protected float deltaTime { get; private set; }
+        private readonly DeltaTime deltaTime = new DeltaTime();
 
         private IEnumerator activeRoutine;
 
-        public void Enter()
+        void IFSMState.Enter()
         {
-            deltaTime = 0f;
-            activeRoutine = OnEnter();
+            deltaTime.value = 0f;
+            activeRoutine = Enter(deltaTime);
         }
 
-        public void Exit()
+        void IFSMState.Exit()
         {
             activeRoutine = null;
+            Exit();
         }
 
-        public void Update(float delta)
+        void IFSMState.Update(float delta)
         {
             if(activeRoutine != null)
             {
-                deltaTime = delta;
+                deltaTime.value = delta;
                 var atEnd = false;
                 if(activeRoutine.Current != null)
                 {
@@ -60,27 +64,45 @@ namespace FSMForUnity
                 if(atEnd)
                 {
                     activeRoutine = null;
-                    OnCoroutineEnd();
                 }
             }
         }
 
-        public abstract void Destroy();
-
+        void IFSMState.Destroy() => Destroy();
 
         /// <summary>
         /// Called as part of Entering this state,
         /// and acts as the starting point for the
         /// coroutine.
         /// </summary>
-        protected abstract IEnumerator OnEnter();
+        /// <param name="deltaTime">A reference to the container which will contain
+        /// the delta time for each iteration in this coroutine.</param>
+        protected abstract IEnumerator Enter(DeltaTime deltaTime);
 
         /// <summary>
-        /// Called when the state has reached the
-        /// end of the coroutine. At this point
-        /// it might be appropriate to trigger something
-        /// to transition away from this state.´
+        /// Called as we leave this state, same as <see cref="IFSMState.Exit"/>
         /// </summary>
-        protected abstract void OnCoroutineEnd();
+        protected abstract void Exit();
+
+        /// <summary>
+        /// Called as the State Machine is destroyed. Dispose of any managed objects here.
+        /// </summary>
+        protected abstract void Destroy();
+
+        /// <summary>
+        /// A special construct for coroutines. The delta time value will be automatically
+        /// be updated before each iteration of the coroutine.
+        /// </summary>
+        protected sealed class DeltaTime
+        {
+            /// <summary>
+            /// The current delta time value, identical to the deltaTime value
+            /// recieved in the Update function for other non-coroutine states.
+            /// </summary>
+            public float value { get; internal set; }
+
+            public static implicit operator float(DeltaTime deltaTime) => deltaTime.value;
+        }
+
     }
 }

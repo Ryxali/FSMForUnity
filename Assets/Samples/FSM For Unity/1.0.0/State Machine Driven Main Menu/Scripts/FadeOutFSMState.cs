@@ -19,10 +19,10 @@ public class FadeOutFSMState : CoroutineFSMState
         this.transition = transition;
     }
 
-    protected override IEnumerator OnEnter()
+    protected override IEnumerator Enter(DeltaTime deltaTime)
     {
         var t = 0f;
-
+        // Fade alpha to 0 over 1 second
         while(t < 1f)
         {
             canvasGroup.alpha = 1 - t;
@@ -30,14 +30,14 @@ public class FadeOutFSMState : CoroutineFSMState
             yield return null;
         }
         canvasGroup.alpha = 0f;
-    }
-
-    protected override void OnCoroutineEnd()
-    {
         transition.Trigger();
     }
 
-    public override void Destroy()
+    protected override void Exit()
+    {
+    }
+
+    protected override void Destroy()
     {
 
     }

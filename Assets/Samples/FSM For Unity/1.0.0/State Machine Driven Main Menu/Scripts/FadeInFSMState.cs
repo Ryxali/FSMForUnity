@@ -19,7 +19,7 @@ public class FadeInFSMState : CoroutineFSMState
         this.transition = transition;
     }
 
-    protected override IEnumerator OnEnter()
+    protected override IEnumerator Enter(DeltaTime deltaTime)
     {
         var t = 0f;
 
@@ -30,14 +30,14 @@ public class FadeInFSMState : CoroutineFSMState
             yield return null;
         }
         canvasGroup.alpha = 1f;
-    }
-
-    protected override void OnCoroutineEnd()
-    {
         transition.Trigger();
     }
 
-    public override void Destroy()
+    protected override void Exit()
+    {
+    }
+
+    protected override void Destroy()
     {
 
     }
