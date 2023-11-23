@@ -12,6 +12,7 @@ namespace FSMForUnity
 	/// </summary>
 	public sealed class FSMMachine
     {
+        private static readonly ProfilerMarker debugOnlyMarker = new ProfilerMarker("Debug_Only");
         private static readonly ProfilerMarker enableMarker = new ProfilerMarker("Enable");
         private static readonly ProfilerMarker disableMarker = new ProfilerMarker("Disable");
         private static readonly ProfilerMarker enterMarker = new ProfilerMarker("Enter");
@@ -43,13 +44,13 @@ namespace FSMForUnity
 
         internal readonly string debugName;
 #if DEBUG
-        private readonly Dictionary<IFSMState, ProfilerMarker> stateMarkers = new Dictionary<IFSMState, ProfilerMarker>();
+        private readonly Dictionary<IFSMState, ProfilerMarker> stateMarkers = new Dictionary<IFSMState, ProfilerMarker>(EqualityComparer_IFSMState.constant);
         private readonly ProfilerMarker machineMarker;
 #endif
 
         private readonly IFSMState[] states;
         private readonly TransitionMapping[] anyTransitions;
-        private readonly IReadOnlyDictionary<IFSMState, TransitionMapping[]> stateTransitions;
+        private readonly Dictionary<IFSMState, TransitionMapping[]> stateTransitions;
         private readonly IFSMState defaultState;
 
         private IFSMState current;
@@ -59,19 +60,21 @@ namespace FSMForUnity
         internal IFSMState DebugCurrent => current;
 #endif
 
-        internal FSMMachine(string debugName, IFSMState[] states, TransitionMapping[] anyTransitions, IReadOnlyDictionary<IFSMState, TransitionMapping[]> stateTransitions, IFSMState defaultState)
+        internal FSMMachine(string debugName, IFSMState[] states, TransitionMapping[] anyTransitions, Dictionary<IFSMState, TransitionMapping[]> stateTransitions, IFSMState defaultState)
         {
             this.states = states;
             this.anyTransitions = anyTransitions;
             this.stateTransitions = stateTransitions;
             this.defaultState = defaultState;
 #if DEBUG
+            debugOnlyMarker.Begin();
             this.debugName = debugName;
             machineMarker = new ProfilerMarker(debugName);
             foreach (var state in states)
             {
                 stateMarkers.Add(state, new ProfilerMarker(state.GetType().Name));
             }
+            debugOnlyMarker.End();
 #endif
         }
 
@@ -102,9 +105,7 @@ namespace FSMForUnity
                     {
                         current = defaultState;
                         currentTransitions = stateTransitions.TryGetValue(current, out var t) ? t : null;
-#if DEBUG
                         currentStateMarker = stateMarkers[current];
-#endif
                     }
 
                     if (debug)

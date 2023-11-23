@@ -10,11 +10,14 @@ namespace FSMForUnity
     /// </summary>
 	internal sealed class FSMMachineBuilder : FSMMachine.IBuilder
     {
-        private static readonly ProfilerMarker fsmBuild = new ProfilerMarker("FSMMachine.Build");
+        private const string DefaultFSMName = "FSM Machine";
+        private static readonly ProfilerMarker fsmComplete = new ProfilerMarker("FSMMachineBuilder.Complete");
+        private static readonly ProfilerMarker fsmNew = new ProfilerMarker("FSMMachineBuilder.New");
 
-        private List<IFSMState> states = new List<IFSMState>();
-        private List<(IFSMState, IFSMTransition)> anyTransitions = new List<(IFSMState, IFSMTransition)>();
-        private List<(IFSMState, IFSMState, IFSMTransition)> transitions = new List<(IFSMState, IFSMState, IFSMTransition)>();
+        private readonly List<IFSMState> states = new List<IFSMState>();
+        private readonly List<(IFSMState, IFSMTransition)> anyTransitions = new List<(IFSMState, IFSMTransition)>();
+        private readonly List<(IFSMState, IFSMState, IFSMTransition)> transitions = new List<(IFSMState, IFSMState, IFSMTransition)>();
+        private readonly Dictionary<IFSMState, int> stateTransitionCountBuffer = new Dictionary<IFSMState, int>(EqualityComparer_IFSMState.constant);
 
         private IFSMState defaultState;
 
@@ -23,7 +26,6 @@ namespace FSMForUnity
 
         public void Begin()
         {
-            fsmBuild.Begin();
         }
 
         public void Dispose()
@@ -31,6 +33,7 @@ namespace FSMForUnity
             states.Clear();
             anyTransitions.Clear();
             transitions.Clear();
+            stateTransitionCountBuffer.Clear();
             debugObject = null;
             machineName = null;
             defaultState = null;
@@ -84,6 +87,7 @@ namespace FSMForUnity
             return transition;
         }
 
+
         public IFSMTransition AddAnyTransition(IFSMTransition transition, IFSMState to)
         {
             if (transition != null)
@@ -106,26 +110,73 @@ namespace FSMForUnity
 
         public FSMMachine Complete(FSMMachineFlags behaviourParameters)
         {
+            fsmComplete.Begin();
             if (states.Count == 0)
             {
                 Debug.LogWarning("Creating a state machine without any states, adding a single empty state");
                 states.Add(new EmptyFSMState());
             }
             // Map all transitions and create dictionaries
-            var stateTransitions = (from v in transitions
-                                    group v by v.Item1 into grp
-                                    select new
-                                    {
-                                        key = grp.Key,
-                                        value = (from g in grp select new { to = g.Item2, transition = g.Item3 })
-                                    }).ToDictionary(k => k.key, v => v.value.Select(t => new TransitionMapping { to = t.to, transition = t.transition }).ToArray());
+            var stateTransitionsDict = new Dictionary<IFSMState, TransitionMapping[]>(EqualityComparer_IFSMState.constant);
+            // calculate size for each transition array originating from a state
+            for(int i = 0; i < transitions.Count; i++)
+            {
+                var t = transitions[i];
+                if(stateTransitionCountBuffer.TryGetValue(t.Item1, out var counter))
+                {
+                    stateTransitionCountBuffer[t.Item1] = counter + 1;
+                }
+                else
+                {
+                    stateTransitionCountBuffer.Add(t.Item1, 1);
+                }
+            }
+            // Generate arrays for each set of transitions originating from a state
+            for(int i = 0; i < states.Count; i++)
+            {
+                var state = states[i];
+                if(stateTransitionCountBuffer.TryGetValue(state, out var count))
+                {
+                    stateTransitionsDict.Add(state, new TransitionMapping[count]);
+                    stateTransitionCountBuffer[state] = 0;
+                }
+            }
+            // Fill arrays with supplied transitions
+            for(int i = 0; i < transitions.Count; i++)
+            {
+                var t = transitions[i];
+                if(stateTransitionsDict.TryGetValue(t.Item1, out var stateTransitions))
+                {
+                    var count = stateTransitionCountBuffer[t.Item1];
+                    stateTransitions[count] = new TransitionMapping
+                    {
+                        to = t.Item2,
+                        transition = t.Item3
+                    };
+                    stateTransitionCountBuffer[t.Item1] = count + 1;
+                }
+            }
+
+            // Pack any transitions into array
+            var anyTransitionsArr = new TransitionMapping[anyTransitions.Count];
+            for(int i = 0; i < anyTransitions.Count; i++)
+            {
+                var t = anyTransitions[i];
+                anyTransitionsArr[i] = new TransitionMapping
+                {
+                    to = t.Item1,
+                    transition = t.Item2
+                };
+            }
+            fsmNew.Begin();
             // create machine
-            var fsm = new FSMMachine(machineName ?? "FSM Machine",
+            var fsm = new FSMMachine(machineName ?? DefaultFSMName,
                 states: states.ToArray(),
-                anyTransitions: anyTransitions.Select(t => new TransitionMapping { to = t.Item1, transition = t.Item2 }).ToArray(),
-                stateTransitions: stateTransitions,
+                anyTransitions: anyTransitionsArr,
+                stateTransitions: stateTransitionsDict,
                 defaultState: defaultState
             );
+            fsmNew.End();
 
             fsm.resetToDefaultStateOnEnable = behaviourParameters.HasFlag(FSMMachineFlags.ResetOnEnable);
             fsm.treatRedundantEnableAsReset = behaviourParameters.HasFlag(FSMMachineFlags.TreatRedundantEnableAsReset);
@@ -133,7 +184,7 @@ namespace FSMForUnity
             if (debugObject)
                 DebuggingLinker.linkedMachines.Add(debugObject, fsm);
             DebuggingLinker.allMachines.Add(fsm);
-            fsmBuild.End();
+            fsmComplete.End();
             return fsm;
         }
 
