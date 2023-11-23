@@ -175,7 +175,7 @@ namespace FSMForUnity
         /// as false or the <see cref="FSMConfig.MaxTransitionIterations"/> has been reached.
         /// After transitioning, it will call <see cref="IFSMState.Update(float)"/> on the active state.
         /// </summary>
-        /// <param name="delta"></param>
+        /// <param name="delta">Time that has passed since the last Update call. This can be simply Time.deltaTime in most use cases.</param>
         public void Update(float delta)
         {
             if (IsEnabled)
