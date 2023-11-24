@@ -15,6 +15,7 @@ namespace FSMForUnity
         /// <summary>
         /// Here we have a profiler marker for each underlying state
         /// </summary>
+        [FSMDebuggerHidden]
         private readonly ProfilerMarker[] markers;
 #endif
 
@@ -110,11 +111,5 @@ namespace FSMForUnity
 #endif
             }
         }
-
-        public override string ToString()
-		{
-            // output all underlying states
-            return $"[{string.Join(", ", states.Select(s => s.ToString()))}]";
-		}
 	}
 }

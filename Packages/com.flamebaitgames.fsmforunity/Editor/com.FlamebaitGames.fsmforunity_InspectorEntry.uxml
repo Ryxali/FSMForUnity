@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.flamebaitgames.fsmforunity/Editor/com.flamebaitgames.fsmforunity_EditorStyle.uss?fileID=7433441132597879392&amp;guid=ed6111d43bd98c24d831d5bb34ef4a59&amp;type=3#com.flamebaitgames.fsmforunity_EditorStyle" />
+    <ui:VisualElement focusable="true" style="flex-direction: column; justify-content: space-between;">
+        <ui:Label text="Entry Value that is super long" display-tooltip-when-elided="true" name="value" style="position: absolute; top: auto; left: 40%; right: 0; height: 22px; -unity-text-align: middle-right;" />
+        <ui:Foldout text="Entry Name that is fee" name="foldout" value="true" style="display: flex; visibility: visible; overflow: visible; white-space: nowrap; align-items: stretch;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -6,16 +6,13 @@ using FSMForUnity;
 
 public class FSMDebugger : EditorWindow
 {
-    [MenuItem("Window/UI Toolkit/FSMDebugger")]
+    [MenuItem("Window/Analysis/FSM Debugger")]
     public static void ShowExample()
     {
         FSMDebugger wnd = GetWindow<FSMDebugger>();
-        wnd.titleContent = new GUIContent("FSMDebugger");
+        wnd.titleContent = new GUIContent("FSM Debugger");
     }
-
-    private VisualElement foldoutElement;
-    private FSMMachine currentlyInspected;
-    private VisualElement rootProceduralElement;
+    private FSMDebuggerController controller;
 
     public void CreateGUI()
     {
@@ -23,11 +20,10 @@ public class FSMDebugger : EditorWindow
         VisualElement root = rootVisualElement;
 
         // Import UXML
-        var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.flamebaitgames.fsmforunity/Editor/com.FlamebaitGames.fsmforunity_StateView.uxml");
-        VisualElement labelFromUXML = visualTree.Instantiate();
-        root.Add(labelFromUXML);
-
-        foldoutElement = root.Q("state-foldout");
+        var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_EditorWindow.Path);
+        VisualElement rootElement = visualTree.Instantiate();
+        root.Add(rootElement);
+        controller = new FSMDebuggerController(rootElement);
 
         // A stylesheet can be added to a VisualElement.
         // The style will be applied to the VisualElement and all of its children.
@@ -37,9 +33,18 @@ public class FSMDebugger : EditorWindow
         //root.Add(labelWithStyle);
     }
 
+    private void OnDestroy()
+    {
+        controller?.Destroy();
+        controller = null;
+    }
+
 	private void OnInspectorUpdate()
 	{
-        if (Selection.activeObject && DebuggingLinker.linkedMachines.TryGetValue(Selection.activeObject, out var machine))
+        // From docs OnInspectorUpdate is 10x per second
+        const float InspectorFrameRate = 1f / 10f;
+        controller?.Update(InspectorFrameRate);
+        /*if (Selection.activeObject && DebuggingLinker.linkedMachines.TryGetValue(Selection.activeObject, out var machine))
         {
             if (machine != currentlyInspected)
             {
@@ -53,7 +58,7 @@ public class FSMDebugger : EditorWindow
             {
                 // foldoutElement.Add
             }
-        }
+        }*/
 	}
 
     private VisualElement GenerateElement(FSMMachine machine)

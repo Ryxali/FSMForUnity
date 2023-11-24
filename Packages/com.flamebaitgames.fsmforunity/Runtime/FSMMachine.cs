@@ -42,21 +42,32 @@ namespace FSMForUnity
         /// </summary>
         public bool debug = false;
 
+        [FSMDebuggerHidden]
         internal readonly string debugName;
+        [FSMDebuggerHidden]
+        internal IFSMState Debug_CurrentState => current;
 #if DEBUG
+        [FSMDebuggerHidden]
         private readonly Dictionary<IFSMState, ProfilerMarker> stateMarkers = new Dictionary<IFSMState, ProfilerMarker>(EqualityComparer_IFSMState.constant);
+        [FSMDebuggerHidden]
         private readonly ProfilerMarker machineMarker;
 #endif
-
+        [FSMDebuggerHidden]
         private readonly IFSMState[] states;
+        [FSMDebuggerHidden]
         private readonly TransitionMapping[] anyTransitions;
+        [FSMDebuggerHidden]
         private readonly Dictionary<IFSMState, TransitionMapping[]> stateTransitions;
+        [FSMDebuggerHidden]
         private readonly IFSMState defaultState;
 
         private IFSMState current;
+        [FSMDebuggerHidden]
         private TransitionMapping[] currentTransitions;
 #if DEBUG
+        [FSMDebuggerHidden]
         private ProfilerMarker currentStateMarker;
+        [FSMDebuggerHidden]
         internal IFSMState DebugCurrent => current;
 #endif
 

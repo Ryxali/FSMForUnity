@@ -33,10 +33,5 @@ namespace FSMForUnity
         {
             stateMachine.Destroy();
         }
-
-        public override string ToString()
-        {
-            return $"({stateMachine.DumpState()})";
-        }
     }
 }

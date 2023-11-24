@@ -25,6 +25,7 @@ public class PingPongCoroutineHost : MonoBehaviour
 
 		builder.AddTransition(transition, pingState, pongState);
 		builder.AddTransition(transition, pongState, pingState);
+		builder.SetDebuggingInfo("PingPongFSM", this);
 
 		fsm = builder.Complete();
 	}

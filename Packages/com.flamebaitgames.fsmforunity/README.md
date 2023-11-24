@@ -140,6 +140,10 @@ To implement a transition, create a class and inherit the IFSMTransition interfa
 Important to note regarding `PassThrough()` is that transitions can be passed through even if their `ShouldTransition()` evaluates to false. This is because some transition implementations modify the `ShouldTransition()` behaviour, for example the InvertFSMTransition which inverts the condition.
 ## Using the Debugger
 TBD
+## Performance
+It's OO, depends on computations in states and transitions. As a ballpark measure, you can affort to have somewhere between 100-1000 active machines updating each frame. This is a limitation of any object oriented FSM solution. If you, for instance, intend to simulate more than 100 agents every frame, consider a data oriented approach instead.
+
+Since machine updates are entirely up to the host object, it's up to you how ofter you wish to update them. This is an important performance feature, as you can update heavier though less responsive states once every 2 or 4 frames instead. Better yet you can update these machines in a looping buffer, so each frame you only update 1/N of the machines.
 ## Limitations
 Does not support any event based paradigm for state transitions
 
