@@ -46,4 +46,10 @@ public class PingPongHost : MonoBehaviour
 	{
 		fsm.Update(Time.deltaTime);
 	}
+
+	private void OnDestroy()
+	{
+		fsm.Destroy();
+		fsm = null;
+	}
 }
