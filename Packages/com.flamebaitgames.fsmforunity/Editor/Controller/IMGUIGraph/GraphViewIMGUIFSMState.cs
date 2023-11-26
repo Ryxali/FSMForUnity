@@ -22,7 +22,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
         private readonly MachineGraph machineGraph = new MachineGraph();
 
         private Vector2 panPosition;
-        private float zoomLevel;
+        private Vector2 heldPosition;
+        private bool isPanning;
+
+        private float zoomLevel = 1f;
         private const float DefaultGridTiling = 32f;
 
         public GraphViewIMGUIFSMState(DebuggerFSMStateData stateData, VisualElement container)
@@ -42,6 +45,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
         {
             machineGraph.Regenerate(stateData.currentlyInspecting);
             container.Add(immediateGUIElement);
+            container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.TrickleDown);
+            container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.TrickleDown);
+            container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.TrickleDown);
+            container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.TrickleDown);
 
             // Generate nodes and connections
             // start with default state
@@ -54,6 +61,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         public void Exit()
         {
+            container.UnregisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.TrickleDown);
+            container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.TrickleDown);
+            container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.TrickleDown);
+            container.UnregisterCallback<WheelEvent>(OnZoom, TrickleDown.TrickleDown);
             immediateGUIElement.RemoveFromHierarchy();
         }
 
@@ -62,29 +73,64 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         }
 
+        private void OnZoom(WheelEvent evt)
+        {
+            zoomLevel -= evt.delta.y * 0.05f;
+            zoomLevel = Mathf.Clamp(zoomLevel, 0.1f, 10f);
+        }
+
+        private void OnPanDown(MouseDownEvent evt)
+        {
+            if(evt.button == 2)
+            {
+                isPanning = true;
+                heldPosition = evt.mousePosition;
+            }
+        }
+        private void OnPanUp(MouseUpEvent evt)
+        {
+            if(evt.button == 2)
+            {
+                isPanning = false;
+            }
+        }
+        private void OnPanDrag(MouseMoveEvent evt)
+        {
+            if(isPanning)
+            {
+                var pos = evt.mousePosition;
+                panPosition += pos - heldPosition;
+                heldPosition = pos;
+            }
+        }
+
         private void OnGUI()
         {
+
             var panelRect = new Rect(0, 0, container.resolvedStyle.width, container.resolvedStyle.height);
             GUI.BeginGroup(panelRect);
             var repeatingCoords = new Rect(0, 0, panelRect.width / DefaultGridTiling, panelRect.height / DefaultGridTiling);
             GUI.DrawTextureWithTexCoords(panelRect, gridTexture, repeatingCoords);
 
             const float BoxSpacing = 400f;
+            float scaling = BoxSpacing * zoomLevel;
 
             var stateRect = new Rect(panelRect.width/2, panelRect.height/2, 100, 100);
+
+            stateRect.position += panPosition;
 
             foreach(var transition in machineGraph.GetTransitions())
             {
                 const float LineWidth = 2f;
-                var pointA = stateRect.position + transition.origin * BoxSpacing;
-                var pointB = stateRect.position + transition.destination * BoxSpacing;
+                var pointA = stateRect.position + transition.origin * BoxSpacing * zoomLevel;
+                var pointB = stateRect.position + transition.destination * BoxSpacing * zoomLevel;
 
-                GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth, lineTexture);
+                GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth * zoomLevel, lineTexture);
             }
 
             foreach(var state in machineGraph.GetStates())
             {
-                GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, state.state.ToString(), state.isDefault);
+                GraphGUI.DrawStateNode(stateRect.position + state.position * scaling, zoomLevel, state.state.ToString(), state.isDefault);
             }
 
             GUI.EndGroup();
