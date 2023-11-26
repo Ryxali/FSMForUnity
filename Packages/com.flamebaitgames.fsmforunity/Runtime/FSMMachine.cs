@@ -53,13 +53,13 @@ namespace FSMForUnity
         private readonly ProfilerMarker machineMarker;
 #endif
         [FSMDebuggerHidden]
-        private readonly IFSMState[] states;
+        internal readonly IFSMState[] states;
         [FSMDebuggerHidden]
-        private readonly TransitionMapping[] anyTransitions;
+        internal readonly TransitionMapping[] anyTransitions;
         [FSMDebuggerHidden]
-        private readonly Dictionary<IFSMState, TransitionMapping[]> stateTransitions;
+        internal readonly Dictionary<IFSMState, TransitionMapping[]> stateTransitions;
         [FSMDebuggerHidden]
-        private readonly IFSMState defaultState;
+        internal readonly IFSMState defaultState;
 
         private IFSMState current;
         [FSMDebuggerHidden]

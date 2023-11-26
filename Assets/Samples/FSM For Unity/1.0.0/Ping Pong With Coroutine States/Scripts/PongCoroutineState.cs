@@ -40,6 +40,19 @@ public class PongCoroutineState : CoroutineFSMState
             t += deltaTime;
             yield return null;
         }
+        yield return Pyng(deltaTime);
+    }
+
+    IEnumerator Pyng(DeltaTime deltaTime)
+    {
+        Debug.Log("Pyng");
+        var t = 0f;
+        while(t < 1)
+        {
+            // delta time is accessible via CoroutineFSMState
+            t += deltaTime;
+            yield return null;
+        }
     }
 
     protected override void Exit()

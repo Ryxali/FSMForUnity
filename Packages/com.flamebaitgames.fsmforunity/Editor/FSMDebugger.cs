@@ -22,6 +22,8 @@ public class FSMDebugger : EditorWindow
         // Import UXML
         var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_EditorWindow.Path);
         VisualElement rootElement = visualTree.Instantiate();
+        // the TemplateContainer doesn't flex, so we force it to.
+        rootElement.style.flexGrow = new StyleFloat(1f);
         root.Add(rootElement);
         controller = new FSMDebuggerController(rootElement);
 
@@ -60,10 +62,4 @@ public class FSMDebugger : EditorWindow
             }
         }*/
 	}
-
-    private VisualElement GenerateElement(FSMMachine machine)
-    {
-        new UnityEngine.UIElements.Box();
-        return null;
-    }
 }
