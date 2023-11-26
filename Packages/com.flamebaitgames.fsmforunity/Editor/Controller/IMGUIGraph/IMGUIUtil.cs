@@ -26,5 +26,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
             tex2D.Apply();
             return tex2D;
         }
+
+        public static Rect PadRect(Rect rect, float amount)
+        {
+            return new Rect(rect.x+amount, rect.y+amount, rect.width-amount*2, rect.height-amount*2);
+        }
     }
 }

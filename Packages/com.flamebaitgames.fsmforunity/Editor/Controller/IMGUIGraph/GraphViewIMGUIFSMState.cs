@@ -79,32 +79,13 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 const float LineWidth = 2f;
                 var pointA = stateRect.position + transition.origin * BoxSpacing;
                 var pointB = stateRect.position + transition.destination * BoxSpacing;
-                var diff = pointB - pointA;
-                float a = Mathf.Rad2Deg * Mathf.Atan(diff.y / diff.x);
-                if (diff.x < 0)
-                    a += 180;
 
-                float angle = Vector2.SignedAngle(Vector2.up, pointB -pointA);// Mathf.Atan2 (pointB.y - pointA.y, pointB.x - pointA.x) * 180f / Mathf.PI;
-                GUIUtility.RotateAroundPivot(a, pointA);
-                GUI.EndClip();
-                var rect = new Rect (pointA.x, pointA.y, Vector2.Distance(pointA, pointB), LineWidth);
-                GUI.DrawTexture(rect, lineTexture);
-                GUIUtility.RotateAroundPivot(-a, pointA);
-                GUI.BeginClip(panelRect);
+                GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth, lineTexture);
             }
 
             foreach(var state in machineGraph.GetStates())
             {
-                var r = stateRect;
-                r.x += state.position.x * BoxSpacing - 50;
-                r.y += state.position.y * BoxSpacing - 50;
-                if(state.isDefault){
-
-                    GUI.Box(r, "(Default) " + state.state.ToString() );
-                }else{
-
-                    GUI.Box(r, state.state.ToString());
-                }
+                GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, state.state.ToString(), state.isDefault);
             }
 
             GUI.EndGroup();
