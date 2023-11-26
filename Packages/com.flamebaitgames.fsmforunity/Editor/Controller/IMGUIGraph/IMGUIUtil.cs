@@ -31,5 +31,24 @@ namespace FSMForUnity.Editor.IMGUIGraph
         {
             return new Rect(rect.x+amount, rect.y+amount, rect.width-amount*2, rect.height-amount*2);
         }
+
+        public static Texture2D GenerateRepeatingArrowTexture(int width, int height, int thickness, Color color)
+        {
+            var transparent = new Color();
+            var tex2D = new Texture2D(width, height);
+            for(int y = 0; y < height; y++)
+            {
+                for(int x = 0; x < width; x++)
+                {
+                    var isLine = Mathf.Abs(height/2 - y) <= thickness;
+                    var isHead = width-x+Mathf.Abs(height/2 -y)*2 < height;
+
+                    var c = isLine || isHead ? color : transparent;
+                    tex2D.SetPixel(x, y, c);
+                }
+            }
+            tex2D.Apply();
+            return tex2D;
+        }
     }
 }

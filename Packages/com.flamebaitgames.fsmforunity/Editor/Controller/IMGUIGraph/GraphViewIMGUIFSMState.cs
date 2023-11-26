@@ -35,9 +35,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
             immediateGUIElement = new IMGUIContainer(OnGUI);
             gridTexture = IMGUIUtil.GenerateRepeatingGridTexture(128, 2, new Color(0.2f, 0.2f, 0.2f, 2f), new Color(0.6f, 0.6f, 0.6f, 1f));
             gridTexture.hideFlags = HideFlags.HideAndDontSave;
-            lineTexture = new Texture2D(1, 1);
-            lineTexture.SetPixel(0,0, Color.white);
-            lineTexture.Apply();
+            lineTexture = IMGUIUtil.GenerateRepeatingArrowTexture(96, 16, 2, new Color(0.8f, 0.8f, 0.8f, 0.8f));
             lineTexture.hideFlags = HideFlags.HideAndDontSave;
         }
 
@@ -121,7 +119,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
             foreach(var transition in machineGraph.GetTransitions())
             {
-                const float LineWidth = 2f;
+                const float LineWidth = 10f;
                 var pointA = stateRect.position + transition.origin * BoxSpacing * zoomLevel;
                 var pointB = stateRect.position + transition.destination * BoxSpacing * zoomLevel;
 

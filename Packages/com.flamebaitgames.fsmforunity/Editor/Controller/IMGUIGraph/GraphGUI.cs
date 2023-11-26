@@ -42,7 +42,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
             GUIUtility.RotateAroundPivot(a, pointA);
             GUI.EndClip();
             var rect = new Rect (pointA.x, pointA.y + 8f, Vector2.Distance(pointA, pointB), lineWidth);
-            GUI.DrawTexture(rect, lineTexture);
+
+            var repeatingCoords = new Rect(0, 0, rect.width / 100f, 1);
+            GUI.DrawTextureWithTexCoords(rect, lineTexture, repeatingCoords);
+
             GUIUtility.RotateAroundPivot(-a, pointA);
             GUI.BeginClip(clipRect);
             return false;
