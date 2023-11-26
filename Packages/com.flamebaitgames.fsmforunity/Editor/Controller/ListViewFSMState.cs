@@ -65,6 +65,6 @@ internal class ListViewFSMState : IFSMState
 
     private void OnElementClick(MouseDownEvent evt, int index)
     {
-        stateData.currentlyInspecting = DebuggingLinker.allMachines[index];
+        stateData.wantToInspectNext = DebuggingLinker.allMachines[index];
     }
 }

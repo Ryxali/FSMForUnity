@@ -59,7 +59,6 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         public void Update(float delta)
         {
-            machineGraph.Regenerate(stateData.currentlyInspecting);
 
         }
 
@@ -70,7 +69,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
             var repeatingCoords = new Rect(0, 0, panelRect.width / DefaultGridTiling, panelRect.height / DefaultGridTiling);
             GUI.DrawTextureWithTexCoords(panelRect, gridTexture, repeatingCoords);
 
-            const float BoxSpacing = 300f;
+            const float BoxSpacing = 400f;
 
             var stateRect = new Rect(panelRect.width/2, panelRect.height/2, 100, 100);
 

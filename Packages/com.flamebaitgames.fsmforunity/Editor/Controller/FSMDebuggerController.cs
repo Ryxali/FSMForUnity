@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using FSMForUnity.Editor.IMGUIGraph;
 
+
 internal class FSMDebuggerController
 {
     private readonly FSMMachine fsm;
@@ -33,7 +34,25 @@ internal class FSMDebuggerController
         inspectorBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting != null, inspectorNoSelected, inspectorSelected);
         inspectorBuilder.SetDebuggingInfo("FSM Debugger Inspector", null);
 
-        builder.AddState(new ParallelFSMState(listView, new SubstateFSMState(graphBuilder.Complete()), new SubstateFSMState(inspectorBuilder.Complete())));
+        var selectionBuilder = FSMMachine.Build();
+
+        var noSelection = selectionBuilder.AddState(new EmptyFSMState());
+        var newSelection = selectionBuilder.AddLambdaState(enter: () => { stateData.currentlyInspecting = stateData.wantToInspectNext; Debug.Log("New Select"); });
+        var haveSelection = selectionBuilder.AddParallelState
+        (
+            new SubstateFSMState(graphBuilder.Complete()),
+            new SubstateFSMState(inspectorBuilder.Complete())
+        );
+        selectionBuilder.AddTransition(() => stateData.currentlyInspecting == null, haveSelection, noSelection);
+        selectionBuilder.AddTransition(() => stateData.wantToInspectNext != null, noSelection, newSelection);
+        selectionBuilder.AddTransition(() => stateData.currentlyInspecting != null, newSelection, haveSelection);
+        selectionBuilder.AddTransition(() => stateData.wantToInspectNext != stateData.currentlyInspecting, haveSelection, newSelection);
+        selectionBuilder.SetDebuggingInfo("FSM Debugger Selection", null);
+
+        builder.AddParallelState(
+            listView,
+            new SubstateFSMState(selectionBuilder.Complete())
+        );
         builder.SetDebuggingInfo("FSM Debugger", null);
         fsm = builder.Complete();
         fsm.Enable();

@@ -18,7 +18,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
         private const float MaxRepulsionForce = 4f;
         private const float StepDelta = 0.15f;
         private const float StepDeltaSqr = StepDelta * StepDelta;
-        private const float StepMaxForce = 4f;
+        private const float StepMaxForce = 100f;
         private const float Drag = 0.95f;
         private const int MaxSimulationCycles = 100;
         private const float MaxTension = 0.05f;
@@ -65,7 +65,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                     nodes[0] = defaultNode;
                 }
 
-                var position = Rotate(Vector2.up, (Mathf.PI * 2f/(nodes.Length-1))*(i-1));
+                var position = Rotate(Vector2.up, Mathf.PI * 2f/(Mathf.Max(6f,nodes.Length-1))*(i-1));
                 node.position = node.previousPosition = position;
                 node.state = state;
                 node.force = Vector2.zero;
@@ -156,7 +156,6 @@ namespace FSMForUnity.Editor.IMGUIGraph
             for(int i = 0; i < nodes.Length; i++)
             {
                 var me = nodes[i];
-                me.force = Vector2.zero;
                 for(int otherI = 0; otherI < nodes.Length; otherI++)
                 {
                     if(i != otherI)
@@ -200,6 +199,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 // me.force += (prev - me.position) * 0.2f;
                 me.force = me.force.normalized * Mathf.Min(me.force.magnitude, StepMaxForce);
                 me.position = me.position * 2f - prev + me.force * StepDeltaSqr;
+                me.force = Vector2.zero;
                 nodes[i] = me;
             }
         }
