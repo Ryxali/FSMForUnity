@@ -91,6 +91,9 @@ internal class MachineGraph
     private const float StepDeltaSqr = StepDelta * StepDelta;
     private const float StepMaxForce = 4f;
     private const float Drag = 0.95f;
+    private const int MaxSimulationCycles = 100;
+    private const float MaxTension = 0.05f;
+    private const float MaxTensionSqr = MaxTension * MaxTension;
 
     private GraphNode[] graphNodes;
     private GraphConnection[] graphConnections;
@@ -133,7 +136,7 @@ internal class MachineGraph
                 nodes[0] = defaultNode;
             }
 
-            var position = Rotate(Vector2.up, (Mathf.PI/(nodes.Length-1))*(i-1));
+            var position = Rotate(Vector2.up, (Mathf.PI * 2f/(nodes.Length-1))*(i-1));
             node.position = node.previousPosition = position;
             node.state = state;
             node.force = Vector2.zero;
@@ -173,10 +176,8 @@ internal class MachineGraph
             }
         }
 
-        int MaxAttempts = Time.frameCount % 300;
         StepSimulation(nodes, transitions);
-        // TODO skip this and sort out rendering first
-        for(int i = 0; i < MaxAttempts && !AreConstraintsSatisfied(nodes); i++)
+        for(int i = 0; i < MaxSimulationCycles && !AreConstraintsSatisfied(nodes); i++)
         {
             StepSimulation(nodes, transitions);
         }
@@ -208,8 +209,6 @@ internal class MachineGraph
     private bool AreConstraintsSatisfied(SimGraphNode[] nodes)
     {
         // evaluate tension by selecting the highest force
-        const float MaxTension = 0.01f;
-        const float MaxTensionSqr = MaxTension * MaxTension;
 
         var maxTension = 0f;
         for(int i = 0; i < nodes.Length; i++)
