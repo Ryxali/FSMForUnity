@@ -3,11 +3,24 @@ using System.Collections.Generic;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
+    /// <summary>
+    /// Used to make scoped GUI.matrix pushes and pops
+    /// </summary>
 	internal static class IMGUIMatrixStack
     {
         private static readonly Stack<GUIMatrix> stack = new Stack<GUIMatrix>();
         private static readonly Stack<GUIMatrix> pool = new Stack<GUIMatrix>();
 
+        /// <summary>
+        /// Begin a scoped matrix push to GUI.matrix.
+        /// put it in a using statement and it will automatically pop once scope is left
+        /// <code>
+        /// using (IMGUIMatrixStack.Auto(GUI.matrix * myMatrix))
+        /// {
+        ///     GUI.Box(localRect, content);
+        /// }
+        /// </code>
+        /// </summmary>
         public static System.IDisposable Auto(Matrix4x4 matrix)
         {
             GUIMatrix guiMatrix;
@@ -22,14 +35,6 @@ namespace FSMForUnity.Editor.IMGUIGraph
             stack.Push(guiMatrix);
             guiMatrix.Begin(matrix);
             return guiMatrix;
-        }
-
-        public static void Clean()
-        {
-            while (stack.Count > 0)
-            {
-                stack.Pop().Dispose();
-            }
         }
 
         private class GUIMatrix : System.IDisposable

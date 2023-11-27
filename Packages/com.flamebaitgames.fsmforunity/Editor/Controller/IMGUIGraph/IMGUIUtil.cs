@@ -12,6 +12,9 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
 	internal static class IMGUIUtil
     {
+        /// <summary>
+        /// Generate a square texture which resembles a grid pattern
+        /// </summary>
         public static Texture2D GenerateRepeatingGridTexture(int size, int thickness, Color backgroundColor, Color lineColor)
         {
             var tex2D = new Texture2D(size, size);
@@ -32,18 +35,24 @@ namespace FSMForUnity.Editor.IMGUIGraph
             return new Rect(rect.x+amount, rect.y+amount, rect.width-amount*2, rect.height-amount*2);
         }
 
-        public static Texture2D GenerateRepeatingArrowTexture(int width, int height, int thickness, Color color)
+
+        /// <summary>
+        /// Generate a texture of an arrow pointing towards the right.
+        /// The head of the arrow is placed in the center of the image.
+        /// </summary>
+        public static Texture2D GenerateRepeatingArrowTexture(int length, int width, int thickness, Color color)
         {
             var transparent = new Color();
-            var tex2D = new Texture2D(width, height);
-            for(int y = 0; y < height; y++)
+            var tex2D = new Texture2D(length, width);
+            for(int y = 0; y < width; y++)
             {
-                for(int x = 0; x < width; x++)
+                for(int x = 0; x < length; x++)
                 {
-                    var isLine = Mathf.Abs(height/2 - y) <= thickness;
-                    var isHead = width-x+Mathf.Abs(height/2 -y)*2 < height;
+                    var isLine = Mathf.Abs(width/2 - y) <= thickness;
+                    var isHead = x - length/2 + width/2 + Mathf.Abs(width / 2 - y) * 2 < width;
+                    var isHeadStart = x > length/2 - width/2;
 
-                    var c = isLine || isHead ? color : transparent;
+                    var c = isLine || (isHeadStart && isHead) ? color : transparent;
                     tex2D.SetPixel(x, y, c);
                 }
             }

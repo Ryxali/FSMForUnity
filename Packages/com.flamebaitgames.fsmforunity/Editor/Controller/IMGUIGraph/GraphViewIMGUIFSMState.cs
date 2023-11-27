@@ -35,7 +35,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
             immediateGUIElement = new IMGUIContainer(OnGUI);
             gridTexture = IMGUIUtil.GenerateRepeatingGridTexture(128, 2, new Color(0.2f, 0.2f, 0.2f, 2f), new Color(0.6f, 0.6f, 0.6f, 1f));
             gridTexture.hideFlags = HideFlags.HideAndDontSave;
-            lineTexture = IMGUIUtil.GenerateRepeatingArrowTexture(96, 16, 2, new Color(0.8f, 0.8f, 0.8f, 0.8f));
+            lineTexture = IMGUIUtil.GenerateRepeatingArrowTexture(96, 24, 4, new Color(0.8f, 0.8f, 0.8f, 0.8f));
             lineTexture.hideFlags = HideFlags.HideAndDontSave;
         }
 
@@ -105,33 +105,34 @@ namespace FSMForUnity.Editor.IMGUIGraph
         private void OnGUI()
         {
             var panelRect = new Rect(0, 0, container.resolvedStyle.width, container.resolvedStyle.height);
-            GUI.BeginGroup(panelRect);
-            var repeatingCoords = new Rect(0, 0, panelRect.width / DefaultGridTiling, panelRect.height / DefaultGridTiling);
+
+            var repeatingCoords = new Rect(-panPosition.x, -panPosition.y, panelRect.width / DefaultGridTiling, panelRect.height / DefaultGridTiling);
             GUI.DrawTextureWithTexCoords(panelRect, gridTexture, repeatingCoords);
 
             const float BoxSpacing = 400f;
-            float scaling = BoxSpacing;
 
-            using (IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.TRS(panPosition, Quaternion.identity, Vector3.one * zoomLevel)))
+            using (IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.Translate(panPosition)))
             {
-                var stateRect = new Rect(panelRect.width / 2, panelRect.height / 2, 100, 100);
-
-                foreach (var transition in machineGraph.GetTransitions())
+                using(IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.Scale(Vector3.one * zoomLevel)))
                 {
-                    const float LineWidth = 10f;
-                    var pointA = stateRect.position + transition.origin * BoxSpacing;
-                    var pointB = stateRect.position + transition.destination * BoxSpacing;
+                    var stateRect = new Rect(panelRect.width / 2, panelRect.height / 2, 100, 100);
 
-                    GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth, lineTexture);
-                }
+                    foreach (var transition in machineGraph.GetTransitions())
+                    {
+                        const float LineWidth = 10f;
+                        var pointA = stateRect.position + transition.origin * BoxSpacing;
+                        var pointB = stateRect.position + transition.destination * BoxSpacing;
 
-                foreach (var state in machineGraph.GetStates())
-                {
-                    GraphGUI.DrawStateNode(stateRect.position + state.position * scaling, 1f, state.state.ToString(), state.isDefault);
+                        GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth, lineTexture);
+                    }
+
+                    foreach (var state in machineGraph.GetStates())
+                    {
+                        GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, state.state.ToString(), state.isDefault);
+                    }
                 }
             }
 
-            GUI.EndGroup();
         }
 
         public void Destroy()
