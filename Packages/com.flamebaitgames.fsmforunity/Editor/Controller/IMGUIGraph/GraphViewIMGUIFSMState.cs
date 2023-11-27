@@ -104,31 +104,31 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         private void OnGUI()
         {
-
             var panelRect = new Rect(0, 0, container.resolvedStyle.width, container.resolvedStyle.height);
             GUI.BeginGroup(panelRect);
             var repeatingCoords = new Rect(0, 0, panelRect.width / DefaultGridTiling, panelRect.height / DefaultGridTiling);
             GUI.DrawTextureWithTexCoords(panelRect, gridTexture, repeatingCoords);
 
             const float BoxSpacing = 400f;
-            float scaling = BoxSpacing * zoomLevel;
+            float scaling = BoxSpacing;
 
-            var stateRect = new Rect(panelRect.width/2, panelRect.height/2, 100, 100);
-
-            stateRect.position += panPosition;
-
-            foreach(var transition in machineGraph.GetTransitions())
+            using (IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.TRS(panPosition, Quaternion.identity, Vector3.one * zoomLevel)))
             {
-                const float LineWidth = 10f;
-                var pointA = stateRect.position + transition.origin * BoxSpacing * zoomLevel;
-                var pointB = stateRect.position + transition.destination * BoxSpacing * zoomLevel;
+                var stateRect = new Rect(panelRect.width / 2, panelRect.height / 2, 100, 100);
 
-                GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth * zoomLevel, lineTexture);
-            }
+                foreach (var transition in machineGraph.GetTransitions())
+                {
+                    const float LineWidth = 10f;
+                    var pointA = stateRect.position + transition.origin * BoxSpacing;
+                    var pointB = stateRect.position + transition.destination * BoxSpacing;
 
-            foreach(var state in machineGraph.GetStates())
-            {
-                GraphGUI.DrawStateNode(stateRect.position + state.position * scaling, zoomLevel, state.state.ToString(), state.isDefault);
+                    GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth, lineTexture);
+                }
+
+                foreach (var state in machineGraph.GetStates())
+                {
+                    GraphGUI.DrawStateNode(stateRect.position + state.position * scaling, 1f, state.state.ToString(), state.isDefault);
+                }
             }
 
             GUI.EndGroup();

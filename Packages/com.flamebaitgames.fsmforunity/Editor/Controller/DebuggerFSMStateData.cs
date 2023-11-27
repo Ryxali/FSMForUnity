@@ -1,7 +1,8 @@
-using FSMForUnity;
-
-internal class DebuggerFSMStateData
+namespace FSMForUnity
 {
-    public FSMMachine currentlyInspecting;
-    public FSMMachine wantToInspectNext;
+    internal class DebuggerFSMStateData
+    {
+        public FSMMachine currentlyInspecting;
+        public FSMMachine wantToInspectNext;
+    }
 }

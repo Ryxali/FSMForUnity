@@ -4,13 +4,13 @@ using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using FSMForUnity;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
-    internal static class IMGUIUtil
+
+	internal static class IMGUIUtil
     {
         public static Texture2D GenerateRepeatingGridTexture(int size, int thickness, Color backgroundColor, Color lineColor)
         {

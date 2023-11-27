@@ -2,45 +2,47 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
-using FSMForUnity;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-internal class VisualElementPool
+namespace FSMForUnity
 {
-    private readonly Stack<VisualElement> inactiveElements = new Stack<VisualElement>();
-    private readonly Stack<VisualElement> activeElements = new Stack<VisualElement>();
-    private readonly VisualTreeAsset prefab;
-
-    public VisualElementPool(VisualTreeAsset prefab)
+    internal class VisualElementPool
     {
-        this.prefab = prefab;
-    }
+        private readonly Stack<VisualElement> inactiveElements = new Stack<VisualElement>();
+        private readonly Stack<VisualElement> activeElements = new Stack<VisualElement>();
+        private readonly VisualTreeAsset prefab;
 
-    public VisualElement Take()
-    {
-        if(inactiveElements.Count > 0)
+        public VisualElementPool(VisualTreeAsset prefab)
         {
-            var elem = inactiveElements.Pop();
-            activeElements.Push(elem);
-            return elem;
+            this.prefab = prefab;
         }
-        else
-        {
-            var elem = prefab.Instantiate();
-            activeElements.Push(elem);
-            return elem;
-        }
-    }
 
-    public void ReturnAll()
-    {
-        while(activeElements.Count > 0)
+        public VisualElement Take()
         {
-            var elem = activeElements.Pop();
-            elem.RemoveFromHierarchy();
-            inactiveElements.Push(elem);
+            if (inactiveElements.Count > 0)
+            {
+                var elem = inactiveElements.Pop();
+                activeElements.Push(elem);
+                return elem;
+            }
+            else
+            {
+                var elem = prefab.Instantiate();
+                activeElements.Push(elem);
+                return elem;
+            }
+        }
+
+        public void ReturnAll()
+        {
+            while (activeElements.Count > 0)
+            {
+                var elem = activeElements.Pop();
+                elem.RemoveFromHierarchy();
+                inactiveElements.Push(elem);
+            }
         }
     }
 }

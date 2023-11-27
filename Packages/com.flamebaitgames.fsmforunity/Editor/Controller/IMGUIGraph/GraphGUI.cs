@@ -38,16 +38,26 @@ namespace FSMForUnity.Editor.IMGUIGraph
             if (diff.x < 0)
                 a += 180;
 
-            float angle = Vector2.SignedAngle(Vector2.up, pointB -pointA);
-            GUIUtility.RotateAroundPivot(a, pointA);
-            GUI.EndClip();
-            var rect = new Rect (pointA.x, pointA.y + 8f, Vector2.Distance(pointA, pointB), lineWidth);
+            using (IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.Translate(pointA)))
+            {
+                using (IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.Rotate(Quaternion.Euler(0, 0, a))))
+                {
+                    var rect = new Rect(0f, 8f, Vector2.Distance(pointA, pointB), lineWidth);
+                    var repeatingCoords = new Rect(0, 0, rect.width / 100f, 1);
+                    GUI.DrawTextureWithTexCoords(rect, lineTexture, repeatingCoords);
+                }
+            }
 
-            var repeatingCoords = new Rect(0, 0, rect.width / 100f, 1);
-            GUI.DrawTextureWithTexCoords(rect, lineTexture, repeatingCoords);
+            //    float angle = Vector2.SignedAngle(Vector2.up, pointB - pointA);
+            //GUIUtility.RotateAroundPivot(a, pointA);
+            //GUI.EndClip();
+            //var rect = new Rect (pointA.x, pointA.y + 8f, Vector2.Distance(pointA, pointB), lineWidth);
 
-            GUIUtility.RotateAroundPivot(-a, pointA);
-            GUI.BeginClip(clipRect);
+            //var repeatingCoords = new Rect(0, 0, rect.width / 100f, 1);
+            //GUI.DrawTextureWithTexCoords(rect, lineTexture, repeatingCoords);
+
+            //GUIUtility.RotateAroundPivot(-a, pointA);
+            //GUI.BeginClip(clipRect);
             return false;
         }
     }
