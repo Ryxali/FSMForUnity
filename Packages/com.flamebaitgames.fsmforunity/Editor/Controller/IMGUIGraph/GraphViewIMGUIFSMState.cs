@@ -162,7 +162,6 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
                         if(clicked)
                         {
-                            Debug.Log("Select! " + state.state);
                             stateData.selectedState = state.state;
                         }
                     }
