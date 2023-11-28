@@ -52,7 +52,7 @@ namespace FSMForUnity
         private void RefreshView()
         {
             inspectorEntryPool.ReturnAll();
-            var currentState = stateData.currentlyInspecting.Debug_CurrentState;
+            var currentState = stateData.selectedState;//stateData.currentlyInspecting.Debug_CurrentState;
             if (currentState == null)
             {
                 inspectorRoot.Q<Label>(UIMap_InspectorView.StateName).text = "Inactive";

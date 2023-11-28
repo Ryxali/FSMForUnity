@@ -40,6 +40,7 @@ namespace FSMForUnity
             var newSelection = selectionBuilder.AddLambdaState(enter: () => { stateData.currentlyInspecting = stateData.wantToInspectNext; Debug.Log("New Select"); });
             var haveSelection = selectionBuilder.AddParallelState
             (
+                new LambdaFSMState(enter: () => stateData.selectedState = null, update: default, exit: default),
                 new SubstateFSMState(graphBuilder.Complete()),
                 new SubstateFSMState(inspectorBuilder.Complete())
             );

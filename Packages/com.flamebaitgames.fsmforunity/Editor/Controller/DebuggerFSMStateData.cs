@@ -4,5 +4,6 @@ namespace FSMForUnity
     {
         public FSMMachine currentlyInspecting;
         public FSMMachine wantToInspectNext;
+        public IFSMState selectedState;
     }
 }

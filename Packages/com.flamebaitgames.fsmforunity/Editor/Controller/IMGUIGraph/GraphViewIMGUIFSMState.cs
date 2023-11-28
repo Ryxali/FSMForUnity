@@ -43,10 +43,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
         {
             machineGraph.Regenerate(stateData.currentlyInspecting);
             container.Add(immediateGUIElement);
-            container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.TrickleDown);
-            container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.TrickleDown);
-            container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.TrickleDown);
-            container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.TrickleDown);
+            container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
+            container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
+            container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
+            container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
 
             // Generate nodes and connections
             // start with default state
@@ -59,10 +59,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         public void Exit()
         {
-            container.UnregisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.TrickleDown);
-            container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.TrickleDown);
-            container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.TrickleDown);
-            container.UnregisterCallback<WheelEvent>(OnZoom, TrickleDown.TrickleDown);
+            container.UnregisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
+            container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
+            container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
+            container.UnregisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
             immediateGUIElement.RemoveFromHierarchy();
         }
 
@@ -84,12 +84,32 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 isPanning = true;
                 heldPosition = evt.mousePosition;
             }
+            var e = new Event
+            {
+                button = evt.button,
+                mousePosition = evt.mousePosition,
+                type = EventType.MouseDown
+            };
+            using(var imguiEvt = IMGUIEvent.GetPooled(e))
+            {
+                immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
+            }
         }
         private void OnPanUp(MouseUpEvent evt)
         {
             if(evt.button == 2)
             {
                 isPanning = false;
+            }
+            var e = new Event
+            {
+                button = evt.button,
+                mousePosition = evt.mousePosition,
+                type = EventType.MouseUp
+            };
+            using(var imguiEvt = IMGUIEvent.GetPooled(e))
+            {
+                immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
             }
         }
         private void OnPanDrag(MouseMoveEvent evt)
@@ -99,6 +119,16 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 var pos = evt.mousePosition;
                 panPosition += pos - heldPosition;
                 heldPosition = pos;
+            }
+            var e = new Event
+            {
+                button = evt.button,
+                mousePosition = evt.mousePosition,
+                type = EventType.MouseMove
+            };
+            using(var imguiEvt = IMGUIEvent.GetPooled(e))
+            {
+                immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
             }
         }
 
@@ -128,11 +158,16 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
                     foreach (var state in machineGraph.GetStates())
                     {
-                        GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, state.state.ToString(), state.isDefault);
+                        var clicked = GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, state.state.ToString(), state.isDefault);
+
+                        if(clicked)
+                        {
+                            Debug.Log("Select! " + state.state);
+                            stateData.selectedState = state.state;
+                        }
                     }
                 }
             }
-
         }
 
         public void Destroy()
