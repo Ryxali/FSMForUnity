@@ -48,6 +48,7 @@ namespace FSMForUnity
 
 		void FSMMachine.IBuilder.Clear()
 		{
+			debugObject = null;
 			builder.Clear();
 		}
 	}

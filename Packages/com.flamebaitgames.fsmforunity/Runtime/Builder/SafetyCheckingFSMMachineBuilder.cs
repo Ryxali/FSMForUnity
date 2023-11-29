@@ -100,6 +100,7 @@ namespace FSMForUnity
             addedStates.Clear();
             addedFromToTransitions.Clear();
             addedAnyTransitions.Clear();
+            builder.Clear();
 		}
 
         private struct FromToTransition
