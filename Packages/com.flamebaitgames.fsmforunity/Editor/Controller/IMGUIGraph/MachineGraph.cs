@@ -106,9 +106,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
             }
 
             StepSimulation(nodes, transitions);
-            for(int i = 0; i < MaxSimulationCycles && !AreConstraintsSatisfied(nodes); i++)
+            var tension = 1f;
+            for(int i = 0; i < MaxSimulationCycles && tension > MaxTensionSqr; i++) // !AreConstraintsSatisfied(nodes);
             {
-                StepSimulation(nodes, transitions);
+                tension = StepSimulation(nodes, transitions);
             }
 
             graphNodes = new GraphNode[nodes.Length];
@@ -148,10 +149,11 @@ namespace FSMForUnity.Editor.IMGUIGraph
             return maxTension <= MaxTensionSqr;
         }
 
-        private void StepSimulation(SimGraphNode[] nodes, SimGraphConnection[] connections)
+        private float StepSimulation(SimGraphNode[] nodes, SimGraphConnection[] connections)
         {
             // spring the transitions
             // then demagnet the nodes
+            var maxTension = 0f;
 
             for(int i = 0; i < nodes.Length; i++)
             {
@@ -199,10 +201,80 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 // me.force += (prev - me.position) * 0.2f;
                 me.force = me.force.normalized * Mathf.Min(me.force.magnitude, StepMaxForce);
                 me.position = me.position * 2f - prev + me.force * StepDeltaSqr;
+                maxTension = Mathf.Max(me.force.sqrMagnitude, maxTension);
                 me.force = Vector2.zero;
                 nodes[i] = me;
             }
+            return maxTension;
         }
+
+        /*private static void Simulate(SimGraphNode[] nodesArr, SimGraphConnection[] connectionsArr, int maxSteps)
+        {
+            var nodes = new NativeArray<SimGraphNode>(nodesArr, Allocator.TempJob);
+            var connections = new NativeArray<SimGraphConnection>(connectionsArr, Allocator.TempJob);
+            var forces = new NativeArray<Vector2>(nodesArr.Length, Allocator.TempJob);
+
+            for(int i = 0; i < maxSteps; i++)
+            {
+
+            }
+        }
+
+        private struct NodeForcesJob : IJobParallelFor
+        {
+            [ReadOnly]
+            public NativeArray<SimGraphNode> nodes;
+            [WriteOnly]
+            public NativeArray<Vector2> forces;
+
+            public void Execute(int index)
+            {
+                var len = forces.Length;
+                var me = nodes[index];
+                Vector2 sumForce = me.force;
+                for(int i = 0; i < len; i++)
+                {
+                    if(i != index)
+                    {
+                        var other = nodes[i];
+                        var diff = other.position - me.position;
+                        var fromEq = diff.magnitude - TransitionSpringEqullibrium;
+                        if(diff.magnitude < TransitionSpringEqullibrium)
+                        {
+                            var force = diff.normalized * fromEq * RepulsionForce;
+                            me.force += force;
+                        }
+                    }
+                }
+                forces[index] = sumForce;
+            }
+        }
+
+        private struct CopyForcesJob : IJobParallelFor
+        {
+            [ReadOnly]
+            public NativeArray<Vector2> forces;
+            public NativeArray<SimGraphNode> nodes;
+
+            public void Execute(int index)
+            {
+                var len = nodes.Length;
+                for(int i = 0; i < len; i++)
+                {
+                    var n = nod
+                }
+            }
+        }
+
+        private struct ConnectionForcesJob : IJobParallelFor
+        {
+            public NativeArray<SimGraphConnection> connections;
+            public NativeArray<Vector2> forces;
+            public void Execute(int index)
+            {
+
+            }
+        }*/
 
         private struct SimGraphNode
         {
