@@ -84,15 +84,18 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 isPanning = true;
                 heldPosition = evt.mousePosition;
             }
-            var e = new Event
+            else
             {
-                button = evt.button,
-                mousePosition = evt.mousePosition,
-                type = EventType.MouseDown
-            };
-            using(var imguiEvt = IMGUIEvent.GetPooled(e))
-            {
-                immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
+                var e = new Event
+                {
+                    button = evt.button,
+                    mousePosition = evt.mousePosition,
+                    type = EventType.MouseDown
+                };
+                using(var imguiEvt = IMGUIEvent.GetPooled(e))
+                {
+                    immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
+                }
             }
         }
         private void OnPanUp(MouseUpEvent evt)
@@ -101,15 +104,18 @@ namespace FSMForUnity.Editor.IMGUIGraph
             {
                 isPanning = false;
             }
-            var e = new Event
+            else
             {
-                button = evt.button,
-                mousePosition = evt.mousePosition,
-                type = EventType.MouseUp
-            };
-            using(var imguiEvt = IMGUIEvent.GetPooled(e))
-            {
-                immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
+                var e = new Event
+                {
+                    button = evt.button,
+                    mousePosition = evt.mousePosition,
+                    type = EventType.MouseUp
+                };
+                using(var imguiEvt = IMGUIEvent.GetPooled(e))
+                {
+                    immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
+                }
             }
         }
         private void OnPanDrag(MouseMoveEvent evt)
@@ -120,7 +126,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 panPosition += pos - heldPosition;
                 heldPosition = pos;
             }
-            var e = new Event
+            /*var e = new Event
             {
                 button = evt.button,
                 mousePosition = evt.mousePosition,
@@ -129,7 +135,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
             using(var imguiEvt = IMGUIEvent.GetPooled(e))
             {
                 immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
-            }
+            }*/
         }
 
         private void OnGUI()
