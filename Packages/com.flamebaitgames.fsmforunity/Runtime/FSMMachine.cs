@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -335,7 +336,7 @@ namespace FSMForUnity
             {
                 anyTransitions[i].transition.Destroy();
             }
-            DebuggingLinker.RemoveAllReferences(this);
+            DebuggingLinker.Unlink(this);
             destroyMarker.End();
         }
 
@@ -350,7 +351,7 @@ namespace FSMForUnity
 
         /// <summary>
         /// Exposes functions to call to build the FSMMachine.
-        /// Call Complete once you're done to recieve the finished machine.1
+        /// Call Complete once you're done to recieve the finished machine.
         /// </summary>
         public interface IBuilder
         {
@@ -367,7 +368,7 @@ namespace FSMForUnity
             /// </summary>
             /// <param name="state"></param>
             /// <returns>The state added</returns>
-            IFSMState AddState(IFSMState state);
+            IFSMState AddState([NotNull] IFSMState state);
             /// <summary>
             /// Add a transition that maps from a state to the desired state.
             /// The states passed must have been added to the builder via <see cref="AddState(IFSMState)"/>
@@ -375,7 +376,7 @@ namespace FSMForUnity
             /// <param name="transition"></param>
             /// <param name="to"></param>
             /// <returns>The transition added</returns>
-            IFSMTransition AddTransition(IFSMTransition transition, IFSMState from, IFSMState to);
+            IFSMTransition AddTransition([NotNull] IFSMTransition transition, [NotNull] IFSMState from, [NotNull] IFSMState to);
             /// <summary>
             /// Add a transition that maps from any state in the machine to the desired state.
             /// The state passed must have been added to the builder via <see cref="AddState(IFSMState)"/>
@@ -383,17 +384,19 @@ namespace FSMForUnity
             /// <param name="transition"></param>
             /// <param name="to"></param>
             /// <returns>The transition added</returns>
-            IFSMTransition AddAnyTransition(IFSMTransition transition, IFSMState to);
+            IFSMTransition AddAnyTransition([NotNull] IFSMTransition transition, [NotNull] IFSMState to);
             /// <summary>
             /// Set the new default state. The state passed must already be added in the builder.
             /// </summary>
             /// <param name="state"></param>
-            void SetDefaultState(IFSMState state);
+            void SetDefaultState([NotNull] IFSMState state);
             /// <summary>
             /// Finishes building the machine. This should be your final call.
             /// </summary>
             /// <returns>The built machine</returns>
             FSMMachine Complete(FSMMachineFlags behaviourParameters = FSMMachineFlags.Default);
+
+            internal void Clear();
         }
 
 

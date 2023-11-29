@@ -39,7 +39,7 @@ namespace FSMForUnity
         {
 
             listViewRoot.Clear();
-            var activeMachines = DebuggingLinker.allMachines;
+            var activeMachines = DebuggingLinker.GetAllMachines();
             for (int i = 0; i < activeMachines.Count; i++)
             {
                 if (listElements.Count <= i)
@@ -67,7 +67,7 @@ namespace FSMForUnity
 
         private void OnElementClick(MouseDownEvent evt, int index)
         {
-            stateData.wantToInspectNext = DebuggingLinker.allMachines[index];
+            stateData.wantToInspectNext = DebuggingLinker.GetAllMachines()[index];
         }
     }
 }

@@ -2,7 +2,6 @@
 
 namespace FSMForUnity
 {
-    [System.Serializable]
 	internal static class FSMConfig
     {
         /// <summary>
@@ -11,19 +10,6 @@ namespace FSMForUnity
         /// </summary>
         public const int MaxTransitionIterations = 8;
 
-        public static int test = MaxTransitionIterations;
+        public const string DefaultFSMName = "FSM Machine";
     }
-
-
-    internal class FSMConfigAsset : ScriptableObject
-    {
-        public int test;
-
-#if UNITY_EDITOR
-		private void OnEnable()
-		{
-            FSMConfig.test = test;
-		}
-#endif
-	}
 }

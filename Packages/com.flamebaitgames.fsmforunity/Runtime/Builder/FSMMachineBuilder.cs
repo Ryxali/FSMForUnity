@@ -2,15 +2,15 @@
 using UnityEngine;
 using System.Linq;
 using Unity.Profiling;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FSMForUnity
 {
-    /// <summary>
-    /// Standard builder for FSMMachine
-    /// </summary>
+	/// <summary>
+	/// Standard builder for FSMMachine
+	/// </summary>
 	internal sealed class FSMMachineBuilder : FSMMachine.IBuilder
     {
-        private const string DefaultFSMName = "FSM Machine";
         private static readonly ProfilerMarker fsmComplete = new ProfilerMarker("FSMMachineBuilder.Complete");
         private static readonly ProfilerMarker fsmNew = new ProfilerMarker("FSMMachineBuilder.New");
 
@@ -22,89 +22,31 @@ namespace FSMForUnity
         private IFSMState defaultState;
 
         private string machineName;
-        private Object debugObject;
 
         public void Begin()
         {
         }
 
-        public void Dispose()
-        {
-            states.Clear();
-            anyTransitions.Clear();
-            transitions.Clear();
-            stateTransitionCountBuffer.Clear();
-            debugObject = null;
-            machineName = null;
-            defaultState = null;
-        }
-
         public IFSMState AddState(IFSMState state)
         {
-            if (state != null)
+            states.Add(state);
+            if (defaultState == null)
             {
-                states.Add(state);
-                if (defaultState == null)
-                {
-                    defaultState = state;
-                }
-            }
-            else
-            {
-                Debug.LogWarning("Can't add a null state, adding an empty one instead.");
-                state = new EmptyFSMState();
-                states.Add(state);
+                defaultState = state;
             }
             return state;
         }
 
         public IFSMTransition AddTransition(IFSMTransition transition, IFSMState from, IFSMState to)
         {
-            if (transition != null)
-            {
-                if (from != null)
-                {
-                    if (to != null)
-                    {
-                        transitions.Add((from, to, transition));
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Malformed transition, missing 'from' and 'to' state");
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning("Malformed transition, missing 'from' state. Adding as 'Any' Transition");
-                    AddAnyTransition(transition, to);
-                }
-            }
-            else
-            {
-                Debug.LogWarning("Cannot add null transition");
-            }
-
+            transitions.Add((from, to, transition));
             return transition;
         }
 
 
         public IFSMTransition AddAnyTransition(IFSMTransition transition, IFSMState to)
         {
-            if (transition != null)
-            {
-                if (to != null)
-                {
-                    anyTransitions.Add((to, transition));
-                }
-                else
-                {
-                    Debug.LogWarning("Malformed transition, missing 'to' state");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("Cannot add null transition");
-            }
+            anyTransitions.Add((to, transition));
             return transition;
         }
 
@@ -170,7 +112,7 @@ namespace FSMForUnity
             }
             fsmNew.Begin();
             // create machine
-            var fsm = new FSMMachine(machineName ?? DefaultFSMName,
+            var fsm = new FSMMachine(machineName ?? FSMConfig.DefaultFSMName,
                 states: states.ToArray(),
                 anyTransitions: anyTransitionsArr,
                 stateTransitions: stateTransitionsDict,
@@ -181,9 +123,6 @@ namespace FSMForUnity
             fsm.resetToDefaultStateOnEnable = behaviourParameters.HasFlag(FSMMachineFlags.ResetOnEnable);
             fsm.treatRedundantEnableAsReset = behaviourParameters.HasFlag(FSMMachineFlags.TreatRedundantEnableAsReset);
             fsm.debug = behaviourParameters.HasFlag(FSMMachineFlags.DebugMode);
-            if (debugObject)
-                DebuggingLinker.linkedMachines.Add(debugObject, fsm);
-            DebuggingLinker.allMachines.Add(fsm);
             fsmComplete.End();
             return fsm;
         }
@@ -196,8 +135,17 @@ namespace FSMForUnity
 		public void SetDebuggingInfo(string machineName, Object associatedObject)
 		{
             this.machineName = machineName;
-            debugObject = associatedObject;
 		}
+        public void Clear()
+        {
+            states.Clear();
+            anyTransitions.Clear();
+            transitions.Clear();
+            stateTransitionCountBuffer.Clear();
+            machineName = null;
+            defaultState = null;
+        }
+        void FSMMachine.IBuilder.Clear() => Clear();
 	}
 
 }

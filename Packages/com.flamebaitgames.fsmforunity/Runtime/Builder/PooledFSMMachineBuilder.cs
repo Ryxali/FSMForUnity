@@ -9,10 +9,10 @@ namespace FSMForUnity
 	/// </summary>
 	internal class PooledFSMMachineBuilder : FSMMachine.IBuilder
     {
-        private FSMMachineBuilder builder;
-        private readonly Stack<FSMMachineBuilder> pool;
+        private FSMMachine.IBuilder builder;
+        private readonly Stack<FSMMachine.IBuilder> pool;
         private readonly Mutex mutex;
-		public PooledFSMMachineBuilder(FSMMachineBuilder builder, Stack<FSMMachineBuilder> pool, Mutex mutex)
+		public PooledFSMMachineBuilder(FSMMachine.IBuilder builder, Stack<FSMMachine.IBuilder> pool, Mutex mutex)
 		{
 			this.builder = builder;
 			this.pool = pool;
@@ -42,7 +42,7 @@ namespace FSMForUnity
         public FSMMachine Complete(FSMMachineFlags behaviourParameters = FSMMachineFlags.Default)
         {
             var c = builder.Complete(behaviourParameters);
-            builder.Dispose();
+            builder.Clear();
             mutex.WaitOne();
             pool.Push(builder);
             mutex.ReleaseMutex();
@@ -53,6 +53,11 @@ namespace FSMForUnity
 		public void SetDebuggingInfo(string machineName, Object associatedObject)
 		{
 			((FSMMachine.IBuilder)builder).SetDebuggingInfo(machineName, associatedObject);
+		}
+
+		void FSMMachine.IBuilder.Clear()
+		{
+			// This is never invoked for this class due to how pooling works
 		}
 	}
 }

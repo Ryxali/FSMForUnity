@@ -6,7 +6,7 @@ namespace FSMForUnity
 {
 	internal static class FSMMachineBuilderPool
     {
-        private static readonly Stack<FSMMachineBuilder> builders = new Stack<FSMMachineBuilder>();
+        private static readonly Stack<FSMMachine.IBuilder> builders = new Stack<FSMMachine.IBuilder>();
         private static Mutex mut = new Mutex();
         public static IBuilder Take()
         {
@@ -19,7 +19,12 @@ namespace FSMForUnity
             }
             else
             {
-                return new PooledFSMMachineBuilder(new FSMMachineBuilder(), builders, mut);
+#if DEBUG
+                var builder = new SafetyCheckingFSMMachineBuilder(new DebuggingFSMMachineBuilder(new FSMMachineBuilder()));
+#else
+                var builder = new FSMMachineBuilder();
+#endif
+                return new PooledFSMMachineBuilder(builder, builders, mut);
             }
         }
     }
