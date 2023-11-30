@@ -5,7 +5,6 @@ using System.Diagnostics;
 
 namespace FSMForUnity
 {
-
 	internal static class DebuggingLinker
     {
         private static readonly Dictionary<Object, IDebuggableMachine> linkedMachines = new Dictionary<Object, IDebuggableMachine>();
@@ -17,7 +16,7 @@ namespace FSMForUnity
         {
             return linkedMachines.TryGetValue(obj, out machine);
         }
-
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void Unlink(IDebuggableMachine machine)
         {
             foreach (var m in linkedMachines.Where(v => v.Value == machine).ToArray())
@@ -27,8 +26,9 @@ namespace FSMForUnity
             allMachines.Remove(machine);
         }
 
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
 		public static void Link(IDebuggableMachine machine, Object associatedObject)
-		{
+        {
             if (associatedObject)
                 linkedMachines.Add(associatedObject, machine);
             allMachines.Add(machine);
@@ -36,10 +36,17 @@ namespace FSMForUnity
 
         public static IReadOnlyList<IDebuggableMachine> GetAllMachines() => allMachines;
 
-		public static void TransmitEvent(FSMMachine machine, object evt)
-		{
-
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+		public static void TransmitEvent(this IDebuggableMachine machine, StateEventType evt, IFSMState state)
+        {
+            //UnityEngine.Debug.Log($"{machine.GetName()} {evt} {state}");
 		}
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        public static void TransmitEvent(this IDebuggableMachine machine, StateEventType evt, IFSMState state, IFSMTransition through)
+        {
+            //UnityEngine.Debug.Log($"{machine.GetName()} {evt} {state} Through {through}");
+        }
 
         /// <summary>
         /// Gives a readable name to this state for use when debugging.
