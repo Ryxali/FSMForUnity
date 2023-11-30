@@ -37,25 +37,26 @@ namespace FSMForUnity.Editor.IMGUIGraph
             return graphConnections;
         }
 
-        public void Regenerate(FSMMachine machine)
+        public void Regenerate(IDebuggableMachine machine)
         {
             // CreateSimGraphNodes & GraphConnections, simulate until satisfied
+            var states = machine.GetAllStates();
 
-            var defaultState = machine.defaultState;
-            var nodes = new SimGraphNode[machine.states.Length];
-            var transitionCount = machine.stateTransitions.Sum(kv => kv.Value.Count()) + machine.anyTransitions.Length * (machine.states.Length-1);
+            var defaultState = machine.GetDefaultState();
+            var nodes = new SimGraphNode[states.Length];
+            var transitionCount = states.Sum(s => machine.TryGetTransitionsFrom(s, out var t) ? t.Length : 0) + (machine.TryGetAnyTransitions(out var t) ? t.Length : 0);//machine.stateTransitions.Sum(kv => kv.Value.Count()) + machine.anyTransitions.Length * (machine.states.Length-1);
             var transitions = new SimGraphConnection[transitionCount];
 
             nodes[0] = new SimGraphNode
             {
-                state = machine.states[0],
+                state = states[0],
                 position = Vector2.zero,
                 previousPosition = Vector2.zero,
                 force = Vector2.zero
             };
             for(int i = 1; i < nodes.Length; i++)
             {
-                var state = machine.states[i];
+                var state = states[i];
                 var node = nodes[i];
                 if(state == defaultState) // move default node to 0 index if found
                 {
@@ -78,30 +79,33 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 indexDict.Add(nodes[i].state, i);
 
             var tI = 0;
-            foreach(var transitionArr in machine.stateTransitions)
+            foreach(var state in states)
             {
-                foreach(var transition in transitionArr.Value)
+                if (machine.TryGetTransitionsFrom(state, out var mappings))
                 {
-                    transitions[tI] = new SimGraphConnection
+                    foreach (var transition in mappings)
                     {
-                        transition = transition.transition,
-                        from = indexDict[transitionArr.Key],
-                        to = indexDict[transition.to]
-                    };
-                    tI++;
+                        transitions[tI] = new SimGraphConnection
+                        {
+                            transition = transition.transition,
+                            from = indexDict[state],
+                            to = indexDict[transition.to]
+                        };
+                        tI++;
+                    }
                 }
-            }
-            foreach(var state in machine.states)
-            {
-                foreach(var anyTransition in machine.anyTransitions)
+                if (machine.TryGetAnyTransitions(out var anyTransitions))
                 {
-                    transitions[tI] = new SimGraphConnection
+                    foreach (var anyTransition in anyTransitions)
                     {
-                        transition = anyTransition.transition,
-                        from = indexDict[state],
-                        to = indexDict[anyTransition.to]
-                    };
-                    tI++;
+                        transitions[tI] = new SimGraphConnection
+                        {
+                            transition = anyTransition.transition,
+                            from = indexDict[state],
+                            to = indexDict[anyTransition.to]
+                        };
+                        tI++;
+                    }
                 }
             }
 

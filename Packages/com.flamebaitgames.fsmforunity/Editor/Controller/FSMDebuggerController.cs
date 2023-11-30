@@ -35,9 +35,8 @@ namespace FSMForUnity
             inspectorBuilder.SetDebuggingInfo("FSM Debugger Inspector", null);
 
             var selectionBuilder = FSMMachine.Build();
-
             var noSelection = selectionBuilder.AddState(new EmptyFSMState());
-            var newSelection = selectionBuilder.AddLambdaState(enter: () => { stateData.currentlyInspecting = stateData.wantToInspectNext; Debug.Log("New Select"); });
+            var newSelection = selectionBuilder.AddLambdaState(enter: () => stateData.currentlyInspecting = stateData.wantToInspectNext);
             var haveSelection = selectionBuilder.AddParallelState
             (
                 new LambdaFSMState(enter: () => stateData.selectedState = null, update: default, exit: default),

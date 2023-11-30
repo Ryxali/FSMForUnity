@@ -5,19 +5,20 @@ using System.Diagnostics;
 
 namespace FSMForUnity
 {
+
 	internal static class DebuggingLinker
     {
-        private static readonly Dictionary<Object, FSMMachine> linkedMachines = new Dictionary<Object, FSMMachine>();
-        private static readonly List<FSMMachine> allMachines = new List<FSMMachine>();
+        private static readonly Dictionary<Object, IDebuggableMachine> linkedMachines = new Dictionary<Object, IDebuggableMachine>();
+        private static readonly List<IDebuggableMachine> allMachines = new List<IDebuggableMachine>();
 
         private static readonly Dictionary<IFSMState, string> stateNames = new Dictionary<IFSMState, string>(EqualityComparer_IFSMState.constant);
 
-        public static bool TryGetLinkedMachineForObject(Object obj, out FSMMachine machine)
+        public static bool TryGetLinkedMachineForObject(Object obj, out IDebuggableMachine machine)
         {
             return linkedMachines.TryGetValue(obj, out machine);
         }
 
-        public static void Unlink(FSMMachine machine)
+        public static void Unlink(IDebuggableMachine machine)
         {
             foreach (var m in linkedMachines.Where(v => v.Value == machine).ToArray())
             {
@@ -26,14 +27,14 @@ namespace FSMForUnity
             allMachines.Remove(machine);
         }
 
-		public static void Link(FSMMachine machine, Object associatedObject)
+		public static void Link(IDebuggableMachine machine, Object associatedObject)
 		{
             if (associatedObject)
                 linkedMachines.Add(associatedObject, machine);
             allMachines.Add(machine);
 		}
 
-        public static IReadOnlyList<FSMMachine> GetAllMachines() => allMachines;
+        public static IReadOnlyList<IDebuggableMachine> GetAllMachines() => allMachines;
 
 		public static void TransmitEvent(FSMMachine machine, object evt)
 		{

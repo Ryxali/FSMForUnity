@@ -49,7 +49,7 @@ namespace FSMForUnity
                     inst.RegisterCallback<MouseDownEvent, int>(OnElementClick, i, TrickleDown.TrickleDown);
                 }
                 var elem = listElements[i];
-                elem.Q<Label>(UIMap_ListView.ListEntryLabel).text = activeMachines[i].debugName;
+                elem.Q<Label>(UIMap_ListView.ListEntryLabel).text = activeMachines[i].GetName();
                 listViewRoot.Add(elem);
             }
         }

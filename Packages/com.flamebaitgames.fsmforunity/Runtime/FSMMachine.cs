@@ -11,7 +11,7 @@ namespace FSMForUnity
 	/// Transitions map between these states and acts as the condition for transitioning between them.
 	/// The machine 
 	/// </summary>
-	public sealed class FSMMachine
+	public sealed class FSMMachine : IDebuggableMachine
     {
         private static readonly ProfilerMarker debugOnlyMarker = new ProfilerMarker("Debug_Only");
         private static readonly ProfilerMarker enableMarker = new ProfilerMarker("Enable");
@@ -44,11 +44,8 @@ namespace FSMForUnity
         public bool debug = false;
 
         [FSMDebuggerHidden]
-        internal readonly string debugName;
-        [FSMDebuggerHidden]
-        internal IFSMState Debug_CurrentState => current;
-        [FSMDebuggerHidden]
-        internal IFSMState Debug_DefaultState => defaultState;
+        private readonly string debugName;
+
 #if DEBUG
         [FSMDebuggerHidden]
         private readonly Dictionary<IFSMState, ProfilerMarker> stateMarkers = new Dictionary<IFSMState, ProfilerMarker>(EqualityComparer_IFSMState.constant);
@@ -56,13 +53,13 @@ namespace FSMForUnity
         private readonly ProfilerMarker machineMarker;
 #endif
         [FSMDebuggerHidden]
-        internal readonly IFSMState[] states;
+        private readonly IFSMState[] states;
         [FSMDebuggerHidden]
-        internal readonly TransitionMapping[] anyTransitions;
+        private readonly TransitionMapping[] anyTransitions;
         [FSMDebuggerHidden]
-        internal readonly Dictionary<IFSMState, TransitionMapping[]> stateTransitions;
+        private readonly Dictionary<IFSMState, TransitionMapping[]> stateTransitions;
         [FSMDebuggerHidden]
-        internal readonly IFSMState defaultState;
+        private readonly IFSMState defaultState;
 
         private IFSMState current;
         [FSMDebuggerHidden]
@@ -70,8 +67,6 @@ namespace FSMForUnity
 #if DEBUG
         [FSMDebuggerHidden]
         private ProfilerMarker currentStateMarker;
-        [FSMDebuggerHidden]
-        internal IFSMState DebugCurrent => current;
 #endif
 
         internal FSMMachine(string debugName, IFSMState[] states, TransitionMapping[] anyTransitions, Dictionary<IFSMState, TransitionMapping[]> stateTransitions, IFSMState defaultState)
@@ -403,5 +398,37 @@ namespace FSMForUnity
 
 
         public static IBuilder Build() => FSMMachineBuilderPool.Take();
-    }
+
+        string IDebuggableMachine.GetName()
+        {
+            return debugName;
+        }
+
+        IFSMState[] IDebuggableMachine.GetAllStates()
+        {
+            return states;
+        }
+
+		bool IDebuggableMachine.TryGetActive(out IFSMState state)
+		{
+            state = current;
+            return IsEnabled;
+        }
+
+        IFSMState IDebuggableMachine.GetDefaultState()
+        {
+            return defaultState;
+        }
+
+        bool IDebuggableMachine.TryGetTransitionsFrom(IFSMState state, out TransitionMapping[] transitions)
+		{
+            return stateTransitions.TryGetValue(state, out transitions);
+		}
+
+		bool IDebuggableMachine.TryGetAnyTransitions(out TransitionMapping[] anyTransitions)
+		{
+            anyTransitions = this.anyTransitions;
+            return true;
+		}
+	}
 }
