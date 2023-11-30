@@ -12,10 +12,12 @@ namespace FSMForUnity.Editor.IMGUIGraph
 {
     internal class GraphViewIMGUIFSMState : IFSMState
     {
+
         private readonly DebuggerFSMStateData stateData;
         private readonly VisualElement container;
         private readonly VisualElement immediateGUIElement;
 
+        private readonly GUISkin skin;
         private readonly Texture2D gridTexture;
         private readonly Texture2D lineTexture;
 
@@ -37,6 +39,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
             gridTexture.hideFlags = HideFlags.HideAndDontSave;
             lineTexture = IMGUIUtil.GenerateRepeatingArrowTexture(96, 24, 4, new Color(0.8f, 0.8f, 0.8f, 0.8f));
             lineTexture.hideFlags = HideFlags.HideAndDontSave;
+            skin = UIMap_IMGUISkin.CreateSkin();
         }
 
         public void Enter()
@@ -125,6 +128,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 var pos = evt.mousePosition;
                 panPosition += pos - heldPosition;
                 heldPosition = pos;
+                immediateGUIElement.MarkDirtyRepaint();
             }
             /*var e = new Event
             {
@@ -140,6 +144,8 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         private void OnGUI()
         {
+            var s = GUI.skin;
+            GUI.skin = skin;
             var panelRect = new Rect(0, 0, container.resolvedStyle.width, container.resolvedStyle.height);
 
             var repeatingCoords = new Rect(-panPosition.x, -panPosition.y, panelRect.width / DefaultGridTiling, panelRect.height / DefaultGridTiling);
@@ -173,6 +179,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                     }
                 }
             }
+            GUI.skin = s;
         }
 
         public void Destroy()

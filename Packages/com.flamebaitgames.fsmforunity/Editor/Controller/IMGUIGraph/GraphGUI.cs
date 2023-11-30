@@ -25,8 +25,8 @@ namespace FSMForUnity.Editor.IMGUIGraph
             var clicked = GUI.Button(box, GUIContent.none);
             GUILayout.BeginArea(IMGUIUtil.PadRect(box, 5f));
             if(isDefaultState)
-                GUILayout.Label("(Default)", nodeLabelStyle);
-            GUILayout.Label(label, nodeLabelStyle);
+                GUILayout.Label("(Default)", GUI.skin.GetStyle(UIMap_IMGUISkin.NodeLabelStyle));
+            GUILayout.Label(label, GUI.skin.GetStyle(UIMap_IMGUISkin.NodeLabelStyle));
             GUILayout.EndArea();
             return clicked;
         }
