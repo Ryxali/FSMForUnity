@@ -47,6 +47,8 @@ namespace FSMForUnity
         internal readonly string debugName;
         [FSMDebuggerHidden]
         internal IFSMState Debug_CurrentState => current;
+        [FSMDebuggerHidden]
+        internal IFSMState Debug_DefaultState => defaultState;
 #if DEBUG
         [FSMDebuggerHidden]
         private readonly Dictionary<IFSMState, ProfilerMarker> stateMarkers = new Dictionary<IFSMState, ProfilerMarker>(EqualityComparer_IFSMState.constant);

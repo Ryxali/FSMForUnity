@@ -6,6 +6,10 @@ internal static class UIMap_IMGUISkin
 {
     public const string NodeLabelStyle = "node-label";
 
+    public static readonly Color normalStateColor = Color.white;
+    public static readonly Color activeStateColor = new Color(1.5f, 1.5f, 0.7f);
+    public static readonly Color defaultStateColor = new Color(0.7f, 1.5f, 0.7f);
+
     public static GUISkin CreateSkin()
     {
         var skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene);
