@@ -40,6 +40,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
             lineTexture = IMGUIUtil.GenerateRepeatingArrowTexture(96, 24, 4, new Color(0.8f, 0.8f, 0.8f, 0.8f));
             lineTexture.hideFlags = HideFlags.HideAndDontSave;
             skin = UIMap_IMGUISkin.CreateSkin();
+            skin.hideFlags = HideFlags.HideAndDontSave;
         }
 
         public void Enter()
@@ -189,10 +190,16 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         public void Destroy()
         {
-            if(Application.isPlaying)
+            if (Application.isPlaying)
+            {
                 Object.Destroy(gridTexture);
+                Object.Destroy(skin);
+            }
             else
+            {
                 Object.DestroyImmediate(gridTexture);
+                Object.DestroyImmediate(skin);
+            }
         }
     }
 }
