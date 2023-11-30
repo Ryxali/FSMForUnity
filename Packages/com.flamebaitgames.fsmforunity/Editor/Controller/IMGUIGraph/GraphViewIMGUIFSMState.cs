@@ -51,14 +51,6 @@ namespace FSMForUnity.Editor.IMGUIGraph
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
-
-            // Generate nodes and connections
-            // start with default state
-            // position other nodes in a radius around default
-            // generate transitions
-            // use transitions as a spring force
-            // try satisfy constraints
-            // default state is only fixed node, rest can move
         }
 
         public void Exit()
@@ -131,16 +123,6 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 heldPosition = pos;
                 immediateGUIElement.MarkDirtyRepaint();
             }
-            /*var e = new Event
-            {
-                button = evt.button,
-                mousePosition = evt.mousePosition,
-                type = EventType.MouseMove
-            };
-            using(var imguiEvt = IMGUIEvent.GetPooled(e))
-            {
-                immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
-            }*/
         }
 
         private void OnGUI()
