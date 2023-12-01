@@ -25,13 +25,13 @@ namespace FSMForUnity
             var graphBuilder = FSMMachine.Build();
             var graphNoSelected = graphBuilder.AddState(null, new EmptyFSMState());
             var graphSelected = graphBuilder.AddState(null, new GraphViewIMGUIFSMState(stateData, root.Q(UIMap_EditorWindow.GraphView)));
-            graphBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting != null, graphNoSelected, graphSelected);
+            graphBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting.IsValid, graphNoSelected, graphSelected);
             graphBuilder.SetDebuggingInfo("FSM Debugger Graph", null);
 
             var inspectorBuilder = FSMMachine.Build();
             var inspectorNoSelected = inspectorBuilder.AddState(null, new EmptyFSMState());
             var inspectorSelected = inspectorBuilder.AddState(null, new InspectorViewFSMState(stateData, root.Q(UIMap_EditorWindow.InspectorView)));
-            inspectorBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting != null, inspectorNoSelected, inspectorSelected);
+            inspectorBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting.IsValid, inspectorNoSelected, inspectorSelected);
             inspectorBuilder.SetDebuggingInfo("FSM Debugger Inspector", null);
 
             var selectionBuilder = FSMMachine.Build();
@@ -43,9 +43,9 @@ namespace FSMForUnity
                 new SubstateFSMState(graphBuilder.Complete()),
                 new SubstateFSMState(inspectorBuilder.Complete())
             );
-            selectionBuilder.AddLambdaTransition(() => stateData.currentlyInspecting == null, haveSelection, noSelection);
-            selectionBuilder.AddLambdaTransition(() => stateData.wantToInspectNext != null, noSelection, newSelection);
-            selectionBuilder.AddLambdaTransition(() => stateData.currentlyInspecting != null, newSelection, haveSelection);
+            selectionBuilder.AddLambdaTransition(() => !stateData.currentlyInspecting.IsValid, haveSelection, noSelection);
+            selectionBuilder.AddLambdaTransition(() => stateData.wantToInspectNext.IsValid, noSelection, newSelection);
+            selectionBuilder.AddLambdaTransition(() => stateData.currentlyInspecting.IsValid, newSelection, haveSelection);
             selectionBuilder.AddLambdaTransition(() => stateData.wantToInspectNext != stateData.currentlyInspecting, haveSelection, newSelection);
             selectionBuilder.SetDebuggingInfo("FSM Debugger Selection", null);
 

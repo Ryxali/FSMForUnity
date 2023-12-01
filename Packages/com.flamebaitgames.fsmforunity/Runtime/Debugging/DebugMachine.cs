@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace FSMForUnity
 {
 	internal struct DebugMachine
     {
+		public bool IsValid => machine != null;
+
 		public readonly IDebuggableMachine machine;
 		private readonly Dictionary<IFSMState, string> stateNames;
 		private readonly Dictionary<FromToTransition, string> transitionNames;
@@ -29,6 +32,16 @@ namespace FSMForUnity
 		public override int GetHashCode()
 		{
 			return System.HashCode.Combine(machine);
+		}
+
+		public static bool operator==(DebugMachine a, DebugMachine b)
+		{
+			return Object.ReferenceEquals(a.machine, b.machine);
+		}
+
+		public static bool operator!=(DebugMachine a, DebugMachine b)
+		{
+			return !Object.ReferenceEquals(a.machine, b.machine);
 		}
 	}
 }

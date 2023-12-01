@@ -67,7 +67,7 @@ namespace FSMForUnity
 
         private void OnElementClick(MouseDownEvent evt, int index)
         {
-            stateData.wantToInspectNext = DebuggingLinker.GetAllMachines()[index].machine;
+            stateData.wantToInspectNext = DebuggingLinker.GetAllMachines()[index];
         }
     }
 }

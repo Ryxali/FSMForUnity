@@ -2,8 +2,8 @@ namespace FSMForUnity
 {
     internal class DebuggerFSMStateData
     {
-        public IDebuggableMachine currentlyInspecting;
-        public IDebuggableMachine wantToInspectNext;
+        public DebugMachine currentlyInspecting;
+        public DebugMachine wantToInspectNext;
         public IFSMState selectedState;
     }
 }
