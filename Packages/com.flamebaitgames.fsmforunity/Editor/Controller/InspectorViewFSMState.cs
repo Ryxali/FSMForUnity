@@ -61,7 +61,7 @@ namespace FSMForUnity
 
             inspectorRoot.Q<Label>(UIMap_InspectorView.StateName).text = currentState.ToString();
             // Do tree iteration
-            const int MaxDepth = 6;
+            const int MaxDepth = 3;
 
             // Add initial items
             var stateRoot = inspectorRoot.Q(UIMap_InspectorView.StateRoot);
@@ -92,7 +92,7 @@ namespace FSMForUnity
                                 {
                                     foreach (var field in GetFields(en))
                                     {
-                                        fieldBuffer.Push((arrFoldout, en, field, entry.depth + 1));
+                                        fieldBuffer.Push((arrFoldout, en, field, entry.depth + 2));
                                     }
                                 }
                                 i++;
