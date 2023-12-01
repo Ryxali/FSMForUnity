@@ -13,11 +13,6 @@ namespace FSMForUnity.Editor.IMGUIGraph
     public static class GraphGUI
     {
 
-        private static GUIStyle nodeLabelStyle = new GUIStyle(GUI.skin.label)
-        {
-            alignment = TextAnchor.LowerCenter
-        };
-
         public static bool DrawStateNode(Vector2 center, float scale, string label, bool isDefaultState, Color color)
         {
             var size = new Vector2(200f, 150f);
