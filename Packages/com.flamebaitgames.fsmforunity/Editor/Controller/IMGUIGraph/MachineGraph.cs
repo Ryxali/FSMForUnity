@@ -37,12 +37,12 @@ namespace FSMForUnity.Editor.IMGUIGraph
             return graphConnections;
         }
 
-        public void Regenerate(IDebuggableMachine machine)
+        public void Regenerate(DebugMachine machine)
         {
             // CreateSimGraphNodes & GraphConnections, simulate until satisfied
-            var states = machine.GetAllStates();
+            var states = machine.States;
 
-            var defaultState = machine.GetDefaultState();
+            var defaultState = machine.DefaultState;
             var nodes = new SimGraphNode[states.Length];
             var transitionCount = states.Sum(s => machine.TryGetTransitionsFrom(s, out var t) ? t.Length : 0) + (machine.TryGetAnyTransitions(out var t) ? t.Length : 0);//machine.stateTransitions.Sum(kv => kv.Value.Count()) + machine.anyTransitions.Length * (machine.states.Length-1);
             var transitions = new SimGraphConnection[transitionCount];

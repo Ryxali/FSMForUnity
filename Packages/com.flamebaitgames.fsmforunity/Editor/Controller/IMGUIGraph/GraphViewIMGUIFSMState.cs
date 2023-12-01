@@ -45,7 +45,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         public void Enter()
         {
-            machineGraph.Regenerate(stateData.currentlyInspecting.machine);
+            machineGraph.Regenerate(stateData.currentlyInspecting);
             container.Add(immediateGUIElement);
             container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
@@ -154,9 +154,9 @@ namespace FSMForUnity.Editor.IMGUIGraph
                     foreach (var state in machineGraph.GetStates())
                     {
                         var color = UIMap_IMGUISkin.normalStateColor;
-                        if (stateData.currentlyInspecting.machine.TryGetActive(out var active) && active == state.state)
+                        if (stateData.currentlyInspecting.TryGetActive(out var active) && active == state.state)
                             color = IMGUIUtil.Blend(UIMap_IMGUISkin.activeStateColor, color);
-                        if (state.state == stateData.currentlyInspecting.machine.GetDefaultState())
+                        if (state.state == stateData.currentlyInspecting.DefaultState)
                             color = IMGUIUtil.Blend(UIMap_IMGUISkin.defaultStateColor, color);
                         var clicked = GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, state.state.ToString(), state.isDefault, color.gamma);
 

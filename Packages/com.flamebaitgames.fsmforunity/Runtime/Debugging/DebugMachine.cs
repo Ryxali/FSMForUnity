@@ -7,7 +7,13 @@ namespace FSMForUnity
     {
 		public bool IsValid => machine != null;
 
-		public readonly IDebuggableMachine machine;
+		public string Name => machine.GetName();
+
+		public IFSMState DefaultState => machine.GetDefaultState();
+
+		public IFSMState[] States => machine.GetAllStates();
+
+		private readonly IDebuggableMachine machine;
 		private readonly Dictionary<IFSMState, string> stateNames;
 		private readonly Dictionary<FromToTransition, string> transitionNames;
 		private readonly Dictionary<AnyTransition, string> anyTransitionNames;
@@ -21,6 +27,43 @@ namespace FSMForUnity
 			this.stateNames = stateNames;
 			this.transitionNames = transitionNames;
 			this.anyTransitionNames = anyTransitionNames;
+		}
+
+		public DebugMachine(IDebuggableMachine machine)
+		{
+			this.machine = machine;
+			stateNames = null;
+			transitionNames = null;
+			anyTransitionNames = null;
+		}
+
+        public bool TryGetActive(out IFSMState state) => machine.TryGetActive(out state);
+
+		public bool TryGetTransitionsFrom(IFSMState state, out TransitionMapping[] transitions) => machine.TryGetTransitionsFrom(state, out transitions);
+
+		public bool TryGetAnyTransitions(out TransitionMapping[] anyTransitions) => machine.TryGetAnyTransitions(out anyTransitions);
+
+		public string GetStateName(IFSMState state) => stateNames[state];
+
+		public string GetTransitionName(IFSMTransition transition, IFSMState from, IFSMState to)
+		{
+			var tuple = new FromToTransition
+			{
+				transition = transition,
+				from = from,
+				to = to
+			};
+			return transitionNames[tuple];
+		}
+
+		public string GetAnyTransitionName(IFSMTransition transition, IFSMState to)
+		{
+			var tuple = new AnyTransition
+			{
+				transition = transition,
+				to = to
+			};
+			return anyTransitionNames[tuple];
 		}
 
 		public override bool Equals(object obj)

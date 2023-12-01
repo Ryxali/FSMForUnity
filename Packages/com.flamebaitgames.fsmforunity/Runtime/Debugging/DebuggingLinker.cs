@@ -19,11 +19,12 @@ namespace FSMForUnity
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void Unlink(IDebuggableMachine machine)
         {
-            foreach (var m in linkedMachines.Where(v => v.Value.machine == machine).ToArray())
+            var toRemove = new DebugMachine(machine);
+            allMachines.Remove(toRemove);
+            foreach (var m in linkedMachines.Where(v => v.Value == toRemove).ToArray())
             {
                 linkedMachines.Remove(m.Key);
             }
-            allMachines.Remove(new DebugMachine(machine, null, null, null));
         }
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
