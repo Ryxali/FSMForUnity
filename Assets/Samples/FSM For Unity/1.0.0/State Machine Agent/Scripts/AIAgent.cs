@@ -44,6 +44,7 @@ public class AIAgent : MonoBehaviour
         // Doing so allows us to assume that the target != null in the state itself.
         builder.AddBidirectionalTransition(() => stateData.target && Vector3.Distance(stateData.target.position, stateData.myTransform.position) < 2f, idleState, runAwayState);
         builder.AddBidirectionalTransition(() => stateData.target && Vector3.Distance(stateData.target.position, stateData.myTransform.position) > 4f, idleState, approachState);
+        builder.SetDebuggingInfo(name, this);
 
         fsm = builder.Complete();
     }
