@@ -59,5 +59,16 @@ namespace FSMForUnity.Editor.IMGUIGraph
             tex2D.Apply();
             return tex2D;
         }
+
+        public static Color Blend(Color src, Color dst)
+        {
+            return new Color
+            (
+                dst.r * (1 - src.a) + src.r,
+                dst.g * (1 - src.a) + src.g,
+                dst.b * (1 - src.a) + src.b,
+                dst.a * (1 - src.a) + src.a
+            );
+        }
     }
 }

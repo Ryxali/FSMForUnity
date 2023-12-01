@@ -155,9 +155,9 @@ namespace FSMForUnity.Editor.IMGUIGraph
                     {
                         var color = UIMap_IMGUISkin.normalStateColor;
                         if (stateData.currentlyInspecting.TryGetActive(out var active) && active == state.state)
-                            color = UIMap_IMGUISkin.activeStateColor;
-                        else if (state.state == stateData.currentlyInspecting.GetDefaultState())
-                            color = UIMap_IMGUISkin.defaultStateColor;
+                            color = IMGUIUtil.Blend(UIMap_IMGUISkin.activeStateColor, color);
+                        if (state.state == stateData.currentlyInspecting.GetDefaultState())
+                            color = IMGUIUtil.Blend(UIMap_IMGUISkin.defaultStateColor, color);
                         var clicked = GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, state.state.ToString(), state.isDefault, color);
 
                         if(clicked)
