@@ -26,8 +26,16 @@ namespace FSMForUnity
             else
             {
                 addedStates.Add(state);
-                return builder.AddState(null, state);
+                return builder.AddState(name, state);
             }
+		}
+
+		public void SetDefaultState(IFSMState state)
+		{
+            if(addedStates.Contains(state))
+                throw new System.ArgumentException(nameof(state), "Only states added to the machine can be set as default.");
+            else
+                builder.SetDefaultState(state);
 		}
 
 		public IFSMTransition AddTransition(string name, IFSMTransition transition, IFSMState from, IFSMState to)
@@ -53,7 +61,7 @@ namespace FSMForUnity
             else
             {
                 addedFromToTransitions.Add(tuple);
-                return builder.AddTransition(null, transition, from, to);
+                return builder.AddTransition(name, transition, from, to);
             }
         }
 
@@ -75,7 +83,7 @@ namespace FSMForUnity
             else
             {
                 addedAnyTransitions.Add(tuple);
-                return builder.AddAnyTransition(null, transition, to);
+                return builder.AddAnyTransition(name, transition, to);
             }
         }
 
@@ -87,11 +95,6 @@ namespace FSMForUnity
 		public void SetDebuggingInfo(string machineName, Object associatedObject)
 		{
 			builder.SetDebuggingInfo(machineName, associatedObject);
-		}
-
-		public void SetDefaultState(IFSMState state)
-		{
-			builder.SetDefaultState(state);
 		}
 
 		void FSMMachine.IBuilder.Clear()

@@ -34,9 +34,9 @@ public class AIAgent : MonoBehaviour
         var builder = FSMMachine.Build();
 
         // Add the three states
-        var idleState = builder.AddState(new EmptyFSMState());
-        var approachState = builder.AddState(new ApproachFSMState(stateData));
-        var runAwayState = builder.AddState(new RunAwayFSMState(stateData));
+        var idleState = builder.AddState("Idle", new EmptyFSMState());
+        var approachState = builder.AddState("Approaching", new ApproachFSMState(stateData));
+        var runAwayState = builder.AddState("Fleeing", new RunAwayFSMState(stateData));
 
         // Here we use expressions to define whether we want to move to this state or not
         // By making it bidirectional and adding the existance of a target as part of the
