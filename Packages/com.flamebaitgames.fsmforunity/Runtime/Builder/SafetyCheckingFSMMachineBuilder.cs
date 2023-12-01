@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Runtime.CompilerServices;
 
 namespace FSMForUnity
 {
 	internal sealed class SafetyCheckingFSMMachineBuilder : FSMMachine.IBuilder
     {
         private readonly HashSet<IFSMState> addedStates = new HashSet<IFSMState>(EqualityComparer_IFSMState.constant);
-        private readonly HashSet<FromToTransition> addedFromToTransitions = new HashSet<FromToTransition>(new EqualityComparer_FromToTransition());
-        private readonly HashSet<AnyTransition> addedAnyTransitions = new HashSet<AnyTransition>(new EqualityComparer_AnyTransition());
+        private readonly HashSet<FromToTransition> addedFromToTransitions = new HashSet<FromToTransition>(EqualityComparer_FromToTransition.constant);
+        private readonly HashSet<AnyTransition> addedAnyTransitions = new HashSet<AnyTransition>(EqualityComparer_AnyTransition.constant);
 
         private readonly FSMMachine.IBuilder builder;
 
@@ -102,50 +101,5 @@ namespace FSMForUnity
             addedAnyTransitions.Clear();
             builder.Clear();
 		}
-
-        private struct FromToTransition
-        {
-            public IFSMTransition transition;
-            public IFSMState from;
-            public IFSMState to;
-        }
-
-        private struct AnyTransition
-        {
-            public IFSMTransition transition;
-            public IFSMState to;
-        }
-
-        private class EqualityComparer_FromToTransition : IEqualityComparer<FromToTransition>
-        {
-            public bool Equals(FromToTransition x, FromToTransition y)
-            {
-                return System.Object.ReferenceEquals(x.transition, y.transition)
-                    && System.Object.ReferenceEquals(x.from, y.from)
-                    && System.Object.ReferenceEquals(x.to, y.to);
-
-            }
-
-            public int GetHashCode(FromToTransition obj)
-            {
-                return System.HashCode.Combine(RuntimeHelpers.GetHashCode(obj.transition), RuntimeHelpers.GetHashCode(obj.from), RuntimeHelpers.GetHashCode(obj.to));
-            }
-        }
-
-        private class EqualityComparer_AnyTransition : IEqualityComparer<AnyTransition>
-        {
-            public bool Equals(AnyTransition x, AnyTransition y)
-            {
-                return System.Object.ReferenceEquals(x.transition, y.transition)
-                    && System.Object.ReferenceEquals(x.to, y.to);
-
-            }
-
-            public int GetHashCode(AnyTransition obj)
-            {
-                return System.HashCode.Combine(RuntimeHelpers.GetHashCode(obj.transition), RuntimeHelpers.GetHashCode(obj.to));
-            }
-        }
     }
-
 }

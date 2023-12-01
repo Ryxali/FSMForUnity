@@ -49,7 +49,7 @@ namespace FSMForUnity
                     inst.RegisterCallback<MouseDownEvent, int>(OnElementClick, i, TrickleDown.TrickleDown);
                 }
                 var elem = listElements[i];
-                elem.Q<Label>(UIMap_ListView.ListEntryLabel).text = activeMachines[i].GetName();
+                elem.Q<Label>(UIMap_ListView.ListEntryLabel).text = activeMachines[i].machine.GetName();
                 listViewRoot.Add(elem);
             }
         }
@@ -67,7 +67,7 @@ namespace FSMForUnity
 
         private void OnElementClick(MouseDownEvent evt, int index)
         {
-            stateData.wantToInspectNext = DebuggingLinker.GetAllMachines()[index];
+            stateData.wantToInspectNext = DebuggingLinker.GetAllMachines()[index].machine;
         }
     }
 }

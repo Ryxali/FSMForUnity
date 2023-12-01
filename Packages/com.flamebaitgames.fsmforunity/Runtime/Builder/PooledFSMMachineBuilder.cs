@@ -21,17 +21,17 @@ namespace FSMForUnity
 
 		public IFSMTransition AddAnyTransition(string name, IFSMTransition transition, IFSMState to)
 		{
-			return builder.AddAnyTransition(null, transition, to);
+			return builder.AddAnyTransition(name, transition, to);
 		}
 
 		public IFSMState AddState(string name, IFSMState state)
 		{
-			return builder.AddState(null, state);
+			return builder.AddState(name, state);
 		}
 
 		public IFSMTransition AddTransition(string name, IFSMTransition transition, IFSMState from, IFSMState to)
 		{
-			return builder.AddTransition(null, transition, from, to);
+			return builder.AddTransition(name, transition, from, to);
 		}
 
 		public void SetDefaultState(IFSMState state)
