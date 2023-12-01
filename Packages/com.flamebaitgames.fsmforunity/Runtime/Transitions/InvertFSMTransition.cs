@@ -43,5 +43,10 @@
         {
             return !transition.ShouldTransition();
         }
+
+        void IFSMTransition.Destroy()
+        {
+            transition.Destroy();
+        }
     }
 }

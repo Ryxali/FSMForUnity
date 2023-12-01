@@ -30,5 +30,10 @@
 			}
 			return anyWantTransition;
 		}
+
+		void IFSMTransition.Destroy()
+		{
+			for (int i = 0; i < transitions.Length; i++) transitions[i].Destroy();
+		}
 	}
 }
