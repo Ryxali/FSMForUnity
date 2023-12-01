@@ -19,19 +19,23 @@ namespace FSMForUnity
         /// Are we currenly eligble to pass through this transition?
         /// </summary>
         /// <returns>true if this transition wants the transition to happen</returns>
-        protected internal bool ShouldTransition();
+        bool ShouldTransition();
         /// <summary>
         /// This is called from the State Machine as we move via this transition from one state to another.
         /// Use this to reset any internal state of the transition or perform any additional function as neccessary.
         /// While you could put execution of game logic here, prefer making it a part of the <see cref="FSMForUnity.IFSMState.Enter"/> method of the state
         /// you are entering.
         /// </summary>
-        protected internal void PassThrough();
+        void PassThrough();
         /// <summary>
         /// Called when the State Machine is destroyed. Destroy any objects managed by this transition here.
         /// Note that if this transition is referenced multiple times its destruction method may be called multiple times.
         /// Implement the <see cref="System.IDisposable"/> pattern as required.
         /// </summary>
-        protected internal void Destroy() { }
+#if UNITY_2021_1_OR_NEWER
+        void Destroy() { }
+#else
+        void Destroy();
+#endif
     }
 }
