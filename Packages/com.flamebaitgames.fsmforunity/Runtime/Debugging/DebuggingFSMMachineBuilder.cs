@@ -13,19 +13,19 @@ namespace FSMForUnity
 			this.builder = builder;
 		}
 
-		public IFSMTransition AddAnyTransition(IFSMTransition transition, IFSMState to)
+		public IFSMTransition AddAnyTransition(string name, IFSMTransition transition, IFSMState to)
 		{
-			return builder.AddAnyTransition(transition, to);
+			return builder.AddAnyTransition(null, transition, to);
 		}
 
-		public IFSMState AddState(IFSMState state)
+		public IFSMState AddState(string name, IFSMState state)
 		{
-			return builder.AddState(state);
+			return builder.AddState(null, state);
 		}
 
-		public IFSMTransition AddTransition(IFSMTransition transition, IFSMState from, IFSMState to)
+		public IFSMTransition AddTransition(string name, IFSMTransition transition, IFSMState from, IFSMState to)
 		{
-			return builder.AddTransition(transition, from, to);
+			return builder.AddTransition(null, transition, from, to);
 		}
 
 		public FSMMachine Complete(FSMMachineFlags behaviourParameters = FSMMachineFlags.Default)

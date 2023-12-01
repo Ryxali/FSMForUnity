@@ -306,34 +306,41 @@ namespace FSMForUnity
             /// <param name="associatedObject">An associated owner of this machine. If you select this object the
             /// machine will automatically be presented in the inspector.</param>
             void SetDebuggingInfo(string machineName, Object associatedObject);
-            /// <summary>
-            /// Typically the first state added becomes the default state for the machine.
-            /// Call <see cref="SetDefaultState(IFSMState)"/> to change this
-            /// </summary>
-            /// <param name="state"></param>
-            /// <returns>The state added</returns>
-            IFSMState AddState([NotNull] IFSMState state);
-            /// <summary>
-            /// Add a transition that maps from a state to the desired state.
-            /// The states passed must have been added to the builder via <see cref="AddState(IFSMState)"/>
-            /// </summary>
-            /// <param name="transition"></param>
-            /// <param name="to"></param>
-            /// <returns>The transition added</returns>
-            IFSMTransition AddTransition([NotNull] IFSMTransition transition, [NotNull] IFSMState from, [NotNull] IFSMState to);
-            /// <summary>
-            /// Add a transition that maps from any state in the machine to the desired state.
-            /// The state passed must have been added to the builder via <see cref="AddState(IFSMState)"/>
-            /// </summary>
-            /// <param name="transition"></param>
-            /// <param name="to"></param>
-            /// <returns>The transition added</returns>
-            IFSMTransition AddAnyTransition([NotNull] IFSMTransition transition, [NotNull] IFSMState to);
+
+			/// <summary>
+			/// Typically the first state added becomes the default state for the machine.
+			/// Call <see cref="SetDefaultState(IFSMState)"/> to change this
+			/// </summary>
+			/// <param name="name"></param>
+			/// <returns>The state added</returns>
+			/// <param name="state"></param>
+			IFSMState AddState(string name, [NotNull] IFSMState state);
+
+			/// <summary>
+			/// Add a transition that maps from a state to the desired state.
+			/// The states passed must have been added to the builder via <see cref="AddState(string, IFSMState)"/>
+			/// </summary>
+			/// <param name="transition"></param>
+			/// <param name="to"></param>
+			/// <returns>The transition added</returns>
+			IFSMTransition AddTransition(string name, [NotNull] IFSMTransition transition, [NotNull] IFSMState from, [NotNull] IFSMState to);
+
+			/// <summary>
+			/// Add a transition that maps from any state in the machine to the desired state.
+			/// The state passed must have been added to the builder via <see cref="AddState(string, IFSMState)"/>
+			/// </summary>
+			/// <param name="name"></param>
+			/// <param name="transition"></param>
+			/// <returns>The transition added</returns>
+			/// <param name="to"></param>
+			IFSMTransition AddAnyTransition(string name, [NotNull] IFSMTransition transition, [NotNull] IFSMState to);
+
             /// <summary>
             /// Set the new default state. The state passed must already be added in the builder.
             /// </summary>
             /// <param name="state"></param>
             void SetDefaultState([NotNull] IFSMState state);
+
             /// <summary>
             /// Finishes building the machine. This should be your final call.
             /// </summary>

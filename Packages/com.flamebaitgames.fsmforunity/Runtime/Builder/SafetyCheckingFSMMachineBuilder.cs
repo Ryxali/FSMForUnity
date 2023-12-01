@@ -18,7 +18,7 @@ namespace FSMForUnity
 		}
 
 
-        public IFSMState AddState(IFSMState state)
+        public IFSMState AddState(string name, IFSMState state)
 		{
             if (state == null)
                 throw new System.ArgumentNullException(nameof(state), "You cannot add null states to a machine. Consider adding an EmptyState instead.");
@@ -27,11 +27,11 @@ namespace FSMForUnity
             else
             {
                 addedStates.Add(state);
-                return builder.AddState(state);
+                return builder.AddState(null, state);
             }
 		}
 
-		public IFSMTransition AddTransition(IFSMTransition transition, IFSMState from, IFSMState to)
+		public IFSMTransition AddTransition(string name, IFSMTransition transition, IFSMState from, IFSMState to)
 		{
             var tuple = new FromToTransition
             {
@@ -54,12 +54,12 @@ namespace FSMForUnity
             else
             {
                 addedFromToTransitions.Add(tuple);
-                return builder.AddTransition(transition, from, to);
+                return builder.AddTransition(null, transition, from, to);
             }
         }
 
-        public IFSMTransition AddAnyTransition(IFSMTransition transition, IFSMState to)
-        {
+        public IFSMTransition AddAnyTransition(string name, IFSMTransition transition, IFSMState to)
+		{
             var tuple = new AnyTransition
             {
                 to = to,
@@ -76,7 +76,7 @@ namespace FSMForUnity
             else
             {
                 addedAnyTransitions.Add(tuple);
-                return builder.AddAnyTransition(transition, to);
+                return builder.AddAnyTransition(null, transition, to);
             }
         }
 

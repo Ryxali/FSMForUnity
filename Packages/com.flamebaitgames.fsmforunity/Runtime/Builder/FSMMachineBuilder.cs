@@ -27,8 +27,8 @@ namespace FSMForUnity
         {
         }
 
-        public IFSMState AddState(IFSMState state)
-        {
+        public IFSMState AddState(string name, IFSMState state)
+		{
             states.Add(state);
             if (defaultState == null)
             {
@@ -37,15 +37,15 @@ namespace FSMForUnity
             return state;
         }
 
-        public IFSMTransition AddTransition(IFSMTransition transition, IFSMState from, IFSMState to)
-        {
+        public IFSMTransition AddTransition(string name, IFSMTransition transition, IFSMState from, IFSMState to)
+		{
             transitions.Add((from, to, transition));
             return transition;
         }
 
 
-        public IFSMTransition AddAnyTransition(IFSMTransition transition, IFSMState to)
-        {
+        public IFSMTransition AddAnyTransition(string name, IFSMTransition transition, IFSMState to)
+		{
             anyTransitions.Add((to, transition));
             return transition;
         }

@@ -23,19 +23,19 @@ namespace FSMForUnity
             var listView = new ListViewFSMState(stateData, root.Q(UIMap_EditorWindow.ListView));
 
             var graphBuilder = FSMMachine.Build();
-            var graphNoSelected = graphBuilder.AddState(new EmptyFSMState());
-            var graphSelected = graphBuilder.AddState(new GraphViewIMGUIFSMState(stateData, root.Q(UIMap_EditorWindow.GraphView)));
+            var graphNoSelected = graphBuilder.AddState(null, new EmptyFSMState());
+            var graphSelected = graphBuilder.AddState(null, new GraphViewIMGUIFSMState(stateData, root.Q(UIMap_EditorWindow.GraphView)));
             graphBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting != null, graphNoSelected, graphSelected);
             graphBuilder.SetDebuggingInfo("FSM Debugger Graph", null);
 
             var inspectorBuilder = FSMMachine.Build();
-            var inspectorNoSelected = inspectorBuilder.AddState(new EmptyFSMState());
-            var inspectorSelected = inspectorBuilder.AddState(new InspectorViewFSMState(stateData, root.Q(UIMap_EditorWindow.InspectorView)));
+            var inspectorNoSelected = inspectorBuilder.AddState(null, new EmptyFSMState());
+            var inspectorSelected = inspectorBuilder.AddState(null, new InspectorViewFSMState(stateData, root.Q(UIMap_EditorWindow.InspectorView)));
             inspectorBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting != null, inspectorNoSelected, inspectorSelected);
             inspectorBuilder.SetDebuggingInfo("FSM Debugger Inspector", null);
 
             var selectionBuilder = FSMMachine.Build();
-            var noSelection = selectionBuilder.AddState(new EmptyFSMState());
+            var noSelection = selectionBuilder.AddState(null, new EmptyFSMState());
             var newSelection = selectionBuilder.AddLambdaState(enter: () => stateData.currentlyInspecting = stateData.wantToInspectNext);
             var haveSelection = selectionBuilder.AddParallelState
             (
@@ -43,10 +43,10 @@ namespace FSMForUnity
                 new SubstateFSMState(graphBuilder.Complete()),
                 new SubstateFSMState(inspectorBuilder.Complete())
             );
-            selectionBuilder.AddTransition(() => stateData.currentlyInspecting == null, haveSelection, noSelection);
-            selectionBuilder.AddTransition(() => stateData.wantToInspectNext != null, noSelection, newSelection);
-            selectionBuilder.AddTransition(() => stateData.currentlyInspecting != null, newSelection, haveSelection);
-            selectionBuilder.AddTransition(() => stateData.wantToInspectNext != stateData.currentlyInspecting, haveSelection, newSelection);
+            selectionBuilder.AddLambdaTransition(() => stateData.currentlyInspecting == null, haveSelection, noSelection);
+            selectionBuilder.AddLambdaTransition(() => stateData.wantToInspectNext != null, noSelection, newSelection);
+            selectionBuilder.AddLambdaTransition(() => stateData.currentlyInspecting != null, newSelection, haveSelection);
+            selectionBuilder.AddLambdaTransition(() => stateData.wantToInspectNext != stateData.currentlyInspecting, haveSelection, newSelection);
             selectionBuilder.SetDebuggingInfo("FSM Debugger Selection", null);
 
             builder.AddParallelState(
