@@ -12,7 +12,9 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "UNITY_2021_1_OR_NEWER"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }
