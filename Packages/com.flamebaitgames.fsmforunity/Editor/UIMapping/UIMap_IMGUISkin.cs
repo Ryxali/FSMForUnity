@@ -7,8 +7,8 @@ internal static class UIMap_IMGUISkin
     public const string NodeLabelStyle = "node-label";
 
     public static readonly Color normalStateColor = Color.white;
-    public static readonly Color activeStateColor = new Color(0.35f, 0.75f, 0.35f, 0.5f);
-    public static readonly Color defaultStateColor = new Color(0.75f, 0.75f, 0.35f, 0.5f);
+    public static readonly Color activeStateColor = new Color(0.35f, 0.75f, 0.35f, 0.5f).linear;
+    public static readonly Color defaultStateColor = new Color(0.75f, 0.75f, 0.35f, 0.5f).linear;
 
     public static GUISkin CreateSkin()
     {
