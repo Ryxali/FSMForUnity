@@ -10,8 +10,6 @@ namespace FSMForUnity
         private static readonly Dictionary<Object, DebugMachine> linkedMachines = new Dictionary<Object, DebugMachine>();
         private static readonly List<DebugMachine> allMachines = new List<DebugMachine>();
 
-        private static readonly Dictionary<IFSMState, string> stateNames = new Dictionary<IFSMState, string>(EqualityComparer_IFSMState.constant);
-
         public static bool TryGetLinkedMachineForObject(Object obj, out DebugMachine machine)
         {
             return linkedMachines.TryGetValue(obj, out machine);

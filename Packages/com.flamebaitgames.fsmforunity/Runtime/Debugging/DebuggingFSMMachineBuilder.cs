@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if DEBUG
+using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
@@ -57,7 +58,10 @@ namespace FSMForUnity
 		public FSMMachine Complete(FSMMachineFlags behaviourParameters = FSMMachineFlags.Default)
 		{
 			var machine = builder.Complete(behaviourParameters);
-			DebuggingLinker.Link(new DebugMachine(machine, stateNames, transitionNames, anyTransitionNames), debugObject);
+			var eventTrail = new EventTrail(100);
+			machine.eventTransmitter = new MachineEventTransmitter(eventTrail);
+			var debugMachine = new DebugMachine(machine, stateNames, transitionNames, anyTransitionNames, eventTrail);
+			DebuggingLinker.Link(debugMachine, debugObject);
 			stateNames = new Dictionary<IFSMState, string>();
 			transitionNames = new Dictionary<FromToTransition, string>();
 			anyTransitionNames = new Dictionary<AnyTransition, string>();
@@ -74,3 +78,4 @@ namespace FSMForUnity
 		}
 	}
 }
+#endif

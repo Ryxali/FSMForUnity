@@ -32,6 +32,7 @@ namespace FSMForUnity
         private readonly ProfilerMarker machineMarker;
         [FSMDebuggerHidden]
         private ProfilerMarker currentStateMarker;
+        internal MachineEventTransmitter eventTransmitter;
 #endif
 		#endregion
 
@@ -70,7 +71,11 @@ namespace FSMForUnity
         [FSMDebuggerHidden]
         private TransitionMapping[] currentTransitions;
 
-        internal FSMMachine(string debugName, IFSMState[] states, TransitionMapping[] anyTransitions, Dictionary<IFSMState, TransitionMapping[]> stateTransitions, IFSMState defaultState)
+        internal FSMMachine(string debugName,
+                            IFSMState[] states,
+                            TransitionMapping[] anyTransitions,
+                            Dictionary<IFSMState, TransitionMapping[]> stateTransitions,
+                            IFSMState defaultState)
         {
             this.states = states;
             this.anyTransitions = anyTransitions;
@@ -106,7 +111,7 @@ namespace FSMForUnity
                 if (IsEnabled)
                 {
 #if DEBUG
-                    this.TransmitEvent(StateEventType.Exit, current);
+                    eventTransmitter.SendStateEvent(StateEventType.Exit, current);
                     current.ExitProfiled(currentStateMarker);
 #else
                     current.Exit();
@@ -122,7 +127,7 @@ namespace FSMForUnity
                 }
 
 #if DEBUG
-                this.TransmitEvent(StateEventType.Enter, current);
+                eventTransmitter.SendStateEvent(StateEventType.Enter, current);
                 current.EnterProfiled(currentStateMarker);
 #else
                 current.Enter();
@@ -143,7 +148,7 @@ namespace FSMForUnity
                 disableMarker.Begin();
                 IsEnabled = false;
 #if DEBUG
-                this.TransmitEvent(StateEventType.Exit, current);
+                eventTransmitter.SendStateEvent(StateEventType.Exit, current);
                 current.ExitProfiled(currentStateMarker);
 #else
                 current.Exit();
@@ -170,7 +175,7 @@ namespace FSMForUnity
 
                 EvaluateTransitions();
 #if DEBUG
-                this.TransmitEvent(StateEventType.Update, current);
+                eventTransmitter.SendStateEvent(StateEventType.Update, current);
                 current.UpdateProfiled(delta, currentStateMarker);
 #else
                 current.Update(delta);
@@ -217,7 +222,7 @@ namespace FSMForUnity
                 if (shouldTransition)
                 {
 #if DEBUG
-                    this.TransmitEvent(StateEventType.Exit, current, mapping.transition);
+                    eventTransmitter.SendTransitionEvent(StateEventType.Exit, current, mapping.transition);
                     current.ExitProfiled(currentStateMarker);
 #else
                     current.Exit();
@@ -235,7 +240,7 @@ namespace FSMForUnity
 #endif
 
 #if DEBUG
-                    this.TransmitEvent(StateEventType.Enter, current, mapping.transition);
+                    eventTransmitter.SendTransitionEvent(StateEventType.Enter, current, mapping.transition);
                     mapping.to.EnterProfiled(currentStateMarker);
 #else
                     mapping.to.Enter();

@@ -17,24 +17,28 @@ namespace FSMForUnity
 		private readonly Dictionary<IFSMState, string> stateNames;
 		private readonly Dictionary<FromToTransition, string> transitionNames;
 		private readonly Dictionary<AnyTransition, string> anyTransitionNames;
+		private readonly EventTrail eventHistory;
 
 		public DebugMachine(IDebuggableMachine machine,
             Dictionary<IFSMState, string> stateNames,
             Dictionary<FromToTransition, string> transitionNames,
-            Dictionary<AnyTransition, string> anyTransitionNames)
+            Dictionary<AnyTransition, string> anyTransitionNames,
+			EventTrail eventHistory)
         {
 			this.machine = machine;
 			this.stateNames = stateNames;
 			this.transitionNames = transitionNames;
 			this.anyTransitionNames = anyTransitionNames;
+			this.eventHistory = eventHistory;
 		}
 
 		public DebugMachine(IDebuggableMachine machine)
-		{
+        {
 			this.machine = machine;
-			stateNames = null;
-			transitionNames = null;
-			anyTransitionNames = null;
+			this.stateNames = null;
+			this.transitionNames = null;
+			this.anyTransitionNames = null;
+			eventHistory = null;
 		}
 
         public bool TryGetActive(out IFSMState state) => machine.TryGetActive(out state);
