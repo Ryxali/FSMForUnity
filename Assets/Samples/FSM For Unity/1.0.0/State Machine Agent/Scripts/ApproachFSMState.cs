@@ -20,12 +20,12 @@ public class ApproachFSMState : IFSMState
 
     public void Enter()
     {
-
+        stateData.myMaterial.SetColor("_Color", Color.red);
     }
 
     public void Exit()
     {
-
+        stateData.myMaterial.SetColor("_Color", stateData.defaultColor);
     }
 
     public void Update(float delta)

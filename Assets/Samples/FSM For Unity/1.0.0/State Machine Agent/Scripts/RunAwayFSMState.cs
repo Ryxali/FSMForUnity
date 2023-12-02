@@ -20,12 +20,12 @@ public class RunAwayFSMState : IFSMState
 
     public void Enter()
     {
-
+        stateData.myMaterial.SetColor("_Color", Color.yellow);
     }
 
     public void Exit()
     {
-
+        stateData.myMaterial.SetColor("_Color", stateData.defaultColor);
     }
 
     public void Update(float delta)

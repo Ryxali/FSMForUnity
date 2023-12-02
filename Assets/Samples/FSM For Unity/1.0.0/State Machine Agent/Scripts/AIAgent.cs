@@ -16,10 +16,13 @@ using FSMForUnity;
 /// If there is no active target, it will idle.
 /// </summary>
 [AddComponentMenu("")]
+[RequireComponent(typeof(Renderer))]
 public class AIAgent : MonoBehaviour
 {
     [SerializeField]
     private Transform target;
+    [SerializeField]
+    private Color color = Color.gray;
 
     private FSMMachine fsm;
     private AIStateData stateData;
@@ -29,14 +32,16 @@ public class AIAgent : MonoBehaviour
         // In this sample we define a state data that is shared
         // amongst states in the machine. This is one way to persist
         // data between states.
-        stateData = new AIStateData(transform);
+        Material materialInstance = GetComponent<Renderer>().material;
+        materialInstance.SetColor("_Color", color);
+        stateData = new AIStateData(transform, materialInstance, color);
 
-        var builder = FSMMachine.Build();
+        FSMMachine.IBuilder builder = FSMMachine.Build();
 
         // Add the three states
-        var idleState = builder.AddState("Idle", new EmptyFSMState());
-        var approachState = builder.AddState("Approaching", new ApproachFSMState(stateData));
-        var runAwayState = builder.AddState("Fleeing", new RunAwayFSMState(stateData));
+        IFSMState idleState = builder.AddState("Idle", new EmptyFSMState());
+        IFSMState approachState = builder.AddState("Approaching", new ApproachFSMState(stateData));
+        IFSMState runAwayState = builder.AddState("Fleeing", new RunAwayFSMState(stateData));
 
         // Here we use expressions to define whether we want to move to this state or not
         // By making it bidirectional and adding the existance of a target as part of the
