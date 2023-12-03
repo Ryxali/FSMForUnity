@@ -39,14 +39,14 @@ namespace FSMForUnity
                             {
                                 for(int i = 0; i < listeners.Count; i++)
                                 {
-                                    listeners[i].OnStateEnter(evt.state);
+                                    listeners[i].OnStateEnter(evt.state, evt.transition);
                                 }
                             }
                             else
                             {
                                 for(int i = 0; i < listeners.Count; i++)
                                 {
-                                    listeners[i].OnStateEnter(evt.state, evt.transition);
+                                    listeners[i].OnStateEnter(evt.state);
                                 }
                             }
                             break;
@@ -55,14 +55,14 @@ namespace FSMForUnity
                             {
                                 for(int i = 0; i < listeners.Count; i++)
                                 {
-                                    listeners[i].OnStateExit(evt.state);
+                                    listeners[i].OnStateExit(evt.state, evt.transition);
                                 }
                             }
                             else
                             {
                                 for(int i = 0; i < listeners.Count; i++)
                                 {
-                                    listeners[i].OnStateExit(evt.state, evt.transition);
+                                    listeners[i].OnStateExit(evt.state);
                                 }
                             }
                             break;
