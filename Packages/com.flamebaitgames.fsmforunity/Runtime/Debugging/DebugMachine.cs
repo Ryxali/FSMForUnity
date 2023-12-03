@@ -70,6 +70,13 @@ namespace FSMForUnity
 			return anyTransitionNames[tuple];
 		}
 
+		public bool PollEvent(out MachineEvent evt)
+		{
+			return eventHistory.Dequeue(out evt);
+		}
+
+		public IEnumerable<MachineEvent> GetHistory() => eventHistory.GetHistory();
+
 		public override bool Equals(object obj)
 		{
 			return obj is DebugMachine machine &&

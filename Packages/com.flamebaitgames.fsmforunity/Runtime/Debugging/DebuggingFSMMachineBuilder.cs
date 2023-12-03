@@ -58,7 +58,7 @@ namespace FSMForUnity
 		public FSMMachine Complete(FSMMachineFlags behaviourParameters = FSMMachineFlags.Default)
 		{
 			var machine = builder.Complete(behaviourParameters);
-			var eventTrail = new EventTrail(100);
+			var eventTrail = new EventTrail(FSMConfig.DebugCyclicEventBufferSize);
 			machine.eventTransmitter = new MachineEventTransmitter(eventTrail);
 			var debugMachine = new DebugMachine(machine, stateNames, transitionNames, anyTransitionNames, eventTrail);
 			DebuggingLinker.Link(debugMachine, debugObject);

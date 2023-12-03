@@ -40,7 +40,8 @@ namespace FSMForUnity
             var haveSelection = selectionBuilder.AddParallelState
             (
                 name: "Have Selection",
-                new LambdaFSMState(enter: () => stateData.selectedState = null, update: default, exit: default),
+                new LambdaFSMState(enter: () => stateData.selectedState = null),
+                new LambdaFSMState(enter: () => stateData.eventBroadcaster.SetTarget(stateData.currentlyInspecting), update: (dt) => stateData.eventBroadcaster.Poll()),
                 new SubstateFSMState(graphBuilder.Complete()),
                 new SubstateFSMState(inspectorBuilder.Complete())
             );

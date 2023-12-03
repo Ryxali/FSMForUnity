@@ -17,7 +17,6 @@ namespace FSMForUnity
 			cyclicalArray = new MachineEvent[capacity];
 			trail = new List<MachineEvent>();
 		}
-		// update events?
 
 		public void Enqueue(MachineEvent evt)
 		{
@@ -46,7 +45,9 @@ namespace FSMForUnity
 		{
 			if(cyclicalCount > 0)
 			{
-				evt = cyclicalArray[(cyclicalIndexStart + cyclicalCount) % cyclicalArray.Length];
+				evt = cyclicalArray[cyclicalIndexStart];
+				cyclicalIndexStart = (cyclicalIndexStart + 1) % cyclicalArray.Length;
+				cyclicalCount--;
 				return true;
 			}
 			else

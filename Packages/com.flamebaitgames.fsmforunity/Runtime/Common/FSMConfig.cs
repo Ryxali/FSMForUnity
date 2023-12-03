@@ -11,5 +11,7 @@ namespace FSMForUnity
         public const int MaxTransitionIterations = 8;
 
         public const string DefaultFSMName = "FSM Machine";
+
+        public const int DebugCyclicEventBufferSize = 100;
     }
 }
