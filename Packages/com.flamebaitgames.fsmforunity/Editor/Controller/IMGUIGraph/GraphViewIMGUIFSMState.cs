@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
-    internal class GraphViewIMGUIFSMState : IFSMState
+    internal class GraphViewIMGUIFSMState : IFSMState, IMachineEventListener
     {
 
         private readonly DebuggerFSMStateData stateData;
@@ -51,10 +51,12 @@ namespace FSMForUnity.Editor.IMGUIGraph
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
+            stateData.eventBroadcaster.AddListener(this);
         }
 
         public void Exit()
         {
+            stateData.eventBroadcaster.RemoveListener(this);
             container.UnregisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
@@ -123,6 +125,31 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 heldPosition = pos;
                 immediateGUIElement.MarkDirtyRepaint();
             }
+        }
+
+        void IMachineEventListener.OnTargetChanged(in DebugMachine machine)
+        {
+            // Debug.Log("Target Changed");
+        }
+        void IMachineEventListener.OnStateEnter(IFSMState state)
+        {
+            // Debug.Log("OnStateEnter");
+        }
+        void IMachineEventListener.OnStateEnter(IFSMState state, IFSMTransition through)
+        {
+            // Debug.Log("OnStateEnter Through");
+        }
+        void IMachineEventListener.OnStateExit(IFSMState state)
+        {
+            // Debug.Log("OnStateExit");
+        }
+        void IMachineEventListener.OnStateExit(IFSMState state, IFSMTransition from)
+        {
+            // Debug.Log("OnStateExit Through");
+        }
+        void IMachineEventListener.OnStateUpdate(IFSMState state)
+        {
+            //Debug.Log("OnStateUpdate");
         }
 
         private void OnGUI()
