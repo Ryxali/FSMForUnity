@@ -10,6 +10,10 @@ internal static class UIMap_IMGUISkin
     public static readonly Color activeStateColor = new Color(0.35f, 0.75f, 0.35f, 0.5f).linear;
     public static readonly Color defaultStateColor = new Color(0.75f, 0.75f, 0.35f, 0.5f).linear;
 
+    public static readonly Color updateColor = activeStateColor;
+    public static readonly Color enterColor = new Color(0.35f, 1f, 0.35f, 1f).linear;
+    public static readonly Color exitColor = new Color(1f, 0.35f, 0.35f, 1f).linear;
+
     public static GUISkin CreateSkin()
     {
         var skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene);

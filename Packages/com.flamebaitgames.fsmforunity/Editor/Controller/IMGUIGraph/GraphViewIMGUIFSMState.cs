@@ -10,6 +10,14 @@ using System.Linq;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
+    internal struct AnimatedNode
+    {
+        public Color color;
+        public float updatePulse;
+        public float enterPulse;
+        public float exitPulse;
+    }
+
     internal class GraphViewIMGUIFSMState : IFSMState, IMachineEventListener
     {
 
@@ -22,7 +30,8 @@ namespace FSMForUnity.Editor.IMGUIGraph
         private readonly Texture2D lineTexture;
 
         private readonly MachineGraph machineGraph = new MachineGraph();
-
+        private AnimatedNode[] animatedNodes;
+        private Dictionary<IFSMState, int> nodeToIndex;
         private Vector2 panPosition;
         private Vector2 heldPosition;
         private bool isPanning;
@@ -46,6 +55,8 @@ namespace FSMForUnity.Editor.IMGUIGraph
         public void Enter()
         {
             machineGraph.Regenerate(stateData.currentlyInspecting);
+            animatedNodes = new AnimatedNode[machineGraph.GetStates().Length];
+            nodeToIndex = machineGraph.GetStates().Select((n, s) => (n, s)).ToDictionary(k => k.n.state, v => v.s);
             container.Add(immediateGUIElement);
             container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
@@ -66,7 +77,23 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         public void Update(float delta)
         {
+            const float DecayTime = 0.3f;
 
+            var decay = delta / DecayTime;
+            for (int i = 0; i < animatedNodes.Length; i++)
+            {
+                var n = animatedNodes[i];
+                n.color = Color.white;
+
+                n.color = IMGUIUtil.Blend(UIMap_IMGUISkin.updateColor * n.updatePulse, n.color);
+                n.color = IMGUIUtil.Blend(UIMap_IMGUISkin.enterColor * n.enterPulse, n.color);
+                n.color = IMGUIUtil.Blend(UIMap_IMGUISkin.exitColor * n.exitPulse, n.color);
+
+                n.enterPulse = Mathf.Max(0f, n.enterPulse - decay);
+                n.exitPulse = Mathf.Max(0f, n.exitPulse - decay);
+                n.updatePulse = Mathf.Max(0f, n.updatePulse - decay);
+                animatedNodes[i] = n;
+            }
         }
 
         private void OnZoom(WheelEvent evt)
@@ -133,23 +160,33 @@ namespace FSMForUnity.Editor.IMGUIGraph
         }
         void IMachineEventListener.OnStateEnter(IFSMState state)
         {
-            // Debug.Log("OnStateEnter");
+            var node = animatedNodes[nodeToIndex[state]];
+            node.enterPulse = 1f;
+            animatedNodes[nodeToIndex[state]] = node;
         }
         void IMachineEventListener.OnStateEnter(IFSMState state, IFSMTransition through)
         {
-            // Debug.Log("OnStateEnter Through");
+            var node = animatedNodes[nodeToIndex[state]];
+            node.enterPulse = 1f;
+            animatedNodes[nodeToIndex[state]] = node;
         }
         void IMachineEventListener.OnStateExit(IFSMState state)
         {
-            // Debug.Log("OnStateExit");
+            var node = animatedNodes[nodeToIndex[state]];
+            node.exitPulse = 1f;
+            animatedNodes[nodeToIndex[state]] = node;
         }
         void IMachineEventListener.OnStateExit(IFSMState state, IFSMTransition from)
         {
-            // Debug.Log("OnStateExit Through");
+            var node = animatedNodes[nodeToIndex[state]];
+            node.exitPulse = 1f;
+            animatedNodes[nodeToIndex[state]] = node;
         }
         void IMachineEventListener.OnStateUpdate(IFSMState state)
         {
-            //Debug.Log("OnStateUpdate");
+            var node = animatedNodes[nodeToIndex[state]];
+            node.updatePulse = 1f;
+            animatedNodes[nodeToIndex[state]] = node;
         }
 
         private void OnGUI()
@@ -178,13 +215,17 @@ namespace FSMForUnity.Editor.IMGUIGraph
                         GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth, lineTexture);
                     }
 
-                    foreach (var state in machineGraph.GetStates())
+                    var stateNodes = machineGraph.GetStates();
+                    for(int i = 0; i < stateNodes.Length; i++)
                     {
+                        var state = stateNodes[i];
+                        var animNode = animatedNodes[i];
                         var color = UIMap_IMGUISkin.normalStateColor;
                         if (stateData.currentlyInspecting.TryGetActive(out var active) && active == state.state)
                             color = IMGUIUtil.Blend(UIMap_IMGUISkin.activeStateColor, color);
                         if (state.state == stateData.currentlyInspecting.DefaultState)
                             color = IMGUIUtil.Blend(UIMap_IMGUISkin.defaultStateColor, color);
+                        color = animNode.color;//IMGUIUtil.Blend(animNode.color, color);
                         var clicked = GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f,stateData.currentlyInspecting.GetStateName(state.state), state.isDefault, color.gamma);
 
                         if(clicked)
