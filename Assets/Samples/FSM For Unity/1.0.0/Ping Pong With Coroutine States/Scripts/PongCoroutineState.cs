@@ -25,9 +25,4 @@ public class PongCoroutineState : CoroutineFSMState
     protected override void Exit()
     {
     }
-
-    protected override void Destroy()
-    {
-
-    }
 }

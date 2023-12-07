@@ -30,9 +30,4 @@ public class PingCoroutineState : CoroutineFSMState
     protected override void Exit()
     {
     }
-
-    protected override void Destroy()
-    {
-
-    }
 }

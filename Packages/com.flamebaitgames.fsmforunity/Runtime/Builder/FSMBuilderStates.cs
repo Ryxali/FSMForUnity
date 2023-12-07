@@ -29,9 +29,9 @@
         /// <param name="update"></param>
         /// <param name="exit"></param>
         /// <returns></returns>
-        public static IFSMState AddLambdaState(this FSMMachine.IBuilder builder, LambdaFSMState.Enter enter = null, LambdaFSMState.Update update = null, LambdaFSMState.Exit exit = null)
+        public static IFSMState AddLambdaState(this FSMMachine.IBuilder builder, LambdaFSMState.Enter enter = null, LambdaFSMState.Update update = null, LambdaFSMState.Exit exit = null, LambdaFSMState.Destroy destroy = null)
         {
-            return builder.AddState(null, new LambdaFSMState(enter, update, exit));
+            return builder.AddState(null, new LambdaFSMState(enter, update, exit, destroy));
         }
 
         /// <summary>
@@ -39,9 +39,9 @@
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static IFSMState AddLambdaState(this FSMMachine.IBuilder builder, string name, LambdaFSMState.Enter enter = null, LambdaFSMState.Update update = null, LambdaFSMState.Exit exit = null)
+        public static IFSMState AddLambdaState(this FSMMachine.IBuilder builder, string name, LambdaFSMState.Enter enter = null, LambdaFSMState.Update update = null, LambdaFSMState.Exit exit = null, LambdaFSMState.Destroy destroy = null)
         {
-            return builder.AddState(name, new LambdaFSMState(enter, update, exit));
+            return builder.AddState(name, new LambdaFSMState(enter, update, exit, destroy));
         }
 
         /// <summary>

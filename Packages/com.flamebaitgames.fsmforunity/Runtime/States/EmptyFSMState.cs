@@ -5,9 +5,6 @@
 	/// </summary>
 	public sealed class EmptyFSMState : IFSMState
 	{
-		public void Destroy()
-		{
-		}
 
 		public void Enter()
 		{

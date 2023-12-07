@@ -90,8 +90,9 @@ namespace FSMForUnity
 
         /// <summary>
         /// Called as the State Machine is destroyed. Dispose of any managed objects here.
+        /// The body of this method is empty. You don't need to call base.Destroy() if you override it.
         /// </summary>
-        protected abstract void Destroy();
+        protected virtual void Destroy() { }
 
         /// <summary>
         /// yield this to wait a set number of seconds. This is Equivalent to
