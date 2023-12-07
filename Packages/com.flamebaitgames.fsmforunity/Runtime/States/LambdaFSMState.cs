@@ -1,4 +1,6 @@
-﻿namespace FSMForUnity
+﻿using System.Diagnostics;
+
+namespace FSMForUnity
 {
 	/// <summary>
 	/// Usable if you want to quickly prototype states for your machine, as
@@ -11,17 +13,20 @@
         public delegate void Enter();
         public delegate void Update(float delta);
         public delegate void Exit();
+        public delegate void Destroy();
 
 
         private readonly Enter enter;
 		private readonly Update update;
         private readonly Exit exit;
+        private readonly Destroy destroy;
 
-        public LambdaFSMState(Enter enter, Update update = null, Exit exit = null)
+        public LambdaFSMState(Enter enter, Update update = null, Exit exit = null, Destroy destroy = null)
         {
             this.enter = enter ?? Default;
             this.update = update ?? Default;
             this.exit = exit ?? Default;
+            this.destroy = destroy ?? Default;
         }
 
         void IFSMState.Enter() => enter();
@@ -30,7 +35,7 @@
 
         void IFSMState.Update(float delta) => update(delta);
 
-		public void Destroy() {}
+        void IFSMState.Destroy() => destroy();
 
         private static void Default() { }
         private static void Default(float delta) { }
