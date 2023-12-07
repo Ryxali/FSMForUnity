@@ -94,6 +94,33 @@ namespace FSMForUnity
         protected abstract void Destroy();
 
         /// <summary>
+        /// yield this to wait a set number of seconds. This is Equivalent to
+        /// the builtin <see cref="UnityEngine.WaitForSeconds"/> instruction, but compatible with the coroutine in this state.
+        /// <para>Note that this will wait for the corresponding <see cref="Time.time"/> elapsed in the Unity engine,
+        /// and not the cumulative delta time of each step of the machine.</para>
+        /// </summary>
+        /// <param name="seconds">Seconds in Unity time to wait.</param>
+        /// <returns>an enumerator you can yield to hold the coroutine.</returns>
+        protected IEnumerator WaitForSeconds(float seconds)
+        {
+            var end = Time.time + seconds;
+            while(Time.time < end)
+                yield return null;
+        }
+        /// <summary>
+        /// yield this to wait a set number of realtime seconds. This is Equivalent to
+        /// the builtin <see cref="UnityEngine.WaitForSecondsRealtime"/> instruction, but compatible with the coroutine in this state.
+        /// </summary>
+        /// <param name="seconds">Seconds in real time to wait.</param>
+        /// <returns>an enumerator you can yield to hold the coroutine.</returns>
+        protected IEnumerator WaitForSecondsRealtime(float seconds)
+        {
+            var end = Time.realtimeSinceStartup + seconds;
+            while (Time.realtimeSinceStartup < end)
+                yield return null;
+        }
+
+        /// <summary>
         /// A special construct for coroutines. The delta time value will be automatically
         /// be updated before each iteration of the coroutine.
         /// </summary>
@@ -104,9 +131,8 @@ namespace FSMForUnity
             /// recieved in the Update function for other non-coroutine states.
             /// </summary>
             public float value { get; internal set; }
-
+            
             public static implicit operator float(DeltaTime deltaTime) => deltaTime.value;
         }
-
-    }
+	}
 }
