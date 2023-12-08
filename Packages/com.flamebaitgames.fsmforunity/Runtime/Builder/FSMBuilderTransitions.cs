@@ -1,6 +1,6 @@
 ﻿namespace FSMForUnity
 {
-	public static class FSMBuilderTransitions
+    public static class FSMBuilderTransitions
     {
 
         /// <summary>

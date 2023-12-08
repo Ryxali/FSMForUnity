@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FSMForUnity
+﻿namespace FSMForUnity
 {
     /// <summary>
     /// A transition that can only be passed through once it has been triggered via
@@ -16,7 +14,7 @@ namespace FSMForUnity
             isSet = true;
         }
 
-		void IFSMTransition.PassThrough()
+        void IFSMTransition.PassThrough()
         {
             isSet = false;
         }

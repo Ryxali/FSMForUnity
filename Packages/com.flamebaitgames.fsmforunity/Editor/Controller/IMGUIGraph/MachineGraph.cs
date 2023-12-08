@@ -1,12 +1,6 @@
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using FSMForUnity;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
+using UnityEngine;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
@@ -54,11 +48,11 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 previousPosition = Vector2.zero,
                 force = Vector2.zero
             };
-            for(int i = 1; i < nodes.Length; i++)
+            for (int i = 1; i < nodes.Length; i++)
             {
                 var state = states[i];
                 var node = nodes[i];
-                if(state == defaultState) // move default node to 0 index if found
+                if (state == defaultState) // move default node to 0 index if found
                 {
                     var defaultNode = nodes[0];
                     node.state = defaultNode.state;
@@ -66,7 +60,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                     nodes[0] = defaultNode;
                 }
 
-                var position = Rotate(Vector2.up,  Mathf.PI * 1f/(Mathf.Max(6f,nodes.Length-1))*(i-1));
+                var position = Rotate(Vector2.up, Mathf.PI * 1f / (Mathf.Max(6f, nodes.Length - 1)) * (i - 1));
                 node.position = node.previousPosition = position;
                 node.state = state;
                 node.force = Vector2.zero;
@@ -75,11 +69,11 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
 
             var indexDict = new Dictionary<IFSMState, int>(EqualityComparer_IFSMState.constant);
-            for(int i = 0; i < nodes.Length; i++)
+            for (int i = 0; i < nodes.Length; i++)
                 indexDict.Add(nodes[i].state, i);
 
             var tI = 0;
-            foreach(var state in states)
+            foreach (var state in states)
             {
                 if (machine.TryGetTransitionsFrom(state, out var mappings))
                 {
@@ -111,23 +105,24 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
             StepSimulation(nodes, transitions);
             var tension = 1f;
-            for(int i = 0; i < MaxSimulationCycles && tension > MaxTensionSqr; i++) // !AreConstraintsSatisfied(nodes);
+            for (int i = 0; i < MaxSimulationCycles && tension > MaxTensionSqr; i++) // !AreConstraintsSatisfied(nodes);
             {
                 tension = StepSimulation(nodes, transitions);
             }
 
             graphNodes = new GraphNode[nodes.Length];
-            for(int i = 0; i < graphNodes.Length; i++)
+            for (int i = 0; i < graphNodes.Length; i++)
             {
                 var node = nodes[i];
-                graphNodes[i] = new GraphNode{
+                graphNodes[i] = new GraphNode
+                {
                     state = node.state,
                     position = node.position,
                     isDefault = i == 0
                 };
             }
             graphConnections = new GraphConnection[transitionCount];
-            for(int i = 0; i < transitionCount; i++)
+            for (int i = 0; i < transitionCount; i++)
             {
                 var transition = transitions[i];
                 graphConnections[i] = new GraphConnection
@@ -145,7 +140,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
             // evaluate tension by selecting the highest force
 
             var maxTension = 0f;
-            for(int i = 0; i < nodes.Length; i++)
+            for (int i = 0; i < nodes.Length; i++)
             {
                 var node = nodes[i];
                 maxTension = Mathf.Max(node.force.sqrMagnitude, maxTension);
@@ -159,17 +154,17 @@ namespace FSMForUnity.Editor.IMGUIGraph
             // then demagnet the nodes
             var maxTension = 0f;
 
-            for(int i = 0; i < nodes.Length; i++)
+            for (int i = 0; i < nodes.Length; i++)
             {
                 var me = nodes[i];
-                for(int otherI = 0; otherI < nodes.Length; otherI++)
+                for (int otherI = 0; otherI < nodes.Length; otherI++)
                 {
-                    if(i != otherI)
+                    if (i != otherI)
                     {
                         var other = nodes[otherI];
                         var diff = other.position - me.position;
                         var fromEq = diff.magnitude - TransitionSpringEqullibrium;
-                        if(diff.magnitude < TransitionSpringEqullibrium)
+                        if (diff.magnitude < TransitionSpringEqullibrium)
                         {
                             var force = diff.normalized * fromEq * RepulsionForce;
                             me.force += force;
@@ -179,7 +174,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 nodes[i] = me;
             }
 
-            for(int i = 0; i < connections.Length; i++)
+            for (int i = 0; i < connections.Length; i++)
             {
                 var connection = connections[i];
                 var nodeA = nodes[connection.from];
@@ -195,7 +190,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 nodes[connection.to] = nodeB;
             }
 
-            for(int i = 1; i < nodes.Length; i++) // start at 1 as index 0 => default state, which is fixed
+            for (int i = 1; i < nodes.Length; i++) // start at 1 as index 0 => default state, which is fixed
             {
                 var me = nodes[i];
                 // verlet integration
@@ -295,7 +290,8 @@ namespace FSMForUnity.Editor.IMGUIGraph
             public int to;
         }
 
-        private static Vector2 Rotate(Vector2 v, float radians) {
+        private static Vector2 Rotate(Vector2 v, float radians)
+        {
             return new Vector2(
                 v.x * Mathf.Cos(radians) - v.y * Mathf.Sin(radians),
                 v.x * Mathf.Sin(radians) + v.y * Mathf.Cos(radians)

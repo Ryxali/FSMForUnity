@@ -1,12 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using FSMForUnity;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
@@ -104,7 +100,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         private void OnPanDown(MouseDownEvent evt)
         {
-            if(evt.button == 2)
+            if (evt.button == 2)
             {
                 isPanning = true;
                 heldPosition = evt.mousePosition;
@@ -117,7 +113,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                     mousePosition = evt.mousePosition,
                     type = EventType.MouseDown
                 };
-                using(var imguiEvt = IMGUIEvent.GetPooled(e))
+                using (var imguiEvt = IMGUIEvent.GetPooled(e))
                 {
                     immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
                 }
@@ -125,7 +121,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
         }
         private void OnPanUp(MouseUpEvent evt)
         {
-            if(evt.button == 2)
+            if (evt.button == 2)
             {
                 isPanning = false;
             }
@@ -137,7 +133,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                     mousePosition = evt.mousePosition,
                     type = EventType.MouseUp
                 };
-                using(var imguiEvt = IMGUIEvent.GetPooled(e))
+                using (var imguiEvt = IMGUIEvent.GetPooled(e))
                 {
                     immediateGUIElement.panel.visualTree.SendEvent(imguiEvt);
                 }
@@ -145,7 +141,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
         }
         private void OnPanDrag(MouseMoveEvent evt)
         {
-            if(isPanning)
+            if (isPanning)
             {
                 var pos = evt.mousePosition;
                 panPosition += pos - heldPosition;
@@ -202,7 +198,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
             using (IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.Translate(panPosition)))
             {
-                using(IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.Scale(Vector3.one * zoomLevel)))
+                using (IMGUIMatrixStack.Auto(GUI.matrix * Matrix4x4.Scale(Vector3.one * zoomLevel)))
                 {
                     var stateRect = new Rect(panelRect.width / 2, panelRect.height / 2, 100, 100);
 
@@ -216,7 +212,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                     }
 
                     var stateNodes = machineGraph.GetStates();
-                    for(int i = 0; i < stateNodes.Length; i++)
+                    for (int i = 0; i < stateNodes.Length; i++)
                     {
                         var state = stateNodes[i];
                         var animNode = animatedNodes[i];
@@ -226,9 +222,9 @@ namespace FSMForUnity.Editor.IMGUIGraph
                         if (state.state == stateData.currentlyInspecting.DefaultState)
                             color = IMGUIUtil.Blend(UIMap_IMGUISkin.defaultStateColor, color);
                         color = animNode.color;//IMGUIUtil.Blend(animNode.color, color);
-                        var clicked = GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f,stateData.currentlyInspecting.GetStateName(state.state), state.isDefault, color.gamma);
+                        var clicked = GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, stateData.currentlyInspecting.GetStateName(state.state), state.isDefault, color.gamma);
 
-                        if(clicked)
+                        if (clicked)
                         {
                             stateData.selectedState = state.state;
                         }

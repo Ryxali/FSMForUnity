@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using System.Diagnostics;
+using UnityEngine;
 
 namespace FSMForUnity
 {
-	internal static class DebuggingLinker
+    internal static class DebuggingLinker
     {
         private static readonly Dictionary<Object, DebugMachine> linkedMachines = new Dictionary<Object, DebugMachine>();
         private static readonly List<DebugMachine> allMachines = new List<DebugMachine>();
@@ -26,20 +25,20 @@ namespace FSMForUnity
         }
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
-		public static void Link(DebugMachine machine, Object associatedObject)
+        public static void Link(DebugMachine machine, Object associatedObject)
         {
             if (associatedObject)
                 linkedMachines.Add(associatedObject, machine);
             allMachines.Add(machine);
-		}
+        }
 
         public static IReadOnlyList<DebugMachine> GetAllMachines() => allMachines;
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
-		public static void TransmitEvent(this IDebuggableMachine machine, StateEventType evt, IFSMState state)
+        public static void TransmitEvent(this IDebuggableMachine machine, StateEventType evt, IFSMState state)
         {
             //UnityEngine.Debug.Log($"{machine.GetName()} {evt} {state}");
-		}
+        }
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void TransmitEvent(this IDebuggableMachine machine, StateEventType evt, IFSMState state, IFSMTransition through)

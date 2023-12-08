@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FSMForUnity
 {
-	internal sealed class SafetyCheckingFSMMachineBuilder : FSMMachine.IBuilder
+    internal sealed class SafetyCheckingFSMMachineBuilder : FSMMachine.IBuilder
     {
         private readonly HashSet<IFSMState> addedStates = new HashSet<IFSMState>(EqualityComparer_IFSMState.constant);
         private readonly HashSet<FromToTransition> addedFromToTransitions = new HashSet<FromToTransition>(EqualityComparer_FromToTransition.constant);
@@ -11,14 +11,14 @@ namespace FSMForUnity
 
         private readonly FSMMachine.IBuilder builder;
 
-		public SafetyCheckingFSMMachineBuilder(FSMMachine.IBuilder builder)
-		{
-			this.builder = builder;
-		}
+        public SafetyCheckingFSMMachineBuilder(FSMMachine.IBuilder builder)
+        {
+            this.builder = builder;
+        }
 
 
         public IFSMState AddState(string name, IFSMState state)
-		{
+        {
             if (state == null)
                 throw new System.ArgumentNullException(nameof(state), "You cannot add null states to a machine. Consider adding an EmptyState instead.");
             else if (addedStates.Contains(state))
@@ -28,18 +28,18 @@ namespace FSMForUnity
                 addedStates.Add(state);
                 return builder.AddState(name, state);
             }
-		}
+        }
 
-		public void SetDefaultState(IFSMState state)
-		{
-            if(addedStates.Contains(state))
+        public void SetDefaultState(IFSMState state)
+        {
+            if (addedStates.Contains(state))
                 throw new System.ArgumentException(nameof(state), "Only states added to the machine can be set as default.");
             else
                 builder.SetDefaultState(state);
-		}
+        }
 
-		public IFSMTransition AddTransition(string name, IFSMTransition transition, IFSMState from, IFSMState to)
-		{
+        public IFSMTransition AddTransition(string name, IFSMTransition transition, IFSMState from, IFSMState to)
+        {
             var tuple = new FromToTransition
             {
                 from = from,
@@ -56,7 +56,7 @@ namespace FSMForUnity
                 throw new System.ArgumentException(nameof(from), "You must add the state via AddState before adding transitions from it");
             else if (!addedStates.Contains(to))
                 throw new System.ArgumentException(nameof(to), "You must add the state via AddState before adding transitions to it");
-            else if(addedFromToTransitions.Contains(tuple))
+            else if (addedFromToTransitions.Contains(tuple))
                 throw new System.ArgumentException("This transition has already been added connecting to the from state to the to state.");
             else
             {
@@ -66,7 +66,7 @@ namespace FSMForUnity
         }
 
         public IFSMTransition AddAnyTransition(string name, IFSMTransition transition, IFSMState to)
-		{
+        {
             var tuple = new AnyTransition
             {
                 to = to,
@@ -78,7 +78,7 @@ namespace FSMForUnity
                 throw new System.ArgumentNullException(nameof(to), "The to state cannot be null.");
             else if (!addedStates.Contains(to))
                 throw new System.ArgumentException(nameof(to), "You must add the state via AddState before adding transitions to it.");
-            else if(addedAnyTransitions.Contains(tuple))
+            else if (addedAnyTransitions.Contains(tuple))
                 throw new System.ArgumentException("This transition has already been added connecting from any state to this state");
             else
             {
@@ -88,21 +88,21 @@ namespace FSMForUnity
         }
 
         public FSMMachine Complete(FSMMachineFlags behaviourParameters = FSMMachineFlags.Default)
-		{
-			return builder.Complete(behaviourParameters);
-		}
+        {
+            return builder.Complete(behaviourParameters);
+        }
 
-		public void SetDebuggingInfo(string machineName, Object associatedObject)
-		{
-			builder.SetDebuggingInfo(machineName, associatedObject);
-		}
+        public void SetDebuggingInfo(string machineName, Object associatedObject)
+        {
+            builder.SetDebuggingInfo(machineName, associatedObject);
+        }
 
-		void FSMMachine.IBuilder.Clear()
-		{
+        void FSMMachine.IBuilder.Clear()
+        {
             addedStates.Clear();
             addedFromToTransitions.Clear();
             addedAnyTransitions.Clear();
             builder.Clear();
-		}
+        }
     }
 }

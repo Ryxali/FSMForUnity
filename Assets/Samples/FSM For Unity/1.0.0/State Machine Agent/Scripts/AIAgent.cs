@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using FSMForUnity;
+using System.Collections;
+using UnityEngine;
 
 /// <summary>
 /// Here we define the behaviour for the agent. It has the following 3 states:
@@ -57,7 +56,7 @@ public class AIAgent : MonoBehaviour
     IEnumerator TargetingLoop()
     {
         // Here we simply set and clear the target periodically
-        while(true)
+        while (true)
         {
             stateData.target = target;
             yield return new WaitForSeconds(10f);

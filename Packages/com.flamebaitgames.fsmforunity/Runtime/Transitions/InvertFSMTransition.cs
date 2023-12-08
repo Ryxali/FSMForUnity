@@ -34,7 +34,7 @@
             this.transition = transition;
         }
 
-		void IFSMTransition.PassThrough()
+        void IFSMTransition.PassThrough()
         {
             transition.PassThrough();
         }

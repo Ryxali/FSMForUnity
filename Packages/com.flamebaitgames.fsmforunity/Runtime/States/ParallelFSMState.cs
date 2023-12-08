@@ -1,14 +1,13 @@
-using System.Linq;
 using Unity.Profiling;
 
 namespace FSMForUnity
 {
 
-	/// <summary>
-	/// Lay several states in parallel. This allows you to split up a single state
-	/// into multiple states while still sharing the same life cycle.
-	/// </summary>
-	public sealed class ParallelFSMState : IFSMState
+    /// <summary>
+    /// Lay several states in parallel. This allows you to split up a single state
+    /// into multiple states while still sharing the same life cycle.
+    /// </summary>
+    public sealed class ParallelFSMState : IFSMState
     {
         private readonly IFSMState[] states;
 #if DEBUG
@@ -28,7 +27,7 @@ namespace FSMForUnity
             this.states = states;
 #if DEBUG
             markers = new ProfilerMarker[states.Length];
-            for(int i = 0; i < markers.Length; i++)
+            for (int i = 0; i < markers.Length; i++)
             {
                 markers[i] = new ProfilerMarker(states[i].GetType().Name);
             }
@@ -111,5 +110,5 @@ namespace FSMForUnity
 #endif
             }
         }
-	}
+    }
 }

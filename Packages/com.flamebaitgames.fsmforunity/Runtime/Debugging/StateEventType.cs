@@ -1,6 +1,6 @@
 ﻿namespace FSMForUnity
 {
-	internal enum StateEventType
+    internal enum StateEventType
     {
         None,
         Enter,

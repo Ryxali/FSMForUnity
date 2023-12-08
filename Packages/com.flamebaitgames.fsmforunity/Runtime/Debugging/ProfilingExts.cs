@@ -2,7 +2,7 @@
 
 namespace FSMForUnity
 {
-	internal static class ProfilingExts
+    internal static class ProfilingExts
     {
         private static readonly ProfilerMarker enterMarker = new ProfilerMarker("Enter");
         private static readonly ProfilerMarker updateMarker = new ProfilerMarker("Update");

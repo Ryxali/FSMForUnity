@@ -4,7 +4,7 @@ using static FSMForUnity.FSMMachine;
 
 namespace FSMForUnity
 {
-	internal static class FSMMachineBuilderPool
+    internal static class FSMMachineBuilderPool
     {
         private static readonly Stack<FSMMachine.IBuilder> builders = new Stack<FSMMachine.IBuilder>();
         private static Mutex mut = new Mutex();

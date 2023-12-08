@@ -1,28 +1,28 @@
 ﻿namespace FSMForUnity
 {
-	/// <summary>
-	/// A transition that is always true. Usable when you quickly want to move from one state to another.
-	/// The object is immutable, so only a single AlwaysTransition.constant is available.
-	/// <code>
-	/// // Given a machine with two sample states
-	/// FSMMachine.Builder builder = FSMMachine.Build();
-	/// var stateA = builder.AddState(new EmptyFSMState());
-	/// var stateB = builder.AddState(new EmptyFSMState());
-	/// // When in stateA, we will always transition to stateB
-	/// var transition = builder.AddTransition(AlwaysTransition.constant, stateA, stateB);
-	/// </code>
-	/// </summary>
-	public sealed class AlwaysFSMTransition : IFSMTransition
-	{
-		public static readonly AlwaysFSMTransition constant = new AlwaysFSMTransition();
+    /// <summary>
+    /// A transition that is always true. Usable when you quickly want to move from one state to another.
+    /// The object is immutable, so only a single AlwaysTransition.constant is available.
+    /// <code>
+    /// // Given a machine with two sample states
+    /// FSMMachine.Builder builder = FSMMachine.Build();
+    /// var stateA = builder.AddState(new EmptyFSMState());
+    /// var stateB = builder.AddState(new EmptyFSMState());
+    /// // When in stateA, we will always transition to stateB
+    /// var transition = builder.AddTransition(AlwaysTransition.constant, stateA, stateB);
+    /// </code>
+    /// </summary>
+    public sealed class AlwaysFSMTransition : IFSMTransition
+    {
+        public static readonly AlwaysFSMTransition constant = new AlwaysFSMTransition();
 
-		private AlwaysFSMTransition() { }
+        private AlwaysFSMTransition() { }
 
-		void IFSMTransition.PassThrough() {}
+        void IFSMTransition.PassThrough() { }
 
-		bool IFSMTransition.ShouldTransition()
-		{
-			return true;
-		}
-	}
+        bool IFSMTransition.ShouldTransition()
+        {
+            return true;
+        }
+    }
 }

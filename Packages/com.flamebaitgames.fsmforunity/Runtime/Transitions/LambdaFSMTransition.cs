@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FSMForUnity
+﻿namespace FSMForUnity
 {
     /// <summary>
     /// Takes a <see cref="LambdaFSMTransition.Criteria"/> and transforms it into a transition.
@@ -29,7 +27,7 @@ namespace FSMForUnity
             this.transitionCondition = transitionCondition != null ? transitionCondition : NullCriteria;
         }
 
-		void IFSMTransition.PassThrough() {}
+        void IFSMTransition.PassThrough() { }
 
         bool IFSMTransition.ShouldTransition()
         {

@@ -1,16 +1,9 @@
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using FSMForUnity;
-using System.Collections;
-using System.Reflection;
-using System.Linq;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
 
-	internal static class IMGUIUtil
+    internal static class IMGUIUtil
     {
         /// <summary>
         /// Generate a square texture which resembles a grid pattern
@@ -18,9 +11,9 @@ namespace FSMForUnity.Editor.IMGUIGraph
         public static Texture2D GenerateRepeatingGridTexture(int size, int thickness, Color backgroundColor, Color lineColor)
         {
             var tex2D = new Texture2D(size, size);
-            for(int y = 0; y < size; y++)
+            for (int y = 0; y < size; y++)
             {
-                for(int x = 0; x < size; x++)
+                for (int x = 0; x < size; x++)
                 {
                     var color = y < thickness || x < thickness ? lineColor : backgroundColor;
                     tex2D.SetPixel(x, y, color);
@@ -32,7 +25,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         public static Rect PadRect(Rect rect, float amount)
         {
-            return new Rect(rect.x+amount, rect.y+amount, rect.width-amount*2, rect.height-amount*2);
+            return new Rect(rect.x + amount, rect.y + amount, rect.width - amount * 2, rect.height - amount * 2);
         }
 
 
@@ -44,13 +37,13 @@ namespace FSMForUnity.Editor.IMGUIGraph
         {
             var transparent = new Color();
             var tex2D = new Texture2D(length, width);
-            for(int y = 0; y < width; y++)
+            for (int y = 0; y < width; y++)
             {
-                for(int x = 0; x < length; x++)
+                for (int x = 0; x < length; x++)
                 {
-                    var isLine = Mathf.Abs(width/2 - y) <= thickness;
-                    var isHead = x - length/2 + width/2 + Mathf.Abs(width / 2 - y) * 2 < width;
-                    var isHeadStart = x > length/2 - width/2;
+                    var isLine = Mathf.Abs(width / 2 - y) <= thickness;
+                    var isHead = x - length / 2 + width / 2 + Mathf.Abs(width / 2 - y) * 2 < width;
+                    var isHeadStart = x > length / 2 - width / 2;
 
                     var c = isLine || (isHeadStart && isHead) ? color : transparent;
                     tex2D.SetPixel(x, y, c);

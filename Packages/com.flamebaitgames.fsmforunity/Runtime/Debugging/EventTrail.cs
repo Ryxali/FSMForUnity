@@ -1,62 +1,61 @@
 using System.Collections.Generic;
-using System;
 
 namespace FSMForUnity
 {
     internal class EventTrail
-	{
-		private readonly MachineEvent[] cyclicalArray;
-		private readonly List<MachineEvent> trail;
+    {
+        private readonly MachineEvent[] cyclicalArray;
+        private readonly List<MachineEvent> trail;
 
-		private int cyclicalIndexStart;
-		private int cyclicalCount;
-		private MachineEvent current;
+        private int cyclicalIndexStart;
+        private int cyclicalCount;
+        private MachineEvent current;
 
-		public EventTrail(int capacity)
-		{
-			cyclicalArray = new MachineEvent[capacity];
-			trail = new List<MachineEvent>();
-		}
+        public EventTrail(int capacity)
+        {
+            cyclicalArray = new MachineEvent[capacity];
+            trail = new List<MachineEvent>();
+        }
 
-		public void Enqueue(MachineEvent evt)
-		{
-			if(evt.type == current.type)
-			{
-				current.count++;
-				trail[trail.Count-1] = current;
-			}
-			else
-			{
-				current = evt;
-				trail.Add(current);
-			}
+        public void Enqueue(MachineEvent evt)
+        {
+            if (evt.type == current.type)
+            {
+                current.count++;
+                trail[trail.Count - 1] = current;
+            }
+            else
+            {
+                current = evt;
+                trail.Add(current);
+            }
 
-			var index = (cyclicalIndexStart + cyclicalCount) % cyclicalArray.Length;
-			cyclicalCount++;
-			if(cyclicalCount >= cyclicalArray.Length)
-			{
-				cyclicalCount--;
-				cyclicalIndexStart = (cyclicalIndexStart + 1) % cyclicalArray.Length;
-			}
-			cyclicalArray[index] = evt;
-		}
+            var index = (cyclicalIndexStart + cyclicalCount) % cyclicalArray.Length;
+            cyclicalCount++;
+            if (cyclicalCount >= cyclicalArray.Length)
+            {
+                cyclicalCount--;
+                cyclicalIndexStart = (cyclicalIndexStart + 1) % cyclicalArray.Length;
+            }
+            cyclicalArray[index] = evt;
+        }
 
-		public bool Dequeue(out MachineEvent evt)
-		{
-			if(cyclicalCount > 0)
-			{
-				evt = cyclicalArray[cyclicalIndexStart];
-				cyclicalIndexStart = (cyclicalIndexStart + 1) % cyclicalArray.Length;
-				cyclicalCount--;
-				return true;
-			}
-			else
-			{
-				evt = default;
-				return false;
-			}
-		}
+        public bool Dequeue(out MachineEvent evt)
+        {
+            if (cyclicalCount > 0)
+            {
+                evt = cyclicalArray[cyclicalIndexStart];
+                cyclicalIndexStart = (cyclicalIndexStart + 1) % cyclicalArray.Length;
+                cyclicalCount--;
+                return true;
+            }
+            else
+            {
+                evt = default;
+                return false;
+            }
+        }
 
-		public IEnumerable<MachineEvent> GetHistory() => trail;
-	}
+        public IEnumerable<MachineEvent> GetHistory() => trail;
+    }
 }

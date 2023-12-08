@@ -1,6 +1,6 @@
 ﻿namespace FSMForUnity
 {
-	public static class FSMTransitionExts
+    public static class FSMTransitionExts
     {
         /// <summary>
         /// Create a <see cref="InvertFSMTransition"/> using the supplied transition.

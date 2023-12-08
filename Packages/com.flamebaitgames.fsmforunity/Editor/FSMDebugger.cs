@@ -1,8 +1,7 @@
+using FSMForUnity;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using FSMForUnity;
 
 public class FSMDebugger : EditorWindow
 {
@@ -41,8 +40,8 @@ public class FSMDebugger : EditorWindow
         controller = null;
     }
 
-	private void OnInspectorUpdate()
-	{
+    private void OnInspectorUpdate()
+    {
         // From docs OnInspectorUpdate is 10x per second
         const float InspectorFrameRate = 1f / 10f;
         controller?.Update(InspectorFrameRate);
@@ -61,5 +60,5 @@ public class FSMDebugger : EditorWindow
                 // foldoutElement.Add
             }
         }*/
-	}
+    }
 }

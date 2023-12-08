@@ -43,6 +43,6 @@ namespace FSMForUnity
         /// <summary>
         /// Called as the State Machine is destroyed. Dispose of any managed objects here.
         /// </summary>
-        void Destroy() {}
+        void Destroy() { }
     }
 }

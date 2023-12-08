@@ -1,12 +1,4 @@
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using FSMForUnity;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
@@ -16,13 +8,13 @@ namespace FSMForUnity.Editor.IMGUIGraph
         public static bool DrawStateNode(Vector2 center, float scale, string label, bool isDefaultState, Color color)
         {
             var size = new Vector2(200f, 150f);
-            var box = new Rect(center.x-size.x/2f, center.y-size.y/2f, size.x * scale, size.y * scale);
+            var box = new Rect(center.x - size.x / 2f, center.y - size.y / 2f, size.x * scale, size.y * scale);
             var c = GUI.color;
             GUI.color = color;
             var clicked = GUI.Button(box, GUIContent.none);
             GUI.color = c;
             GUILayout.BeginArea(IMGUIUtil.PadRect(box, 5f));
-            if(isDefaultState)
+            if (isDefaultState)
                 GUILayout.Label("(Default)", GUI.skin.GetStyle(UIMap_IMGUISkin.NodeLabelStyle));
             GUILayout.Label(label, GUI.skin.GetStyle(UIMap_IMGUISkin.NodeLabelStyle));
             GUILayout.EndArea();

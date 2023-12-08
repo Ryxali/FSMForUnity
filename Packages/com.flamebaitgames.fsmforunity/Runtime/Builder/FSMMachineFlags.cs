@@ -2,7 +2,7 @@
 
 namespace FSMForUnity
 {
-	[Flags]
+    [Flags]
     public enum FSMMachineFlags
     {
         /// <summary>

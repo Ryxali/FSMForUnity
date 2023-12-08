@@ -1,14 +1,12 @@
-﻿using System.Diagnostics;
-
-namespace FSMForUnity
+﻿namespace FSMForUnity
 {
-	/// <summary>
-	/// Usable if you want to quickly prototype states for your machine, as
-	/// you can define new behaviours without needing to define a new class.
-	/// It also allows you to define all state functions in a single class with
-	/// a shared state, if that's a preferred workflow.
-	/// </summary>
-	public sealed class LambdaFSMState : IFSMState
+    /// <summary>
+    /// Usable if you want to quickly prototype states for your machine, as
+    /// you can define new behaviours without needing to define a new class.
+    /// It also allows you to define all state functions in a single class with
+    /// a shared state, if that's a preferred workflow.
+    /// </summary>
+    public sealed class LambdaFSMState : IFSMState
     {
         public delegate void Enter();
         public delegate void Update(float delta);
@@ -17,7 +15,7 @@ namespace FSMForUnity
 
 
         private readonly Enter enter;
-		private readonly Update update;
+        private readonly Update update;
         private readonly Exit exit;
         private readonly Destroy destroy;
 

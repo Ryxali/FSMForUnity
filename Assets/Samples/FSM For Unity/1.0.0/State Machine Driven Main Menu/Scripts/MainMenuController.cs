@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using FSMForUnity;
+using UnityEngine;
 
 /// <summary>
 /// With this sample, we control the state in <see cref="MainMenuPanels"/>
@@ -48,7 +46,8 @@ public class MainMenuController : MonoBehaviour
         panels.loadingPanel.interactable = false;
 
         // We could make a state for a quit behaviour, but this is also fine in most use cases.
-        panels.quitButton.onClick.AddListener(() => {
+        panels.quitButton.onClick.AddListener(() =>
+        {
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else

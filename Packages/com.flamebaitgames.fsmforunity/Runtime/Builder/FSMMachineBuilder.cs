@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
 using Unity.Profiling;
-using System.Diagnostics.CodeAnalysis;
+using UnityEngine;
 
 namespace FSMForUnity
 {
-	/// <summary>
-	/// Standard builder for FSMMachine
-	/// </summary>
-	internal sealed class FSMMachineBuilder : FSMMachine.IBuilder
+    /// <summary>
+    /// Standard builder for FSMMachine
+    /// </summary>
+    internal sealed class FSMMachineBuilder : FSMMachine.IBuilder
     {
         private static readonly ProfilerMarker fsmComplete = new ProfilerMarker("FSMMachineBuilder.Complete");
         private static readonly ProfilerMarker fsmNew = new ProfilerMarker("FSMMachineBuilder.New");
@@ -28,7 +26,7 @@ namespace FSMForUnity
         }
 
         public IFSMState AddState(string name, IFSMState state)
-		{
+        {
             states.Add(state);
             if (defaultState == null)
             {
@@ -38,14 +36,14 @@ namespace FSMForUnity
         }
 
         public IFSMTransition AddTransition(string name, IFSMTransition transition, IFSMState from, IFSMState to)
-		{
+        {
             transitions.Add((from, to, transition));
             return transition;
         }
 
 
         public IFSMTransition AddAnyTransition(string name, IFSMTransition transition, IFSMState to)
-		{
+        {
             anyTransitions.Add((to, transition));
             return transition;
         }
@@ -61,10 +59,10 @@ namespace FSMForUnity
             // Map all transitions and create dictionaries
             var stateTransitionsDict = new Dictionary<IFSMState, TransitionMapping[]>(EqualityComparer_IFSMState.constant);
             // calculate size for each transition array originating from a state
-            for(int i = 0; i < transitions.Count; i++)
+            for (int i = 0; i < transitions.Count; i++)
             {
                 var t = transitions[i];
-                if(stateTransitionCountBuffer.TryGetValue(t.Item1, out var counter))
+                if (stateTransitionCountBuffer.TryGetValue(t.Item1, out var counter))
                 {
                     stateTransitionCountBuffer[t.Item1] = counter + 1;
                 }
@@ -74,20 +72,20 @@ namespace FSMForUnity
                 }
             }
             // Generate arrays for each set of transitions originating from a state
-            for(int i = 0; i < states.Count; i++)
+            for (int i = 0; i < states.Count; i++)
             {
                 var state = states[i];
-                if(stateTransitionCountBuffer.TryGetValue(state, out var count))
+                if (stateTransitionCountBuffer.TryGetValue(state, out var count))
                 {
                     stateTransitionsDict.Add(state, new TransitionMapping[count]);
                     stateTransitionCountBuffer[state] = 0;
                 }
             }
             // Fill arrays with supplied transitions
-            for(int i = 0; i < transitions.Count; i++)
+            for (int i = 0; i < transitions.Count; i++)
             {
                 var t = transitions[i];
-                if(stateTransitionsDict.TryGetValue(t.Item1, out var stateTransitions))
+                if (stateTransitionsDict.TryGetValue(t.Item1, out var stateTransitions))
                 {
                     var count = stateTransitionCountBuffer[t.Item1];
                     stateTransitions[count] = new TransitionMapping
@@ -101,7 +99,7 @@ namespace FSMForUnity
 
             // Pack any transitions into array
             var anyTransitionsArr = new TransitionMapping[anyTransitions.Count];
-            for(int i = 0; i < anyTransitions.Count; i++)
+            for (int i = 0; i < anyTransitions.Count; i++)
             {
                 var t = anyTransitions[i];
                 anyTransitionsArr[i] = new TransitionMapping
@@ -127,15 +125,15 @@ namespace FSMForUnity
             return fsm;
         }
 
-		public void SetDefaultState(IFSMState state)
-		{
+        public void SetDefaultState(IFSMState state)
+        {
             defaultState = state;
-		}
+        }
 
-		public void SetDebuggingInfo(string machineName, Object associatedObject)
-		{
+        public void SetDebuggingInfo(string machineName, Object associatedObject)
+        {
             this.machineName = machineName;
-		}
+        }
         public void Clear()
         {
             states.Clear();
@@ -146,6 +144,6 @@ namespace FSMForUnity
             defaultState = null;
         }
         void FSMMachine.IBuilder.Clear() => Clear();
-	}
+    }
 
 }

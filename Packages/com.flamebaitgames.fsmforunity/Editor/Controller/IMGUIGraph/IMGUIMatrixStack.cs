@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace FSMForUnity.Editor.IMGUIGraph
 {
@@ -44,10 +44,10 @@ namespace FSMForUnity.Editor.IMGUIGraph
             private Matrix4x4 previous;
 
             public GUIMatrix(Stack<GUIMatrix> stack, Stack<GUIMatrix> pool)
-			{
-				this.stack = stack;
-				this.pool = pool;
-			}
+            {
+                this.stack = stack;
+                this.pool = pool;
+            }
 
 
             public void Begin(Matrix4x4 matrix)

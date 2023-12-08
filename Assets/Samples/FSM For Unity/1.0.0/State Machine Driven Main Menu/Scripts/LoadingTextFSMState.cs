@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using FSMForUnity;
 using UnityEngine;
 using UnityEngine.UI;
-using FSMForUnity;
 
 /// <summary>
 /// Periodically updates the supplied text component with a random
@@ -32,7 +30,7 @@ public class LoadingTextFSMState : IFSMState
 
     public void Update(float delta)
     {
-        if(Time.frameCount % 120 == 0)
+        if (Time.frameCount % 120 == 0)
         {
             var entry = entries[Random.Range(0, entries.Length)];
             text.text = entry;

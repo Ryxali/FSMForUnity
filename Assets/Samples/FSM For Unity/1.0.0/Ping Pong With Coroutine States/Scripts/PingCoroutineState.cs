@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using FSMForUnity;
+using System.Collections;
+using UnityEngine;
 
 public class PingCoroutineState : CoroutineFSMState
 {
@@ -16,7 +15,7 @@ public class PingCoroutineState : CoroutineFSMState
     {
         Debug.Log("Ping");
         var t = 0f;
-        while(t < 1)
+        while (t < 1)
         {
             // delta time is accessible via CoroutineFSMState´
             t += deltaTime;

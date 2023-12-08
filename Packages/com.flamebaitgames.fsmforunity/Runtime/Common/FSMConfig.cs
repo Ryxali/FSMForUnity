@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-
-namespace FSMForUnity
+﻿namespace FSMForUnity
 {
-	internal static class FSMConfig
+    internal static class FSMConfig
     {
         /// <summary>
         /// Maximum number of transitions allowed in a single

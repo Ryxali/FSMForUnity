@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace FSMForUnity
 {
-	internal sealed class EqualityComparer_IFSMTransition : IEqualityComparer<IFSMTransition>
+    internal sealed class EqualityComparer_IFSMTransition : IEqualityComparer<IFSMTransition>
     {
         public static readonly EqualityComparer_IFSMTransition constant = new EqualityComparer_IFSMTransition();
 

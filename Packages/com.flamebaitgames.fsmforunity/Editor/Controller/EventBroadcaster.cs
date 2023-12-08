@@ -20,7 +20,7 @@ namespace FSMForUnity
         public void SetTarget(DebugMachine machine)
         {
             target = machine;
-            for(int i = 0; i < listeners.Count; i++)
+            for (int i = 0; i < listeners.Count; i++)
             {
                 listeners[i].OnTargetChanged(in target);
             }
@@ -28,46 +28,46 @@ namespace FSMForUnity
 
         public void Poll()
         {
-            if(target.IsValid)
+            if (target.IsValid)
             {
-                while(target.PollEvent(out var evt))
+                while (target.PollEvent(out var evt))
                 {
-                    switch(evt.type)
+                    switch (evt.type)
                     {
                         case StateEventType.Enter:
-                            if(evt.HasTransition)
+                            if (evt.HasTransition)
                             {
-                                for(int i = 0; i < listeners.Count; i++)
+                                for (int i = 0; i < listeners.Count; i++)
                                 {
                                     listeners[i].OnStateEnter(evt.state, evt.transition);
                                 }
                             }
                             else
                             {
-                                for(int i = 0; i < listeners.Count; i++)
+                                for (int i = 0; i < listeners.Count; i++)
                                 {
                                     listeners[i].OnStateEnter(evt.state);
                                 }
                             }
                             break;
                         case StateEventType.Exit:
-                            if(evt.HasTransition)
+                            if (evt.HasTransition)
                             {
-                                for(int i = 0; i < listeners.Count; i++)
+                                for (int i = 0; i < listeners.Count; i++)
                                 {
                                     listeners[i].OnStateExit(evt.state, evt.transition);
                                 }
                             }
                             else
                             {
-                                for(int i = 0; i < listeners.Count; i++)
+                                for (int i = 0; i < listeners.Count; i++)
                                 {
                                     listeners[i].OnStateExit(evt.state);
                                 }
                             }
                             break;
                         case StateEventType.Update:
-                            for(int i = 0; i < listeners.Count; i++)
+                            for (int i = 0; i < listeners.Count; i++)
                             {
                                 listeners[i].OnStateUpdate(evt.state);
                             }

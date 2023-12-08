@@ -1,6 +1,6 @@
 ﻿namespace FSMForUnity
 {
-	internal struct FromToTransition
+    internal struct FromToTransition
     {
         public IFSMTransition transition;
         public IFSMState from;

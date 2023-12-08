@@ -1,6 +1,6 @@
 ﻿namespace FSMForUnity
 {
-	public static class FSMBuilderStates
+    public static class FSMBuilderStates
     {
         /// <summary>
         /// <inheritdoc cref="FSMMachine.IBuilder.AddState(string, IFSMState)"/>

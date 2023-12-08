@@ -6,15 +6,15 @@ using UnityEngine;
 namespace FSMForUnity
 {
 
-	/// <summary>
-	/// A standard Finite State Machine. This object contains a number of states.
-	/// Transitions map between these states and acts as the condition for transitioning between them.
-	/// The machine 
-	/// </summary>
-	public sealed class FSMMachine : IDebuggableMachine
+    /// <summary>
+    /// A standard Finite State Machine. This object contains a number of states.
+    /// Transitions map between these states and acts as the condition for transitioning between them.
+    /// The machine 
+    /// </summary>
+    public sealed class FSMMachine : IDebuggableMachine
     {
-		#region Profiling
-		private static readonly ProfilerMarker debugOnlyMarker = new ProfilerMarker("Debug_Only");
+        #region Profiling
+        private static readonly ProfilerMarker debugOnlyMarker = new ProfilerMarker("Debug_Only");
         private static readonly ProfilerMarker enableMarker = new ProfilerMarker("Enable");
         private static readonly ProfilerMarker disableMarker = new ProfilerMarker("Disable");
         private static readonly ProfilerMarker updateMarker = new ProfilerMarker("Update");
@@ -34,12 +34,12 @@ namespace FSMForUnity
         private ProfilerMarker currentStateMarker;
         internal MachineEventTransmitter eventTransmitter;
 #endif
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// Is the State Machine currently in its enabled state?
-		/// </summary>
-		public bool IsEnabled { get; private set; } = false;
+        /// <summary>
+        /// Is the State Machine currently in its enabled state?
+        /// </summary>
+        public bool IsEnabled { get; private set; } = false;
 
         /// <summary>
         /// When the State Machine is enabled, revert back to the default state.
@@ -92,7 +92,7 @@ namespace FSMForUnity
             foreach (var t in anyTransitions)
                 transitionMarkers.TryAdd(t.transition, new ProfilerMarker(t.GetType().Name));
             foreach (var transitions in stateTransitions.Values)
-                foreach(var t in transitions)
+                foreach (var t in transitions)
                     transitionMarkers.TryAdd(t.transition, new ProfilerMarker(t.GetType().Name));
             debugOnlyMarker.End();
 #endif
@@ -312,33 +312,33 @@ namespace FSMForUnity
             /// machine will automatically be presented in the inspector.</param>
             void SetDebuggingInfo(string machineName, Object associatedObject);
 
-			/// <summary>
-			/// Typically the first state added becomes the default state for the machine.
-			/// Call <see cref="SetDefaultState(IFSMState)"/> to change this
-			/// </summary>
-			/// <param name="name"></param>
-			/// <returns>The state added</returns>
-			/// <param name="state"></param>
-			IFSMState AddState(string name, [NotNull] IFSMState state);
+            /// <summary>
+            /// Typically the first state added becomes the default state for the machine.
+            /// Call <see cref="SetDefaultState(IFSMState)"/> to change this
+            /// </summary>
+            /// <param name="name"></param>
+            /// <returns>The state added</returns>
+            /// <param name="state"></param>
+            IFSMState AddState(string name, [NotNull] IFSMState state);
 
-			/// <summary>
-			/// Add a transition that maps from a state to the desired state.
-			/// The states passed must have been added to the builder via <see cref="AddState(string, IFSMState)"/>
-			/// </summary>
-			/// <param name="transition"></param>
-			/// <param name="to"></param>
-			/// <returns>The transition added</returns>
-			IFSMTransition AddTransition(string name, [NotNull] IFSMTransition transition, [NotNull] IFSMState from, [NotNull] IFSMState to);
+            /// <summary>
+            /// Add a transition that maps from a state to the desired state.
+            /// The states passed must have been added to the builder via <see cref="AddState(string, IFSMState)"/>
+            /// </summary>
+            /// <param name="transition"></param>
+            /// <param name="to"></param>
+            /// <returns>The transition added</returns>
+            IFSMTransition AddTransition(string name, [NotNull] IFSMTransition transition, [NotNull] IFSMState from, [NotNull] IFSMState to);
 
-			/// <summary>
-			/// Add a transition that maps from any state in the machine to the desired state.
-			/// The state passed must have been added to the builder via <see cref="AddState(string, IFSMState)"/>
-			/// </summary>
-			/// <param name="name"></param>
-			/// <param name="transition"></param>
-			/// <returns>The transition added</returns>
-			/// <param name="to"></param>
-			IFSMTransition AddAnyTransition(string name, [NotNull] IFSMTransition transition, [NotNull] IFSMState to);
+            /// <summary>
+            /// Add a transition that maps from any state in the machine to the desired state.
+            /// The state passed must have been added to the builder via <see cref="AddState(string, IFSMState)"/>
+            /// </summary>
+            /// <param name="name"></param>
+            /// <param name="transition"></param>
+            /// <returns>The transition added</returns>
+            /// <param name="to"></param>
+            IFSMTransition AddAnyTransition(string name, [NotNull] IFSMTransition transition, [NotNull] IFSMState to);
 
             /// <summary>
             /// Set the new default state. The state passed must already be added in the builder.
@@ -358,8 +358,8 @@ namespace FSMForUnity
 
         public static IBuilder Build() => FSMMachineBuilderPool.Take();
 
-#region Debugging
-		string IDebuggableMachine.GetName()
+        #region Debugging
+        string IDebuggableMachine.GetName()
         {
             return debugName;
         }
@@ -369,8 +369,8 @@ namespace FSMForUnity
             return states;
         }
 
-		bool IDebuggableMachine.TryGetActive(out IFSMState state)
-		{
+        bool IDebuggableMachine.TryGetActive(out IFSMState state)
+        {
             state = current;
             return IsEnabled;
         }
@@ -381,15 +381,15 @@ namespace FSMForUnity
         }
 
         bool IDebuggableMachine.TryGetTransitionsFrom(IFSMState state, out TransitionMapping[] transitions)
-		{
+        {
             return stateTransitions.TryGetValue(state, out transitions);
-		}
+        }
 
-		bool IDebuggableMachine.TryGetAnyTransitions(out TransitionMapping[] anyTransitions)
-		{
+        bool IDebuggableMachine.TryGetAnyTransitions(out TransitionMapping[] anyTransitions)
+        {
             anyTransitions = this.anyTransitions;
             return true;
-		}
-#endregion
-	}
+        }
+        #endregion
+    }
 }

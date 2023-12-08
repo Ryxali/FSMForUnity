@@ -1,6 +1,6 @@
 ﻿namespace FSMForUnity
 {
-	internal interface IDebuggableMachine
+    internal interface IDebuggableMachine
     {
         string GetName();
         IFSMState GetDefaultState();

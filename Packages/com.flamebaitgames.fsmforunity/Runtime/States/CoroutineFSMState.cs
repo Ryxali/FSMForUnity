@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Text;
-using System.Reflection;
 
 namespace FSMForUnity
 {
@@ -36,18 +34,18 @@ namespace FSMForUnity
         {
             deltaTime.value = delta;
 
-            if(routineStack.Count > 0)
+            if (routineStack.Count > 0)
             {
                 var activeRoutine = routineStack.Peek();
 
-                if(activeRoutine.Current != null)
+                if (activeRoutine.Current != null)
                 {
-                    if(activeRoutine.Current is IEnumerator en)
+                    if (activeRoutine.Current is IEnumerator en)
                     {
                         activeRoutine = en;
                         routineStack.Push(en);
                     }
-                    else if(activeRoutine.Current is YieldInstruction)
+                    else if (activeRoutine.Current is YieldInstruction)
                     {
                         var t = activeRoutine.GetType();
                         routineStack.Clear();
@@ -60,10 +58,10 @@ namespace FSMForUnity
                         throw new System.NotSupportedException($"{t} yield value '{activeRoutine.Current.GetType().FullName}' was not recognized as something that can be iterated on.");
                     }
                 }
-                while(activeRoutine != null && !activeRoutine.MoveNext())
+                while (activeRoutine != null && !activeRoutine.MoveNext())
                 {
                     routineStack.Pop();
-                    if(routineStack.Count > 0)
+                    if (routineStack.Count > 0)
                         activeRoutine = routineStack.Peek();
                     else
                         activeRoutine = null;
@@ -105,7 +103,7 @@ namespace FSMForUnity
         protected IEnumerator WaitForSeconds(float seconds)
         {
             var end = Time.time + seconds;
-            while(Time.time < end)
+            while (Time.time < end)
                 yield return null;
         }
         /// <summary>
@@ -132,8 +130,8 @@ namespace FSMForUnity
             /// recieved in the Update function for other non-coroutine states.
             /// </summary>
             public float value { get; internal set; }
-            
+
             public static implicit operator float(DeltaTime deltaTime) => deltaTime.value;
         }
-	}
+    }
 }

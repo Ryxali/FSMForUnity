@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace FSMForUnity
 {
-	internal class EqualityComparer_FromToTransition : IEqualityComparer<FromToTransition>
+    internal class EqualityComparer_FromToTransition : IEqualityComparer<FromToTransition>
     {
         public static readonly EqualityComparer_FromToTransition constant = new EqualityComparer_FromToTransition();
         private EqualityComparer_FromToTransition() { }

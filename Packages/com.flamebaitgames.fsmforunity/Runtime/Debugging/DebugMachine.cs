@@ -1,101 +1,101 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FSMForUnity
 {
-	internal struct DebugMachine
+    internal struct DebugMachine
     {
-		public bool IsValid => machine != null;
+        public bool IsValid => machine != null;
 
-		public string Name => machine.GetName();
+        public string Name => machine.GetName();
 
-		public IFSMState DefaultState => machine.GetDefaultState();
+        public IFSMState DefaultState => machine.GetDefaultState();
 
-		public IFSMState[] States => machine.GetAllStates();
+        public IFSMState[] States => machine.GetAllStates();
 
-		private readonly IDebuggableMachine machine;
-		private readonly Dictionary<IFSMState, string> stateNames;
-		private readonly Dictionary<FromToTransition, string> transitionNames;
-		private readonly Dictionary<AnyTransition, string> anyTransitionNames;
-		private readonly EventTrail eventHistory;
+        private readonly IDebuggableMachine machine;
+        private readonly Dictionary<IFSMState, string> stateNames;
+        private readonly Dictionary<FromToTransition, string> transitionNames;
+        private readonly Dictionary<AnyTransition, string> anyTransitionNames;
+        private readonly EventTrail eventHistory;
 
-		public DebugMachine(IDebuggableMachine machine,
+        public DebugMachine(IDebuggableMachine machine,
             Dictionary<IFSMState, string> stateNames,
             Dictionary<FromToTransition, string> transitionNames,
             Dictionary<AnyTransition, string> anyTransitionNames,
-			EventTrail eventHistory)
+            EventTrail eventHistory)
         {
-			this.machine = machine;
-			this.stateNames = stateNames;
-			this.transitionNames = transitionNames;
-			this.anyTransitionNames = anyTransitionNames;
-			this.eventHistory = eventHistory;
-		}
+            this.machine = machine;
+            this.stateNames = stateNames;
+            this.transitionNames = transitionNames;
+            this.anyTransitionNames = anyTransitionNames;
+            this.eventHistory = eventHistory;
+        }
 
-		public DebugMachine(IDebuggableMachine machine)
+        public DebugMachine(IDebuggableMachine machine)
         {
-			this.machine = machine;
-			this.stateNames = null;
-			this.transitionNames = null;
-			this.anyTransitionNames = null;
-			eventHistory = null;
-		}
+            this.machine = machine;
+            this.stateNames = null;
+            this.transitionNames = null;
+            this.anyTransitionNames = null;
+            eventHistory = null;
+        }
 
         public bool TryGetActive(out IFSMState state) => machine.TryGetActive(out state);
 
-		public bool TryGetTransitionsFrom(IFSMState state, out TransitionMapping[] transitions) => machine.TryGetTransitionsFrom(state, out transitions);
+        public bool TryGetTransitionsFrom(IFSMState state, out TransitionMapping[] transitions) => machine.TryGetTransitionsFrom(state, out transitions);
 
-		public bool TryGetAnyTransitions(out TransitionMapping[] anyTransitions) => machine.TryGetAnyTransitions(out anyTransitions);
+        public bool TryGetAnyTransitions(out TransitionMapping[] anyTransitions) => machine.TryGetAnyTransitions(out anyTransitions);
 
-		public string GetStateName(IFSMState state) => stateNames[state];
+        public string GetStateName(IFSMState state) => stateNames[state];
 
-		public string GetTransitionName(IFSMTransition transition, IFSMState from, IFSMState to)
-		{
-			var tuple = new FromToTransition
-			{
-				transition = transition,
-				from = from,
-				to = to
-			};
-			return transitionNames[tuple];
-		}
+        public string GetTransitionName(IFSMTransition transition, IFSMState from, IFSMState to)
+        {
+            var tuple = new FromToTransition
+            {
+                transition = transition,
+                from = from,
+                to = to
+            };
+            return transitionNames[tuple];
+        }
 
-		public string GetAnyTransitionName(IFSMTransition transition, IFSMState to)
-		{
-			var tuple = new AnyTransition
-			{
-				transition = transition,
-				to = to
-			};
-			return anyTransitionNames[tuple];
-		}
+        public string GetAnyTransitionName(IFSMTransition transition, IFSMState to)
+        {
+            var tuple = new AnyTransition
+            {
+                transition = transition,
+                to = to
+            };
+            return anyTransitionNames[tuple];
+        }
 
-		public bool PollEvent(out MachineEvent evt)
-		{
-			return eventHistory.Dequeue(out evt);
-		}
+        public bool PollEvent(out MachineEvent evt)
+        {
+            return eventHistory.Dequeue(out evt);
+        }
 
-		public IEnumerable<MachineEvent> GetHistory() => eventHistory.GetHistory();
+        public IEnumerable<MachineEvent> GetHistory() => eventHistory.GetHistory();
 
-		public override bool Equals(object obj)
-		{
-			return obj is DebugMachine machine &&
-				   EqualityComparer<IDebuggableMachine>.Default.Equals(this.machine, machine.machine);
-		}
+        public override bool Equals(object obj)
+        {
+            return obj is DebugMachine machine &&
+                   EqualityComparer<IDebuggableMachine>.Default.Equals(this.machine, machine.machine);
+        }
 
-		public override int GetHashCode()
-		{
-			return System.HashCode.Combine(machine);
-		}
+        public override int GetHashCode()
+        {
+            return System.HashCode.Combine(machine);
+        }
 
-		public static bool operator==(DebugMachine a, DebugMachine b)
-		{
-			return Object.ReferenceEquals(a.machine, b.machine);
-		}
+        public static bool operator ==(DebugMachine a, DebugMachine b)
+        {
+            return Object.ReferenceEquals(a.machine, b.machine);
+        }
 
-		public static bool operator!=(DebugMachine a, DebugMachine b)
-		{
-			return !Object.ReferenceEquals(a.machine, b.machine);
-		}
-	}
+        public static bool operator !=(DebugMachine a, DebugMachine b)
+        {
+            return !Object.ReferenceEquals(a.machine, b.machine);
+        }
+    }
 }

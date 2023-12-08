@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using FSMForUnity;
+using UnityEngine;
 
 /// <summary>
 /// A state that makes a canvas group visible and enables
