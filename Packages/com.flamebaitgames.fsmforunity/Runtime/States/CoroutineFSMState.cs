@@ -5,18 +5,53 @@ using UnityEngine;
 namespace FSMForUnity
 {
     /// <summary>
-    /// Base class that executes a Coroutine when it enters this state.
-    /// The implementing class gets a callback when the coroutine is done,
-    /// which in turn can be used to trigger a transition away from this state.
+    /// Base class that executes a coroutine when the state is entered. This replaces the Enter:void
+    /// signature with an Enter:IEnumerator, which acts as the starting point for implementing class.
+    /// <para>
     /// Notable is that this coroutine will execute as part of this <see cref="IFSMState.Update"/> call.
-    /// As such, execution timings and rate will be entirely bound to the state machine.
+    /// As such, execution timings and step rate will be entirely bound to the state machine.
+    /// </para>
+    /// <para>Since we don't rely on MonoBehaviours to drive the coroutine, some yield instructions are unsupported:
+    /// <list type="bullet">
+    /// <item>WaitForSeconds</item>
+    /// <item>WaitForSecondsRealtime</item>
+    /// <item>WaitForEndOfFrame</item>
+    /// <item>WaitForFixedUpdate</item>
+    /// </list>
+    /// WaitForSeconds and WaitForSecondsRealtime have replacement methods built in as protected members of this class.
+    /// WaitForEndOfFrame and WaitForFixedUpdate have no equivalent, as this would undermine the state machine's control
+    /// over execution timings.
+    /// </para>
+    /// <para>
     /// As with all coroutines, some GC will be generated each time this state is entered.
+    /// </para>
     /// </summary>
 	public abstract class CoroutineFSMState : IFSMState
     {
-        private readonly DeltaTime deltaTime = new DeltaTime();
+        private const int DefaultRoutineStackSize = 2;
 
-        private readonly Stack<IEnumerator> routineStack = new Stack<IEnumerator>();
+        private readonly Stack<IEnumerator> routineStack;
+
+        /// <summary>
+        /// Default constructor, uses <see cref="DefaultRoutineStackSize"/>
+        /// as default routine stack capacity.
+        /// </summary>
+        public CoroutineFSMState()
+        {
+            deltaTime = new DeltaTime();
+            routineStack = new Stack<IEnumerator>(DefaultRoutineStackSize);
+        }
+
+        /// <summary>
+        /// Constructor that lets you define routine stack capacity. By giving it an exact value
+        /// you can minimize memory overhead as well as GC allocations.l
+        /// </summary>
+        /// <param name="defaultRoutineDepthCapacity">Supply the maximum depth for the coroutine in your state for best result.</param>
+        public CoroutineFSMState(int defaultRoutineDepthCapacity)
+        {
+            deltaTime = new DeltaTime();
+            routineStack = new Stack<IEnumerator>(defaultRoutineDepthCapacity);
+        }
 
         void IFSMState.Enter()
         {

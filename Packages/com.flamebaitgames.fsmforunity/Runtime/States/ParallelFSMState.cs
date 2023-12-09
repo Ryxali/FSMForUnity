@@ -6,6 +6,11 @@ namespace FSMForUnity
     /// <summary>
     /// Lay several states in parallel. This allows you to split up a single state
     /// into multiple states while still sharing the same life cycle.
+    /// <para>
+    /// The order of the states within a parallel can matter when they share data.
+    /// Know that the order they are provided to the constructor will determine the order
+    /// each instance is called when we Enter, Exit, Update, and Destroy.
+    /// </para>
     /// </summary>
     public sealed class ParallelFSMState : IFSMState
     {
@@ -20,6 +25,11 @@ namespace FSMForUnity
 
         /// <summary>
         /// combine all these states into one state, where each of the states run in parallel
+        /// <para>
+        /// The order of the states within a parallel can matter when they share data.
+        /// Know that the order they are provided to the constructor will determine the order
+        /// each instance is called when we Enter, Exit, Update, and Destroy.
+        /// </para>
         /// </summary>
         /// <param name="states"></param>
         public ParallelFSMState(params IFSMState[] states)
@@ -35,7 +45,7 @@ namespace FSMForUnity
         }
 
         /// <summary>
-        /// Enter each state
+        /// Enter each state.
         /// </summary>
         public void Enter()
         {
@@ -54,7 +64,7 @@ namespace FSMForUnity
         }
 
         /// <summary>
-        /// Exit each state
+        /// Exit each state.
         /// </summary>
         public void Exit()
         {
@@ -73,7 +83,7 @@ namespace FSMForUnity
         }
 
         /// <summary>
-        /// Each state is updated
+        /// Update each state.
         /// </summary>
         /// <param name="delta"></param>
         public void Update(float delta)
@@ -93,7 +103,7 @@ namespace FSMForUnity
         }
 
         /// <summary>
-        /// Each state is destroyed
+        /// Destroy each state.
         /// </summary>
         public void Destroy()
         {
