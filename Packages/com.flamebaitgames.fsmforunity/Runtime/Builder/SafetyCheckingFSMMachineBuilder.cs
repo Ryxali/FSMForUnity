@@ -32,7 +32,7 @@ namespace FSMForUnity
 
         public void SetDefaultState(IFSMState state)
         {
-            if (addedStates.Contains(state))
+            if (!addedStates.Contains(state))
                 throw new System.ArgumentException(nameof(state), "Only states added to the machine can be set as default.");
             else
                 builder.SetDefaultState(state);
@@ -48,9 +48,9 @@ namespace FSMForUnity
             };
             if (transition == null)
                 throw new System.ArgumentNullException(nameof(transition), "The added transition cannot be null.");
-            else if (transition == null)
+            else if (from == null)
                 throw new System.ArgumentNullException(nameof(from), "The from state cannot be null.");
-            else if (transition == null)
+            else if (to == null)
                 throw new System.ArgumentNullException(nameof(to), "The to state cannot be null.");
             else if (!addedStates.Contains(from))
                 throw new System.ArgumentException(nameof(from), "You must add the state via AddState before adding transitions from it");
@@ -74,7 +74,7 @@ namespace FSMForUnity
             };
             if (transition == null)
                 throw new System.ArgumentNullException(nameof(transition), "The added transition cannot be null.");
-            else if (transition == null)
+            else if (to == null)
                 throw new System.ArgumentNullException(nameof(to), "The to state cannot be null.");
             else if (!addedStates.Contains(to))
                 throw new System.ArgumentException(nameof(to), "You must add the state via AddState before adding transitions to it.");

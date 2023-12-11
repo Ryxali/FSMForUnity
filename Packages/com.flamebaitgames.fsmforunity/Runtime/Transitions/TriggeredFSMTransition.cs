@@ -14,16 +14,14 @@
             isSet = true;
         }
 
-        void IFSMTransition.PassThrough()
+        public void PassThrough()
         {
             isSet = false;
         }
 
-        bool IFSMTransition.ShouldTransition()
+        public bool ShouldTransition()
         {
             return isSet;
         }
-
-        private static bool NullCriteria() => false;
     }
 }

@@ -132,6 +132,7 @@ namespace FSMForUnity
 #else
                 current.Enter();
 #endif
+                EvaluateTransitions();
                 enableMarker.End();
                 machineMarker.End();
             }

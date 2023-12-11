@@ -19,7 +19,7 @@
         private readonly Exit exit;
         private readonly Destroy destroy;
 
-        public LambdaFSMState(Enter enter, Update update = null, Exit exit = null, Destroy destroy = null)
+        public LambdaFSMState(Enter enter = null, Update update = null, Exit exit = null, Destroy destroy = null)
         {
             this.enter = enter ?? Default;
             this.update = update ?? Default;
