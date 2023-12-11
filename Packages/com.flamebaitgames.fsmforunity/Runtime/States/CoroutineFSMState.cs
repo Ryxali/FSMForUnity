@@ -32,6 +32,8 @@ namespace FSMForUnity
 
         private readonly Stack<IEnumerator> routineStack;
 
+        private readonly DeltaTime deltaTime;
+
         /// <summary>
         /// Default constructor, uses <see cref="DefaultRoutineStackSize"/>
         /// as default routine stack capacity.
