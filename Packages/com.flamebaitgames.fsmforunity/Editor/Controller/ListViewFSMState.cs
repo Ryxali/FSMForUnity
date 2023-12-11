@@ -4,9 +4,12 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity
 {
+    /// <summary>
+    /// Event based, populates and presents the list view of state machines
+    /// the user can inspect.
+    /// </summary>
     internal class ListViewFSMState : IFSMState
     {
-        private readonly DebuggerFSMStateData stateData;
         [FSMDebuggerHidden]
         private readonly VisualElement container;
         [FSMDebuggerHidden]
@@ -15,8 +18,12 @@ namespace FSMForUnity
         private readonly VisualTreeAsset listEntryAsset;
         [FSMDebuggerHidden]
         private readonly List<VisualElement> listElements = new List<VisualElement>(512);
-        private readonly List<DebugMachine> listMachines = new List<DebugMachine>();
+        [FSMDebuggerHidden]
         private readonly ListView listView;
+
+        private readonly List<DebugMachine> listMachines = new List<DebugMachine>();
+        private readonly DebuggerFSMStateData stateData;
+
         public ListViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
             this.stateData = stateData;
@@ -55,20 +62,6 @@ namespace FSMForUnity
 
         public void Update(float delta)
         {
-            //listViewRoot.Clear();
-            //var activeMachines = DebuggingLinker.GetAllMachines();
-            //for (int i = 0; i < activeMachines.Count; i++)
-            //{
-            //    if (listElements.Count <= i)
-            //    {
-            //        var inst = listEntryAsset.Instantiate();
-            //        listElements.Add(inst);
-            //        inst.RegisterCallback<MouseDownEvent, int>(OnElementClick, i, TrickleDown.TrickleDown);
-            //    }
-            //    var elem = listElements[i];
-            //    elem.Q<Label>(UIMap_ListView.ListEntryLabel).text = activeMachines[i].Name;
-            //    listViewRoot.Add(elem);
-            //}
         }
 
         public void Exit()
