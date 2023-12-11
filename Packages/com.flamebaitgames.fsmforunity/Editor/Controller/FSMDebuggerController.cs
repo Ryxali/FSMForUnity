@@ -24,8 +24,12 @@ namespace FSMForUnity
             graphBuilder.SetDebuggingInfo("FSM Debugger Graph", null);
 
             var inspectorBuilder = FSMMachine.Build();
-            var inspectorNoSelected = inspectorBuilder.AddState("Show Inspector", new EmptyFSMState());
-            var inspectorSelected = inspectorBuilder.AddState("No Inspector", new InspectorViewFSMState(stateData, root.Q(UIMap_EditorWindow.InspectorView)));
+            var inspectorNoSelected = inspectorBuilder.AddState("No Inspector", new EmptyFSMState());
+#if UNITY_2022_1_OR_NEWER
+            var inspectorSelected = inspectorBuilder.AddState("Show Inspector", new InspectorViewFSMState(stateData, root.Q(UIMap_EditorWindow.InspectorView)));
+#else
+            var inspectorSelected = inspectorBuilder.AddState("Show Inspector (2022+ only)", new EmptyFSMState());
+#endif
             inspectorBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting.IsValid, inspectorNoSelected, inspectorSelected);
             inspectorBuilder.SetDebuggingInfo("FSM Debugger Inspector", null);
 

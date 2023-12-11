@@ -1,4 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:Template name="com.ryxali.fsmforunity_TreeView" src="project://database/Packages/com.ryxali.fsmforunity/Editor/UIDocuments/com.ryxali.fsmforunity_TreeView.uxml?fileID=9197481963319205126&amp;guid=47ce00f7f3bb9744892ffaff30db07e2&amp;type=3#com.ryxali.fsmforunity_TreeView" />
     <Style src="project://database/Packages/com.ryxali.fsmforunity/Editor/UIDocuments/com.ryxali.fsmforunity_EditorStyle.uss?fileID=7433441132597879392&amp;guid=ed6111d43bd98c24d831d5bb34ef4a59&amp;type=3#com.ryxali.fsmforunity_EditorStyle" />
     <ui:VisualElement style="min-width: 40%; max-width: none;">
         <uie:Toolbar>
@@ -8,6 +9,6 @@
             </uie:ToolbarMenu>
         </uie:Toolbar>
         <ui:Label text="State" display-tooltip-when-elided="true" name="state-name" />
-        <ui:ScrollView name="state-root" />
+        <ui:Instance template="com.ryxali.fsmforunity_TreeView" name="state-root" />
     </ui:VisualElement>
 </ui:UXML>

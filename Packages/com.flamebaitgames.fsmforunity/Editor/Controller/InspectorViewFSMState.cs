@@ -1,3 +1,4 @@
+#if UNITY_2022_1_OR_NEWER
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -6,6 +7,12 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity
 {
+    internal struct InspectorEntry
+    {
+        public string name;
+        public string type;
+        public object value;
+    }
     internal class InspectorViewFSMState : IFSMState
     {
         private static readonly Stack<System.Type> typeStack = new Stack<System.Type>();
@@ -22,6 +29,10 @@ namespace FSMForUnity
         [FSMDebuggerHidden]
         private readonly Stack<(VisualElement parent, object obj, FieldInfo field, int depth)> fieldBuffer = new Stack<(VisualElement, object, FieldInfo, int)>();
 
+        private readonly MultiColumnTreeView treeView;
+
+        private readonly List<TreeViewItemData<InspectorEntry>> stateHierarchy = new List<TreeViewItemData<InspectorEntry>>();
+
         public InspectorViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
             this.stateData = stateData;
@@ -29,12 +40,44 @@ namespace FSMForUnity
             inspectorEntryPool = new VisualElementPool(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_InspectorView.InspectorEntryPath));
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_InspectorView.Path);
             inspectorRoot = visualTree.Instantiate();
+            treeView = inspectorRoot.Q<MultiColumnTreeView>();
+
+            treeView.SetRootItems(stateHierarchy);
+
+            treeView.columns["name"].makeCell = () => new Label();
+            treeView.columns["type"].makeCell = () => new Label();
+            treeView.columns["value"].makeCell = () => new Label();
+
+            treeView.columns["name"].bindCell = (elem, i) => (elem as Label).text = treeView.GetItemDataForIndex<InspectorEntry>(i).name;
+            treeView.columns["type"].bindCell = (elem, i) => (elem as Label).text = treeView.GetItemDataForIndex<InspectorEntry>(i).type;
+            treeView.columns["value"].bindCell = (elem, i) => (elem as Label).text = treeView.GetItemDataForIndex<InspectorEntry>(i).name;
         }
 
         public void Enter()
         {
             container.Add(inspectorRoot);
-            RefreshView();
+            //RefreshView();
+            //var n0 = new TreeViewItemData<InspectorEntry>(1, new InspectorEntry
+            //{
+            //    name = "n0",
+            //    type = "type",
+            //    value = null
+            //});
+            //var n1 = new TreeViewItemData<InspectorEntry>(1, new InspectorEntry
+            //{
+            //    name = "n0",
+            //    type = "type",
+            //    value = null
+            //}, new List<TreeViewItemData<InspectorEntry>> { n0 });
+            var n2 = new TreeViewItemData<InspectorEntry>(1, new InspectorEntry
+            {
+                name = "n0",
+                type = "type",
+                value = null
+            });
+            //stateHierarchy.Add(n1);
+            stateHierarchy.Add(n2);
+            //treeView.Rebuild();
         }
 
         public void Exit()
@@ -44,7 +87,7 @@ namespace FSMForUnity
 
         public void Update(float delta)
         {
-            RefreshView();
+            //RefreshView();
         }
 
         private void RefreshView()
@@ -150,3 +193,4 @@ namespace FSMForUnity
         }
     }
 }
+#endif
