@@ -9,6 +9,7 @@ namespace FSMForUnity
         private static readonly Dictionary<Object, DebugMachine> linkedMachines = new Dictionary<Object, DebugMachine>();
         private static readonly List<DebugMachine> allMachines = new List<DebugMachine>();
         private static readonly List<Component> getComponents = new List<Component>();
+        public static event System.Action<IReadOnlyList<DebugMachine>> onAllMachinesChanged = delegate { };
 
         public static bool TryGetLinkedMachineForObject(Object obj, out DebugMachine machine)
         {
@@ -45,6 +46,7 @@ namespace FSMForUnity
             {
                 linkedMachines.Remove(m.Key);
             }
+            onAllMachinesChanged(allMachines);
         }
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
@@ -53,9 +55,11 @@ namespace FSMForUnity
             if (associatedObject)
                 linkedMachines.Add(associatedObject, machine);
             allMachines.Add(machine);
+            onAllMachinesChanged(allMachines);
         }
 
         public static IReadOnlyList<DebugMachine> GetAllMachines() => allMachines;
+
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void TransmitEvent(this IDebuggableMachine machine, StateEventType evt, IFSMState state)

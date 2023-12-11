@@ -45,6 +45,8 @@ public class FSMDebugger : EditorWindow
     }
     private void OnSelectionChange()
     {
+        // propagate selection changed event so the controller
+        // can automatically find and select the element (if exists).
         controller?.OnSelectionChanged(Selection.activeObject);
     }
 
