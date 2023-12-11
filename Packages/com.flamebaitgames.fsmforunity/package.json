@@ -1,5 +1,5 @@
 {
-  "name": "com.flamebaitgames.fsmforunity",
+  "name": "com.ryxali.fsmforunity",
   "version": "1.0.0",
   "displayName": "FSM For Unity",
   "description": "This is an example package",
@@ -18,7 +18,7 @@
     "C#"
   ],
   "author": {
-    "name": "Flamebait Games",
+    "name": "Ryxali",
     "url": "https://www.unity3d.com"
   },
   "samples": [

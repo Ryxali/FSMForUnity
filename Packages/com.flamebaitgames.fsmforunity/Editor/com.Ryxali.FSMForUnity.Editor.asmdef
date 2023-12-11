@@ -1,8 +1,8 @@
 {
-    "name": "com.FlamebaitGames.FSMForUnity.Editor",
+    "name": "com.Ryxali.FSMForUnity.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:480eff5848e98334abc7eff4fb482e50"
+        "com.Ryxali.FSMForUnity.Runtime"
     ],
     "includePlatforms": [
         "Editor"

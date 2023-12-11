@@ -46,7 +46,7 @@ namespace FSMForUnity
 
         /// <summary>
         /// Constructor that lets you define routine stack capacity. By giving it an exact value
-        /// you can minimize memory overhead as well as GC allocations.l
+        /// you can minimize memory overhead as well as GC allocations.
         /// </summary>
         /// <param name="defaultRoutineDepthCapacity">Supply the maximum depth for the coroutine in your state for best result.</param>
         public CoroutineFSMState(int defaultRoutineDepthCapacity)

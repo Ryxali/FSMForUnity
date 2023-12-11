@@ -1,10 +1,10 @@
 {
-    "name": "com.FlamebaitGames.FSMForUnity.Tests",
+    "name": "com.Ryxali.FSMForUnity.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "com.FlamebaitGames.FSMForUnity"
+        "com.Ryxali.FSMForUnity.Runtime"
     ],
     "includePlatforms": [
         "Editor"
