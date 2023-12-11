@@ -32,9 +32,14 @@ namespace FSMForUnity
                 }
                 return false;
             }
-            else
+            else if (obj)
             {
                 return linkedMachines.TryGetValue(obj, out machine);
+            }
+            else
+            {
+                machine = default;
+                return false;
             }
         }
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
