@@ -8,10 +8,33 @@ namespace FSMForUnity
     {
         private static readonly Dictionary<Object, DebugMachine> linkedMachines = new Dictionary<Object, DebugMachine>();
         private static readonly List<DebugMachine> allMachines = new List<DebugMachine>();
+        private static readonly List<Component> getComponents = new List<Component>();
 
         public static bool TryGetLinkedMachineForObject(Object obj, out DebugMachine machine)
         {
-            return linkedMachines.TryGetValue(obj, out machine);
+            if (obj is GameObject go)
+            {
+                if (linkedMachines.TryGetValue(go, out machine))
+                {
+                    return true;
+                }
+                else
+                {
+                    go.GetComponents(getComponents);
+                    foreach (var comp in getComponents)
+                    {
+                        if (linkedMachines.TryGetValue(comp, out machine))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            else
+            {
+                return linkedMachines.TryGetValue(obj, out machine);
+            }
         }
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void Unlink(IDebuggableMachine machine)

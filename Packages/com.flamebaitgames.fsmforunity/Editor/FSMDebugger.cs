@@ -5,12 +5,6 @@ using UnityEngine.UIElements;
 
 public class FSMDebugger : EditorWindow
 {
-    [MenuItem("Window/Analysis/FSM Debugger")]
-    public static void ShowExample()
-    {
-        FSMDebugger wnd = GetWindow<FSMDebugger>();
-        wnd.titleContent = new GUIContent("FSM Debugger");
-    }
     private FSMDebuggerController controller;
 
     public void CreateGUI()
@@ -42,23 +36,33 @@ public class FSMDebugger : EditorWindow
 
     private void OnInspectorUpdate()
     {
-        // From docs OnInspectorUpdate is 10x per second
-        const float InspectorFrameRate = 1f / 10f;
-        controller?.Update(InspectorFrameRate);
-        /*if (Selection.activeObject && DebuggingLinker.linkedMachines.TryGetValue(Selection.activeObject, out var machine))
+        if (!UpdateOften())
         {
-            if (machine != currentlyInspected)
-            {
-                currentlyInspected = machine;
-                foldoutElement.Remove(rootProceduralElement);
-                rootProceduralElement = GenerateElement(machine);
-                foldoutElement.Add(rootProceduralElement);
-            }
-            // machine.DebugCurrent
-            if (machine.DebugCurrent == null)
-            {
-                // foldoutElement.Add
-            }
-        }*/
+            // From docs OnInspectorUpdate is 10x per second
+            const float InspectorFrameRate = 1f / 10f;
+            controller?.Update(InspectorFrameRate);
+        }
+    }
+    private void OnSelectionChange()
+    {
+        controller?.OnSelectionChanged(Selection.activeObject);
+    }
+
+    private void Update()
+    {
+        if (UpdateOften())
+        {
+            // When in play mode we update more often for smoother animations
+            controller?.Update(Time.deltaTime);
+        }
+    }
+
+    private bool UpdateOften() => hasFocus && EditorApplication.isPlaying;
+
+    [MenuItem("Window/Analysis/FSM Debugger")]
+    public static void ShowExample()
+    {
+        FSMDebugger wnd = GetWindow<FSMDebugger>();
+        wnd.titleContent = new GUIContent("FSM Debugger");
     }
 }

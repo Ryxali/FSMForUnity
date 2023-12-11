@@ -1,4 +1,5 @@
 using FSMForUnity.Editor.IMGUIGraph;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace FSMForUnity
@@ -7,10 +8,11 @@ namespace FSMForUnity
     {
         private readonly FSMMachine fsm;
         private readonly VisualElement root;
+        private readonly DebuggerFSMStateData stateData;
 
         public FSMDebuggerController(VisualElement root)
         {
-            var stateData = new DebuggerFSMStateData();
+            stateData = new DebuggerFSMStateData();
             var builder = FSMMachine.Build();
 
             var listView = new ListViewFSMState(stateData, root.Q(UIMap_EditorWindow.ListView));
@@ -53,6 +55,14 @@ namespace FSMForUnity
             builder.SetDebuggingInfo("FSM Debugger", null);
             fsm = builder.Complete();
             fsm.Enable();
+        }
+
+        public void OnSelectionChanged(Object selected)
+        {
+            if (DebuggingLinker.TryGetLinkedMachineForObject(selected, out var machine))
+            {
+                stateData.wantToInspectNext = machine;
+            }
         }
 
         public void Update(float deltaTime)

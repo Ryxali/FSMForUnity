@@ -74,6 +74,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
         public void Update(float delta)
         {
             const float DecayTime = 0.3f;
+            
 
             var decay = delta / DecayTime;
             for (int i = 0; i < animatedNodes.Length; i++)
@@ -90,6 +91,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
                 n.updatePulse = Mathf.Max(0f, n.updatePulse - decay);
                 animatedNodes[i] = n;
             }
+            immediateGUIElement.MarkDirtyRepaint();
         }
 
         private void OnZoom(WheelEvent evt)
