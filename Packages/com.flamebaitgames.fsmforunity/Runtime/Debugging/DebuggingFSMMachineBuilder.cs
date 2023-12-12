@@ -56,10 +56,11 @@ namespace FSMForUnity
 
         public FSMMachine Complete(FSMMachineFlags behaviourParameters = FSMMachineFlags.Default)
         {
+            var trace = new System.Diagnostics.StackTrace(4, true);
             var machine = builder.Complete(behaviourParameters);
             var eventTrail = new EventTrail(FSMConfig.DebugCyclicEventBufferSize);
             machine.eventTransmitter = new MachineEventTransmitter(eventTrail);
-            var debugMachine = new DebugMachine(machine, stateNames, transitionNames, anyTransitionNames, eventTrail);
+            var debugMachine = new DebugMachine(machine, stateNames, transitionNames, anyTransitionNames, eventTrail, trace);
             DebuggingLinker.Link(debugMachine, debugObject);
             stateNames = new Dictionary<IFSMState, string>();
             transitionNames = new Dictionary<FromToTransition, string>();

@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class FSMDebugger : EditorWindow
+public class FSMDebuggerWindow : EditorWindow
 {
     private FSMDebuggerController controller;
 
@@ -64,7 +64,7 @@ public class FSMDebugger : EditorWindow
     [MenuItem("Window/Analysis/FSM Debugger")]
     public static void ShowExample()
     {
-        FSMDebugger wnd = GetWindow<FSMDebugger>();
+        FSMDebuggerWindow wnd = GetWindow<FSMDebuggerWindow>();
         wnd.titleContent = new GUIContent("FSM Debugger");
     }
 }

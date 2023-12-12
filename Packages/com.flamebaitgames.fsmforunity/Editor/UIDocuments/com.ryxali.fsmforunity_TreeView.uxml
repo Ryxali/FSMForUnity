@@ -3,8 +3,8 @@
         <!-- Columns and Column aren't Visual Elements or controls; they are considered attributes of MultiColumnListView. -->
         <ui:Columns>
             <ui:Column name="name" title="Name" width="120" />
-            <ui:Column name="type" title="Type" width="80" />
-            <ui:Column name="value" title="Value" width="80" />
+            <!--<ui:Column name="type" title="Type" width="80" />-->
+            <!--<ui:Column name="value" title="Value" width="80" />-->
         </ui:Columns>
     </ui:MultiColumnTreeView>
 </ui:UXML>

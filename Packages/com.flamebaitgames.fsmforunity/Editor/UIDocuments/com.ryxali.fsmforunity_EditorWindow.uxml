@@ -1,7 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:VisualElement tooltip="Root for alignment" style="flex-direction: row; width: 100%; height: 100%; justify-content: space-between; flex-grow: 1; align-items: stretch;">
-        <ui:VisualElement name="list-view" style="flex-grow: 1;" />
-        <ui:VisualElement name="graph-view" style="flex-grow: 1; min-width: 50%; overflow: hidden;" />
-        <ui:VisualElement name="inspector-view" style="transform-origin: center; align-items: stretch; justify-content: flex-start; flex-grow: 1;" />
+        <ui:TwoPaneSplitView fixed-pane-initial-dimension="900">
+            <ui:TwoPaneSplitView fixed-pane-initial-dimension="250">
+                <ui:VisualElement name="list-view" />
+                <ui:VisualElement name="graph-view" style="overflow: hidden;" />
+            </ui:TwoPaneSplitView>
+            <ui:VisualElement name="inspector-view" />
+        </ui:TwoPaneSplitView>
     </ui:VisualElement>
 </ui:UXML>
