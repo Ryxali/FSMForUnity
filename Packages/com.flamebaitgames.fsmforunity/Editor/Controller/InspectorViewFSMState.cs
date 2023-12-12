@@ -7,19 +7,197 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity
 {
-    internal class InspectorTreeView : MultiColumnTreeView
-    {
-        public InspectorTreeView()
-        {
-
-        }
-    }
     internal struct InspectorEntry
     {
         public string name;
         public string type;
         public object value;
     }
+    internal class ReflectionCache
+    {
+        private readonly Stack<System.Type> typeStack = new Stack<System.Type>(32);
+        private readonly Dictionary<System.Type, FieldInfo[]> cachedReflection = new Dictionary<System.Type, FieldInfo[]>(4096);
+        private readonly Dictionary<System.Type, string> cachedFieldNames = new Dictionary<System.Type, string>();
+
+        private const BindingFlags GetFieldsFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        public FieldInfo[] GetFields(System.Type type)
+        {
+            if (cachedReflection.TryGetValue(type, out var fields))
+            {
+                return fields;
+            }
+            else
+            {
+                var f = GetFieldsDeep(type);
+                cachedReflection.Add(type, f);
+                return f;
+            }
+        }
+
+        public string GetName(System.Type type)
+        {
+            if (cachedFieldNames.TryGetValue(type, out var name))
+            {
+                return name;
+            }
+            else
+            {
+                var n = type.Name;
+                cachedFieldNames.Add(type, n);
+                return n;
+            }
+        }
+
+        private FieldInfo[] GetFieldsDeep(System.Type rootType)
+        {
+            var list = new List<FieldInfo>();
+            typeStack.Push(rootType);
+            while (typeStack.Count > 0)
+            {
+                var type = typeStack.Pop();
+                foreach (var field in type.GetFields(GetFieldsFlags))
+                {
+                    if (field.GetCustomAttributes(typeof(FSMDebuggerHiddenAttribute), false)?.Length == 0)
+                    {
+                        list.Add(field);
+                    }
+                }
+                if (type.BaseType != null && ReflectionBlacklist.CanInspect(type.BaseType))
+                    typeStack.Push(type.BaseType);
+            }
+            typeStack.Clear();
+            return list.ToArray();
+        }
+    }
+
+    internal class StateHierarchy
+    {
+        private const int MaxDepth = 6;
+
+        private readonly List<TreeViewItemData<InspectorEntry>> rootItems = new List<TreeViewItemData<InspectorEntry>>();
+
+        private readonly Stack<List<TreeViewItemData<InspectorEntry>>> listPool = new Stack<List<TreeViewItemData<InspectorEntry>>>(256);
+
+        private readonly ReflectionCache reflectionCache = new ReflectionCache();
+
+        private readonly Stack<StackData> refreshStack = new Stack<StackData>(32);
+
+        private int idCounter;
+
+        private struct StackData
+        {
+            public int depth;
+            public object element;
+            public List<TreeViewItemData<InspectorEntry>> fields;
+        }
+
+        public void Refresh(object rootObject)
+        {
+            idCounter = 1;
+            rootItems.Clear();
+            refreshStack.Push(new StackData
+            {
+                depth = 0,
+                element = rootObject,
+                fields = rootItems
+            });
+            while (refreshStack.Count > 0)
+            {
+                var elem = refreshStack.Pop();
+
+                var elemType = elem.element.GetType();
+                foreach (var field in reflectionCache.GetFields(elemType))
+                {
+                    var value = field.GetValue(elem.element);
+
+                    UnityEngine.Profiling.Profiler.BeginSample(reflectionCache.GetName(elemType));
+
+                    if (ShouldInspectChildren(field, value, elem.depth))
+                    {
+                        if (value is IEnumerable enumerable)
+                        {
+                            var index = 0;
+                            var arrayFields = new List<TreeViewItemData<InspectorEntry>>();
+                            for (var en = enumerable.GetEnumerator(); en.MoveNext(); index++)
+                            {
+                                var indexValue = en.Current;
+                                var childFields = new List<TreeViewItemData<InspectorEntry>>();
+                                if (indexValue != null)
+                                {
+                                    refreshStack.Push(new StackData
+                                    {
+                                        element = indexValue,
+                                        depth = elem.depth + 2,
+                                        fields = childFields
+                                    });
+                                }
+                                arrayFields.Add(new TreeViewItemData<InspectorEntry>(idCounter++, new InspectorEntry
+                                {
+                                    name = $"[{index}]",
+                                    type = string.Empty,
+                                    value = indexValue
+                                }, childFields));
+                            }
+                            elem.fields.Add(new TreeViewItemData<InspectorEntry>(idCounter++, new InspectorEntry
+                            {
+                                name = field.Name,
+                                type = reflectionCache.GetName(field.FieldType),
+                                value = value
+                            }, arrayFields));
+                        }
+                        else
+                        {
+                            var childFields = new List<TreeViewItemData<InspectorEntry>>();
+                            refreshStack.Push(new StackData
+                            {
+                                element = value,
+                                depth = elem.depth + 1,
+                                fields = childFields
+                            });
+                            elem.fields.Add(new TreeViewItemData<InspectorEntry>(idCounter++, new InspectorEntry
+                            {
+                                name = field.Name,
+                                type = reflectionCache.GetName(field.FieldType),
+                                value = value
+                            }, childFields));
+                        }
+                    }
+                    else
+                    {
+                        // no children
+                        elem.fields.Add(new TreeViewItemData<InspectorEntry>(idCounter++, new InspectorEntry
+                        {
+                             name = field.Name,
+                             type = reflectionCache.GetName(field.FieldType),
+                             value = value
+                        }));
+                    }
+
+                    UnityEngine.Profiling.Profiler.EndSample();
+                }
+            }
+        }
+
+        private bool ShouldInspectChildren(FieldInfo fieldInfo, object value, int depth)
+        {
+            var belowDepth = depth < MaxDepth;
+            //var isNull = !fieldInfo.FieldType.IsValueType && value == null;
+            return belowDepth && 
+                value != null &&
+                !fieldInfo.FieldType.IsPointer && 
+                !fieldInfo.FieldType.IsPrimitive &&
+                value is not UnityEngine.Object &&
+                ReflectionBlacklist.CanInspect(fieldInfo.FieldType);
+        }
+
+        public void Bind(MultiColumnTreeView treeView)
+        {
+            treeView.SetRootItems(rootItems);
+        }
+
+    }
+
     internal class InspectorViewFSMState : IFSMState
     {
         private static readonly Stack<System.Type> typeStack = new Stack<System.Type>();
@@ -35,10 +213,10 @@ namespace FSMForUnity
         private readonly VisualElementPool inspectorEntryPool;
         [FSMDebuggerHidden]
         private readonly Stack<(VisualElement parent, object obj, FieldInfo field, int depth)> fieldBuffer = new Stack<(VisualElement, object, FieldInfo, int)>();
-
+        [FSMDebuggerHidden]
         private readonly MultiColumnTreeView treeView;
-
-        private readonly List<TreeViewItemData<InspectorEntry>> stateHierarchy = new List<TreeViewItemData<InspectorEntry>>();
+        [FSMDebuggerHidden]
+        private readonly StateHierarchy stateHierarchy = new StateHierarchy();
 
         public InspectorViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
@@ -60,21 +238,20 @@ namespace FSMForUnity
                 name = "name",
                 title = "Name",
                 makeCell = () => new Label(),
-                bindCell = (elem, i) => (elem as Label).text = "HEHE"
+                bindCell = (elem, i) => (elem as Label).text = treeView.GetItemDataForIndex<InspectorEntry>(i).name
             });
             columns.Add(new Column
             {
-                name = "namee",
-                title = "NameE",
+                name = "value",
+                title = "Value",
                 makeCell = () => new Label(),
-                bindCell = (elem, i) => (elem as Label).text = "HEHE"
+                bindCell = (elem, i) => (elem as Label).text = treeView.GetItemDataForIndex<InspectorEntry>(i).value?.ToString() ?? "Null"
             });
             treeView = new MultiColumnTreeView(columns)
             {
                 autoExpand = false,
             };
             treeView.SetRootItems(new List<TreeViewItemData<int>> { new TreeViewItemData<int>(1, 1) });
-            //treeView.SetRootItems(stateHierarchy);
             inspectorRoot.Q(UIMap_InspectorView.StateRoot).Add(treeView);
 
             //treeView.columns["name"].makeCell = () => new Label();
@@ -120,7 +297,12 @@ namespace FSMForUnity
 
         public void Update(float delta)
         {
-            //RefreshView();
+            if (stateData.currentlyInspecting.TryGetActive(out var activeState))
+            {
+                stateHierarchy.Refresh(activeState);
+                stateHierarchy.Bind(treeView);
+                treeView.Rebuild();
+            }
         }
 
         private void RefreshView()
