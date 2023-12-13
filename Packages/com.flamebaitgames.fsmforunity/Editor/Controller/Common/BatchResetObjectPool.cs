@@ -1,30 +1,34 @@
+using System;
 using System.Collections.Generic;
-using UnityEngine.UIElements;
 
-namespace FSMForUnity
+namespace FSMForUnity.Editor
 {
-    internal class VisualElementPool
+    internal class BatchResetObjectPool<T> where T : class
     {
-        private readonly Stack<VisualElement> inactiveElements = new Stack<VisualElement>();
-        private readonly Stack<VisualElement> activeElements = new Stack<VisualElement>();
-        private readonly VisualTreeAsset prefab;
+        private readonly Stack<T> inactiveElements = new Stack<T>();
+        private readonly Stack<T> activeElements = new Stack<T>();
 
-        public VisualElementPool(VisualTreeAsset prefab)
+        private readonly Func<T> factory;
+        private readonly Action<T> reset;
+
+        public BatchResetObjectPool(Func<T> factory, Action<T> reset)
         {
-            this.prefab = prefab;
+            this.factory = factory;
+            this.reset = reset;
         }
 
-        public VisualElement Take()
+        public T Take()
         {
             if (inactiveElements.Count > 0)
             {
                 var elem = inactiveElements.Pop();
+                reset(elem);
                 activeElements.Push(elem);
                 return elem;
             }
             else
             {
-                var elem = prefab.Instantiate();
+                var elem = factory();
                 activeElements.Push(elem);
                 return elem;
             }
@@ -35,7 +39,7 @@ namespace FSMForUnity
             while (activeElements.Count > 0)
             {
                 var elem = activeElements.Pop();
-                elem.RemoveFromHierarchy();
+                reset(elem);
                 inactiveElements.Push(elem);
             }
         }

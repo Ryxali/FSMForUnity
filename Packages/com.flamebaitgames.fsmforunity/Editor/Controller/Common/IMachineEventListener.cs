@@ -1,4 +1,4 @@
-namespace FSMForUnity
+namespace FSMForUnity.Editor
 {
     internal interface IMachineEventListener
     {

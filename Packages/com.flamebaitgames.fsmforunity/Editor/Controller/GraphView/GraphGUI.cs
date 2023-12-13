@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace FSMForUnity.Editor.IMGUIGraph
+namespace FSMForUnity.Editor.IMGUI
 {
     public static class GraphGUI
     {

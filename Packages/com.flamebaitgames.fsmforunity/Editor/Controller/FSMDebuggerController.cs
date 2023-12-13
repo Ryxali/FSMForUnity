@@ -1,8 +1,8 @@
-using FSMForUnity.Editor.IMGUIGraph;
+using FSMForUnity.Editor.IMGUI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace FSMForUnity
+namespace FSMForUnity.Editor
 {
     internal class FSMDebuggerController
     {
@@ -15,7 +15,7 @@ namespace FSMForUnity
             stateData = new DebuggerFSMStateData();
             var builder = FSMMachine.Build();
 
-            var listView = new ListViewFSMState(stateData, root.Q(UIMap_EditorWindow.ListView));
+            var listView = new MachineListViewFSMState(stateData, root.Q(UIMap_EditorWindow.ListView));
 
             var graphBuilder = FSMMachine.Build();
             var graphNoSelected = graphBuilder.AddState("Display Graph", new EmptyFSMState());

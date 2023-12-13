@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace FSMForUnity.Editor.IMGUIGraph
+namespace FSMForUnity.Editor.IMGUI
 {
     /// <summary>
     /// Used to make scoped GUI.matrix pushes and pops

@@ -2,29 +2,24 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace FSMForUnity
+namespace FSMForUnity.Editor
 {
     /// <summary>
     /// Event based, populates and presents the list view of state machines
     /// the user can inspect.
     /// </summary>
-    internal class ListViewFSMState : IFSMState
+    internal class MachineListViewFSMState : IFSMState
     {
-        [FSMDebuggerHidden]
         private readonly VisualElement container;
-        [FSMDebuggerHidden]
         private readonly VisualElement listViewRoot;
-        [FSMDebuggerHidden]
         private readonly VisualTreeAsset listEntryAsset;
-        [FSMDebuggerHidden]
         private readonly List<VisualElement> listElements = new List<VisualElement>(512);
-        [FSMDebuggerHidden]
         private readonly ListView listView;
 
         private readonly List<DebugMachine> listMachines = new List<DebugMachine>();
         private readonly DebuggerFSMStateData stateData;
 
-        public ListViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
+        public MachineListViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
             this.stateData = stateData;
             this.container = container;

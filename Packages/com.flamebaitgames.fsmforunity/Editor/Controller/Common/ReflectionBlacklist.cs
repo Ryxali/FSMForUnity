@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FSMForUnity
+namespace FSMForUnity.Editor
 {
     /// <summary>
     /// We blacklist a number of types we don't want to inspect deeper into.

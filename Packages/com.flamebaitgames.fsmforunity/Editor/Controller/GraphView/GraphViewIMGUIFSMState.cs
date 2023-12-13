@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace FSMForUnity.Editor.IMGUIGraph
+namespace FSMForUnity.Editor.IMGUI
 {
     internal struct AnimatedNode
     {
@@ -27,6 +27,7 @@ namespace FSMForUnity.Editor.IMGUIGraph
 
         private readonly MachineGraph machineGraph = new MachineGraph();
         private AnimatedNode[] animatedNodes;
+        [FSMDebuggerHidden]
         private Dictionary<IFSMState, int> nodeToIndex;
         private Vector2 panPosition;
         private Vector2 heldPosition;

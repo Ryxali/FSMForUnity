@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FSMForUnity
+namespace FSMForUnity.Editor
 {
     internal class EventBroadcaster
     {

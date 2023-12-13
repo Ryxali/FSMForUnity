@@ -2,32 +2,35 @@
 using UnityEditor;
 using UnityEngine;
 
-internal static class UIMap_IMGUISkin
+namespace FSMForUnity.Editor.IMGUI
 {
-    public const string NodeLabelStyle = "node-label";
-
-    public static readonly Color normalStateColor = Color.white;
-    public static readonly Color activeStateColor = new Color(0.35f, 0.75f, 0.35f, 0.5f).linear;
-    public static readonly Color defaultStateColor = new Color(0.75f, 0.75f, 0.35f, 0.5f).linear;
-
-    public static readonly Color updateColor = activeStateColor;
-    public static readonly Color enterColor = new Color(0.35f, 1f, 0.35f, 1f).linear;
-    public static readonly Color exitColor = new Color(1f, 0.35f, 0.35f, 1f).linear;
-
-    public static GUISkin CreateSkin()
+    internal static class UIMap_IMGUISkin
     {
-        var skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene);
+        public const string NodeLabelStyle = "node-label";
 
-        var copy = Object.Instantiate(skin);
+        public static readonly Color normalStateColor = Color.white;
+        public static readonly Color activeStateColor = new Color(0.35f, 0.75f, 0.35f, 0.5f).linear;
+        public static readonly Color defaultStateColor = new Color(0.75f, 0.75f, 0.35f, 0.5f).linear;
 
-        var list = new List<GUIStyle>(copy.customStyles);
+        public static readonly Color updateColor = activeStateColor;
+        public static readonly Color enterColor = new Color(0.35f, 1f, 0.35f, 1f).linear;
+        public static readonly Color exitColor = new Color(1f, 0.35f, 0.35f, 1f).linear;
 
-        var nodeLabel = new GUIStyle(copy.label);
-        nodeLabel.name = NodeLabelStyle;
-        nodeLabel.alignment = TextAnchor.LowerCenter;
-        list.Add(nodeLabel);
+        public static GUISkin CreateSkin()
+        {
+            var skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene);
 
-        copy.customStyles = list.ToArray();
-        return copy;
+            var copy = Object.Instantiate(skin);
+
+            var list = new List<GUIStyle>(copy.customStyles);
+
+            var nodeLabel = new GUIStyle(copy.label);
+            nodeLabel.name = NodeLabelStyle;
+            nodeLabel.alignment = TextAnchor.LowerCenter;
+            list.Add(nodeLabel);
+
+            copy.customStyles = list.ToArray();
+            return copy;
+        }
     }
 }
