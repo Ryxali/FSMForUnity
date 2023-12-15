@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor.IMGUI
@@ -16,6 +18,9 @@ namespace FSMForUnity.Editor.IMGUI
 
     internal class GraphViewIMGUIFSMState : IFSMState, IMachineEventListener
     {
+        private static readonly ProfilerMarker onGuiMarker = new ProfilerMarker("GraphViewIMGUIFSMState.ONGUI");
+        private static readonly ProfilerMarker drawTranstitionMarker = new ProfilerMarker("DrawTransition");
+        private static readonly ProfilerMarker drawStateNodeMarker = new ProfilerMarker("DrawStateNode");
 
         private readonly DebuggerFSMStateData stateData;
         private readonly VisualElement container;
@@ -90,6 +95,7 @@ namespace FSMForUnity.Editor.IMGUI
                 n.enterPulse = Mathf.Max(0f, n.enterPulse - decay);
                 n.exitPulse = Mathf.Max(0f, n.exitPulse - decay);
                 n.updatePulse = Mathf.Max(0f, n.updatePulse - decay);
+                n.color.a = Mathf.Max(n.enterPulse, Mathf.Max(n.exitPulse, n.updatePulse));
                 animatedNodes[i] = n;
             }
             immediateGUIElement.MarkDirtyRepaint();
@@ -190,12 +196,15 @@ namespace FSMForUnity.Editor.IMGUI
 
         private void OnGUI()
         {
+            onGuiMarker.Begin();
             var s = GUI.skin;
             GUI.skin = skin;
             var panelRect = new Rect(0, 0, container.resolvedStyle.width, container.resolvedStyle.height);
 
             var repeatingCoords = new Rect(-panPosition.x, -panPosition.y, panelRect.width / DefaultGridTiling, panelRect.height / DefaultGridTiling);
             GUI.DrawTextureWithTexCoords(panelRect, gridTexture, repeatingCoords);
+
+            var pannedRect = new Rect(panelRect.position - panPosition, panelRect.size);
 
             const float BoxSpacing = 400f;
 
@@ -207,34 +216,40 @@ namespace FSMForUnity.Editor.IMGUI
 
                     foreach (var transition in machineGraph.GetTransitions())
                     {
+                        drawTranstitionMarker.Begin();
                         const float LineWidth = 10f;
                         var pointA = stateRect.position + transition.origin * BoxSpacing;
                         var pointB = stateRect.position + transition.destination * BoxSpacing;
 
-                        GraphGUI.DrawConnection(panelRect, pointA, pointB, LineWidth, lineTexture);
+                        GraphGUI.DrawConnection(pannedRect, pointA, pointB, LineWidth, lineTexture);
+                        drawTranstitionMarker.End();
                     }
 
                     var stateNodes = machineGraph.GetStates();
                     for (int i = 0; i < stateNodes.Length; i++)
                     {
+                        drawStateNodeMarker.Begin();
                         var state = stateNodes[i];
                         var animNode = animatedNodes[i];
                         var color = UIMap_IMGUISkin.normalStateColor;
                         if (stateData.currentlyInspecting.TryGetActive(out var active) && active == state.state)
                             color = IMGUIUtil.Blend(UIMap_IMGUISkin.activeStateColor, color);
+                        color = IMGUIUtil.Blend(animNode.color, color);
                         if (state.state == stateData.currentlyInspecting.DefaultState)
                             color = IMGUIUtil.Blend(UIMap_IMGUISkin.defaultStateColor, color);
-                        color = animNode.color;//IMGUIUtil.Blend(animNode.color, color);
+                        Profiler.BeginSample("Draw");
                         var clicked = GraphGUI.DrawStateNode(stateRect.position + state.position * BoxSpacing, 1f, stateData.currentlyInspecting.GetStateName(state.state), state.isDefault, color.gamma);
-
+                        Profiler.EndSample();
                         if (clicked)
                         {
                             stateData.selectedState = state.state;
                         }
+                        drawStateNodeMarker.End();
                     }
                 }
             }
             GUI.skin = s;
+            onGuiMarker.End();
         }
 
         public void Destroy()

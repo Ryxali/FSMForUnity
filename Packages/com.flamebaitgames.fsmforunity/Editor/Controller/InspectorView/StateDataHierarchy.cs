@@ -11,7 +11,8 @@ namespace FSMForUnity.Editor
     {
         private const int MaxDepth = 6;
 
-        private static readonly ProfilerMarker refreshMarker = new ProfilerMarker("Refresh");
+        private static readonly ProfilerMarker bindMarker = new ProfilerMarker("StateDataHierarchy.Bind");
+        private static readonly ProfilerMarker refreshMarker = new ProfilerMarker("StateDataHierarchy.Refresh");
         private static readonly ProfilerMarker processMarker = new ProfilerMarker("Process");
         private static readonly ProfilerMarker addElementMarker = new ProfilerMarker("Add Element");
 
@@ -145,6 +146,7 @@ namespace FSMForUnity.Editor
                 !fieldInfo.FieldType.IsPointer && 
                 // No need to check deeper than the primitive itself (int, string, etc)
                 !fieldInfo.FieldType.IsPrimitive &&
+                value is not string &&
                 // Objects generally contain too much to reveal in a tree view without a performance hit
                 value is not UnityEngine.Object && 
                 // VisualElements are too data dense to show deeper without a performance hit
@@ -153,7 +155,9 @@ namespace FSMForUnity.Editor
 
         public void Bind(MultiColumnTreeView treeView)
         {
+            bindMarker.Begin();
             treeView.SetRootItems(rootItems);
+            bindMarker.End();
         }
 
     }

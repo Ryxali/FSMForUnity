@@ -1,5 +1,6 @@
 #if UNITY_2022_1_OR_NEWER
 using System.Collections.Generic;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -8,6 +9,7 @@ namespace FSMForUnity.Editor
 
     internal class InspectorViewFSMState : IFSMState
     {
+        private static readonly ProfilerMarker refreshItemsMarker = new ProfilerMarker("MultiColumnTreeView.RefreshItems");
         private readonly DebuggerFSMStateData stateData;
 
         private readonly VisualElement container;
@@ -75,8 +77,9 @@ namespace FSMForUnity.Editor
             {
                 stateHierarchy.Refresh(activeState);
                 stateHierarchy.Bind(treeView);
-                //treeView.Rebuild();
+                refreshItemsMarker.Begin();
                 treeView.RefreshItems();
+                refreshItemsMarker.End();
             }
         }
 
