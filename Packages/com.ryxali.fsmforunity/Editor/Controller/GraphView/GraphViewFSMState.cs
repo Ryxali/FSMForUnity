@@ -51,10 +51,10 @@ namespace FSMForUnity.Editor
             style.position = new StyleEnum<Position>(Position.Absolute);
             style.left = new StyleLength(100f);
             style.top = new StyleLength(100f);
+            style.color = new StyleColor(Color.red);
             //style.backgroundColor = new StyleColor(Color.white);
             // style.backgroundImage = new StyleBackground(Background.FromTexture2D(Texture2D.whiteTexture));
             //style.color = new StyleColor(Color.white);
-            MarkDirtyRepaint();
         }
 
         private void Generate(MeshGenerationContext gen)
@@ -71,17 +71,21 @@ namespace FSMForUnity.Editor
 
                 var center = IMGUI.IMGUIUtil.PadRect(rect, margin);
 
+                var centerColor = gen.visualElement.style.color.value;
+                var edgeColor = IMGUI.IMGUIUtil.Blend(new Color(0, 0, 0, 0.2f), centerColor);
+
                 // center box
-                meshWrite.SetNextVertex(new Vertex { position = center.min, uv = new Vector2(marginUv, marginUv), tint = Color.white });
-                meshWrite.SetNextVertex(new Vertex { position = new Vector3(center.xMin, center.yMax), uv = new Vector2(marginUv, 1f - marginUv), tint = Color.white });
-                meshWrite.SetNextVertex(new Vertex { position = center.max, uv = new Vector2(1f-marginUv, 1f-marginUv), tint = Color.white });
-                meshWrite.SetNextVertex(new Vertex { position = new Vector3(center.xMax, center.yMin), uv = new Vector2(1f - marginUv, marginUv), tint = Color.white });
+                meshWrite.SetNextVertex(new Vertex { position = center.min, uv = new Vector2(marginUv, marginUv), tint = centerColor });
+                meshWrite.SetNextVertex(new Vertex { position = new Vector3(center.xMin, center.yMax), uv = new Vector2(marginUv, 1f - marginUv), tint = centerColor });
+                meshWrite.SetNextVertex(new Vertex { position = center.max, uv = new Vector2(1f-marginUv, 1f-marginUv), tint = centerColor });
+                meshWrite.SetNextVertex(new Vertex { position = new Vector3(center.xMax, center.yMin), uv = new Vector2(1f - marginUv, marginUv), tint = centerColor });
                 meshWrite.SetNextIndex(0);
                 meshWrite.SetNextIndex(2);
                 meshWrite.SetNextIndex(1);
                 meshWrite.SetNextIndex(0);
                 meshWrite.SetNextIndex(3);
                 meshWrite.SetNextIndex(2);
+
 
                 var radRect = IMGUI.IMGUIUtil.PadRect(rect, bevelRadius);
 
@@ -92,7 +96,7 @@ namespace FSMForUnity.Editor
                     var pos = (Vector3)radRect.min + vec;
                     pos.z = Vertex.nearZ;
                     Debug.Log($"{pos} : {vec}");
-                    meshWrite.SetNextVertex(new Vertex { position = pos, uv = new Vector2(Mathf.InverseLerp(rect.xMin, rect.xMax, pos.x), Mathf.InverseLerp(rect.yMin, rect.yMax, pos.y)), tint = Color.gray });
+                    meshWrite.SetNextVertex(new Vertex { position = pos, uv = new Vector2(Mathf.InverseLerp(rect.xMin, rect.xMax, pos.x), Mathf.InverseLerp(rect.yMin, rect.yMax, pos.y)), tint = edgeColor });
                 }
                 // top-left corner
                 for (int i = 0; i < BevelVertices; i++)
@@ -101,7 +105,7 @@ namespace FSMForUnity.Editor
                     var pos = new Vector3(radRect.xMin, radRect.yMax) + vec;
                     pos.z = Vertex.nearZ;
                     Debug.Log($"{pos} : {vec}");
-                    meshWrite.SetNextVertex(new Vertex { position = pos, uv = new Vector2(Mathf.InverseLerp(rect.xMin, rect.xMax, pos.x), Mathf.InverseLerp(rect.yMin, rect.yMax, pos.y)), tint = Color.gray });
+                    meshWrite.SetNextVertex(new Vertex { position = pos, uv = new Vector2(Mathf.InverseLerp(rect.xMin, rect.xMax, pos.x), Mathf.InverseLerp(rect.yMin, rect.yMax, pos.y)), tint = edgeColor });
                 }
                 // top-right corner
                 for (int i = 0; i < BevelVertices; i++)
@@ -110,7 +114,7 @@ namespace FSMForUnity.Editor
                     var pos = (Vector3)radRect.max + vec;
                     pos.z = Vertex.nearZ;
                     Debug.Log($"{pos} : {vec}");
-                    meshWrite.SetNextVertex(new Vertex { position = pos, uv = new Vector2(Mathf.InverseLerp(rect.xMin, rect.xMax, pos.x), Mathf.InverseLerp(rect.yMin, rect.yMax, pos.y)), tint = Color.gray });
+                    meshWrite.SetNextVertex(new Vertex { position = pos, uv = new Vector2(Mathf.InverseLerp(rect.xMin, rect.xMax, pos.x), Mathf.InverseLerp(rect.yMin, rect.yMax, pos.y)), tint = edgeColor });
                 }
                 // bottom-right corner
                 for (int i = 0; i < BevelVertices; i++)
@@ -119,7 +123,7 @@ namespace FSMForUnity.Editor
                     var pos = new Vector3(radRect.xMax, radRect.yMin) + vec;
                     pos.z = Vertex.nearZ;
                     Debug.Log($"{pos} : {vec}");
-                    meshWrite.SetNextVertex(new Vertex { position = pos, uv = new Vector2(Mathf.InverseLerp(rect.xMin, rect.xMax, pos.x), Mathf.InverseLerp(rect.yMin, rect.yMax, pos.y)), tint = Color.gray });
+                    meshWrite.SetNextVertex(new Vertex { position = pos, uv = new Vector2(Mathf.InverseLerp(rect.xMin, rect.xMax, pos.x), Mathf.InverseLerp(rect.yMin, rect.yMax, pos.y)), tint = edgeColor });
                 }
 
                 for (ushort j = 0; j < 4; j++)
