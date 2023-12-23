@@ -19,8 +19,8 @@ namespace FSMForUnity.Editor
 
             var graphBuilder = FSMMachine.Build();
             var graphNoSelected = graphBuilder.AddState("Display Graph", new EmptyFSMState());
-            //var graphSelected = graphBuilder.AddState("No Graph", new GraphViewIMGUIFSMState(stateData, root.Q(UIMap_EditorWindow.GraphView)));
-            var graphSelected = graphBuilder.AddState("No Graph", new GraphViewFSMState(stateData, root.Q(UIMap_EditorWindow.GraphView)));
+            var graphSelected = graphBuilder.AddState("No Graph", new GraphViewIMGUIFSMState(stateData, root.Q(UIMap_EditorWindow.GraphView)));
+            //var graphSelected = graphBuilder.AddState("No Graph", new GraphViewFSMState(stateData, root.Q(UIMap_EditorWindow.GraphView)));
             graphBuilder.AddBidirectionalTransition(() => stateData.currentlyInspecting.IsValid, graphNoSelected, graphSelected);
             graphBuilder.SetDebuggingInfo("FSM Debugger Graph", null);
 
