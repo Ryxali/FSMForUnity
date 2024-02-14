@@ -1,3 +1,11 @@
 Label {
     font-size: 14px;
 }
+
+.fsmforunity-border {
+    border-color: grey;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-top-width: 2px;
+}

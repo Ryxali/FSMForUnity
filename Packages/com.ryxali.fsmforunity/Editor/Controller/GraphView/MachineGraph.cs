@@ -14,7 +14,7 @@ namespace FSMForUnity.Editor.IMGUI
         private const float StepDeltaSqr = StepDelta * StepDelta;
         private const float StepMaxForce = 100f;
         private const float Drag = 0.95f;
-        private const int MaxSimulationCycles = 1000;
+        private const int MaxSimulationCycles = 5000;
         private const float MaxTension = 0.05f;
         private const float MaxTensionSqr = MaxTension * MaxTension;
 
@@ -43,11 +43,41 @@ namespace FSMForUnity.Editor.IMGUI
 
             nodes[0] = new SimGraphNode
             {
-                state = states[0],
+                state = defaultState,
                 position = Vector2.zero,
                 previousPosition = Vector2.zero,
                 force = Vector2.zero
             };
+
+            var stack = new Stack<(IFSMState state, Vector2 rootPos, int maxCount)>();
+            var traversed = new HashSet<IFSMState>(EqualityComparer_IFSMState.constant) { machine.DefaultState };
+            if (machine.TryGetTransitionsFrom(defaultState, out var firstTransitions))
+            {
+                foreach (var firstTransition in firstTransitions)
+                    stack.Push((firstTransition.to, Vector2.zero, firstTransitions.Length));
+            }
+
+            var nodeI = 1;
+            while (stack.Count > 0)
+            {
+                var s = stack.Pop();
+                if (!traversed.Contains(s.state))
+                {
+                    traversed.Add(s.state);
+                    var node = nodes[nodeI];
+                    node.force = Vector2.zero;
+                    node.state = s.state;
+                    var position = s.rootPos + Rotate(Vector2.up, Mathf.PI * 1f / (Mathf.Max(6f, nodes.Length - 1)) * (nodeI - 1));
+                    node.position = node.previousPosition = position;
+                    nodes[nodeI] = node;
+                    nodeI++;
+                    if (machine.TryGetTransitionsFrom(s.state, out var ttt))
+                    {
+                        foreach (var ttts in ttt)
+                            stack.Push((ttts.to, node.position, ttt.Length));
+                    }
+                }
+            }
             for (int i = 1; i < nodes.Length; i++)
             {
                 var state = states[i];
@@ -59,11 +89,13 @@ namespace FSMForUnity.Editor.IMGUI
                     defaultNode.state = state;
                     nodes[0] = defaultNode;
                 }
-
-                var position = Rotate(Vector2.up, Mathf.PI * 1f / (Mathf.Max(6f, nodes.Length - 1)) * (i - 1));
-                node.position = node.previousPosition = position;
-                node.state = state;
-                node.force = Vector2.zero;
+                if (!traversed.Contains(state))
+                {
+                    var position = Rotate(Vector2.up, Mathf.PI * 1f / (Mathf.Max(6f, nodes.Length - 1)) * (i - 1));
+                    node.position = node.previousPosition = position;
+                    node.state = state;
+                    node.force = Vector2.zero;
+                }
                 nodes[i] = node;
             }
 
@@ -105,7 +137,7 @@ namespace FSMForUnity.Editor.IMGUI
 
             StepSimulation(nodes, transitions);
             var tension = 1f;
-            for (int i = 0; i < MaxSimulationCycles && tension > MaxTensionSqr; i++) // !AreConstraintsSatisfied(nodes);
+            for (int i = 0; i < MaxSimulationCycles; i++) // !AreConstraintsSatisfied(nodes);
             {
                 tension = StepSimulation(nodes, transitions);
             }
@@ -154,6 +186,8 @@ namespace FSMForUnity.Editor.IMGUI
             // then demagnet the nodes
             var maxTension = 0f;
 
+            const float Gravity = -0.05f;
+
             for (int i = 0; i < nodes.Length; i++)
             {
                 var me = nodes[i];
@@ -198,6 +232,7 @@ namespace FSMForUnity.Editor.IMGUI
                 var prev = Vector2.Lerp(me.previousPosition, me.position, Drag);
                 me.previousPosition = me.position;
                 // me.force += (prev - me.position) * 0.2f;
+                me.force += Vector2.down * Gravity;
                 me.force = me.force.normalized * Mathf.Min(me.force.magnitude, StepMaxForce);
                 me.position = me.position * 2f - prev + me.force * StepDeltaSqr;
                 maxTension = Mathf.Max(me.force.sqrMagnitude, maxTension);

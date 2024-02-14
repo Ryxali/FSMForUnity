@@ -1,7 +1,11 @@
+using FSMForUnity.Editor.IMGUI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
@@ -11,26 +15,92 @@ namespace FSMForUnity.Editor
         private readonly DebuggerFSMStateData stateData;
         private readonly VisualElement container;
 
+        private readonly RepeatingBackgroundElement graphCanvas;
         private readonly VisualElement testGeneratedMesh;
+        private readonly VisualTreeAsset graphNodeAsset;
+        private readonly Texture gridTexture;
+
+        private bool isPanning;
+        private Vector2 heldPosition;
+        private float zoomLevel;
 
         public GraphViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
             this.stateData = stateData;
             this.container = container;
-            testGeneratedMesh = new TestMeshVisualElement(30f, 10f);
+            gridTexture = IMGUIUtil.GenerateRepeatingGridTexture(128, 2, new Color(0.2f, 0.2f, 0.2f, 2f), new Color(0.6f, 0.6f, 0.6f, 1f));
+            gridTexture.hideFlags = HideFlags.HideAndDontSave;
+            graphCanvas = new RepeatingBackgroundElement(gridTexture);
+            graphNodeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodePath);
+            testGeneratedMesh = graphNodeAsset.Instantiate();
         }
 
         public void Enter()
         {
-            container.Add(testGeneratedMesh);
+            graphCanvas.zoom = 1f;
+            graphCanvas.offset = Vector2.zero;
+            container.Add(graphCanvas);
+            container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
+            container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
+            container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
+            container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
         }
 
         public void Exit()
         {
+            container.UnregisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
+            container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
+            container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
+            container.UnregisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
+            container.Remove(graphCanvas);
         }
 
         public void Update(float delta)
         {
+        }
+
+        void IFSMState.Destroy()
+        {
+            UnityEngine.Object.DestroyImmediate(gridTexture);
+        }
+
+        private void OnZoom(WheelEvent evt)
+        {
+            var mPos = evt.mousePosition;
+            var wB = graphCanvas.worldBound;
+            var lPos = mPos - wB.position - wB.size * 0.5f;
+            //Debug.Log($"mPos: {mPos} wB: {wB}, lPos: {lPos}");
+            //var z = zoomLevel;
+            zoomLevel = Mathf.Clamp01(zoomLevel - evt.delta.y * 0.05f);
+            //var z = graphCanvas.zoom;
+            graphCanvas.zoom = Mathf.Lerp(1f, 10f, (zoomLevel * zoomLevel));//Mathf.Clamp(graphCanvas.zoom - evt.delta.y * 0.05f, 1f, 10f);
+            //var delta = graphCanvas.zoom - z;
+            //graphCanvas.offset -= wB.size * 0.5f * delta;
+        }
+
+        private void OnPanDown(MouseDownEvent evt)
+        {
+            if (evt.button == 2)
+            {
+                isPanning = true;
+                heldPosition = evt.mousePosition;
+            }
+        }
+        private void OnPanUp(MouseUpEvent evt)
+        {
+            if (evt.button == 2)
+            {
+                isPanning = false;
+            }
+        }
+        private void OnPanDrag(MouseMoveEvent evt)
+        {
+            if (isPanning)
+            {
+                var pos = evt.mousePosition;
+                graphCanvas.offset += pos - heldPosition;
+                heldPosition = pos;
+            }
         }
     }
 
@@ -51,7 +121,7 @@ namespace FSMForUnity.Editor
             style.position = new StyleEnum<Position>(Position.Absolute);
             style.left = new StyleLength(100f);
             style.top = new StyleLength(100f);
-            style.color = new StyleColor(Color.red);
+            //style.color = new StyleColor(Color.red);
             //style.backgroundColor = new StyleColor(Color.white);
             // style.backgroundImage = new StyleBackground(Background.FromTexture2D(Texture2D.whiteTexture));
             //style.color = new StyleColor(Color.white);
