@@ -37,8 +37,7 @@ namespace FSMForUnity.Editor
 
         public void Enter()
         {
-            graphCanvas.zoom = 1f;
-            graphCanvas.offset = Vector2.zero;
+            graphCanvas.Reset();
             container.Add(graphCanvas);
             container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
@@ -66,16 +65,8 @@ namespace FSMForUnity.Editor
 
         private void OnZoom(WheelEvent evt)
         {
-            var mPos = evt.mousePosition;
-            var wB = graphCanvas.worldBound;
-            var lPos = mPos - wB.position - wB.size * 0.5f;
-            //Debug.Log($"mPos: {mPos} wB: {wB}, lPos: {lPos}");
-            //var z = zoomLevel;
-            zoomLevel = Mathf.Clamp01(zoomLevel - evt.delta.y * 0.05f);
-            //var z = graphCanvas.zoom;
-            graphCanvas.zoom = Mathf.Lerp(1f, 10f, (zoomLevel * zoomLevel));//Mathf.Clamp(graphCanvas.zoom - evt.delta.y * 0.05f, 1f, 10f);
-            //var delta = graphCanvas.zoom - z;
-            //graphCanvas.offset -= wB.size * 0.5f * delta;
+            zoomLevel = Mathf.Clamp01(zoomLevel - evt.delta.y * 0.01f);
+            graphCanvas.Zoom(Mathf.Lerp(1f, 10f, zoomLevel * zoomLevel), evt.localMousePosition);
         }
 
         private void OnPanDown(MouseDownEvent evt)
@@ -98,7 +89,7 @@ namespace FSMForUnity.Editor
             if (isPanning)
             {
                 var pos = evt.mousePosition;
-                graphCanvas.offset += pos - heldPosition;
+                graphCanvas.Pan(pos - heldPosition);
                 heldPosition = pos;
             }
         }

@@ -8,14 +8,14 @@ namespace FSMForUnity.Editor
     internal class RepeatingBackgroundElement : VisualElement
     {
 
-        public Vector2 offset { get => _offset; set { _offset = value; MarkDirtyRepaint(); } }
+        //public Vector2 offset { get => _offset; set { _offset = value; MarkDirtyRepaint(); } }
 
-        public float zoom { get => _zoom; set { _zoom = Mathf.Max(1f, value); MarkDirtyRepaint(); } }
+        //public float zoom { get => _zoom; set { _zoom = Mathf.Max(1f, value); MarkDirtyRepaint(); } }
         
         private readonly Texture texture;
 
-        private Vector2 _offset;
-        private float _zoom;
+        private Vector2 offset;
+        private float zoom;
 
         public RepeatingBackgroundElement(Texture texture)
         {
@@ -26,6 +26,35 @@ namespace FSMForUnity.Editor
             style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
             style.position = new StyleEnum<Position>(Position.Relative);
             zoom = 1f;
+        }
+
+        public void Reset()
+        {
+            offset = Vector2.zero;
+            zoom = 1f;
+            MarkDirtyRepaint();
+        }
+
+        public void Pan(Vector2 delta)
+        {
+            offset += delta;
+            MarkDirtyRepaint();
+        }
+
+        public void Zoom(float zoomLevel, Vector2 towards)
+        {
+            const float MinZoom = 1f;
+
+            var center = towards;
+
+            var lP = offset - center;
+
+            zoomLevel = Mathf.Max(zoomLevel, MinZoom);
+            var prev = zoom;
+            zoom = zoomLevel;
+
+            offset = center + lP * zoom / prev;
+            MarkDirtyRepaint();
         }
 
         private void Generate(MeshGenerationContext context)
