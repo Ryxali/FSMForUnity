@@ -16,13 +16,16 @@ namespace FSMForUnity.Editor
         private readonly VisualElement container;
 
         private readonly RepeatingBackgroundElement graphCanvas;
-        private readonly VisualElement testGeneratedMesh;
         private readonly VisualTreeAsset graphNodeAsset;
+        private readonly ObjectPool<VisualElement> graphNodePool;
+        private readonly ObjectPool<ConnectionVisualElement> graphConnectionPool;
         private readonly Texture gridTexture;
+        private readonly MachineGraph machineGraph;
 
         private bool isPanning;
         private Vector2 heldPosition;
         private float zoomLevel;
+        private const float UnitConvert = 250f;
 
         public GraphViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
@@ -32,13 +35,35 @@ namespace FSMForUnity.Editor
             gridTexture.hideFlags = HideFlags.HideAndDontSave;
             graphCanvas = new RepeatingBackgroundElement(gridTexture);
             graphNodeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodePath);
-            testGeneratedMesh = graphNodeAsset.Instantiate();
+            graphNodePool = new ObjectPool<VisualElement>(() => graphNodeAsset.Instantiate(), elem => { });
+            graphConnectionPool = new ObjectPool<ConnectionVisualElement>(() => new ConnectionVisualElement(), elem => elem.Connect(default, default));
+            machineGraph = new MachineGraph();
         }
 
         public void Enter()
         {
+            machineGraph.Regenerate(stateData.currentlyInspecting);
             graphCanvas.Reset();
             container.Add(graphCanvas);
+            foreach (var node in machineGraph.GetStates())
+            {
+                var elem = graphNodePool.Take();
+                //var pos = elem.style.position;
+                //pos.value = Position.Absolute;
+                var translate = elem.style.translate;
+                graphCanvas.Add(elem);
+                var left = elem.style.left;
+                var right = elem.style.right;
+                translate.value = new Translate(new Length(container.contentRect.width/2 + node.position.x * UnitConvert), new Length(container.contentRect.height / 2 + node.position.y * UnitConvert), 0f);
+                elem.style.translate = translate;
+                //elem.transform.position = node.position;
+            }
+            foreach (var conn in machineGraph.GetTransitions())
+            {
+                var elem = graphConnectionPool.Take();
+                graphCanvas.Add(elem);
+                elem.Connect(new Rect(container.contentRect.size / 2 + conn.origin * UnitConvert, default), new Rect(container.contentRect.size / 2 + conn.destination * UnitConvert, default));
+            }
             container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
@@ -51,6 +76,14 @@ namespace FSMForUnity.Editor
             container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
+            foreach (var elem in graphCanvas.Children())
+            {
+                if (elem is ConnectionVisualElement vElem)
+                    graphConnectionPool.Return(vElem);
+                else
+                    graphNodePool.Return(elem);
+            }
+            graphCanvas.Clear();
             container.Remove(graphCanvas);
         }
 
@@ -92,6 +125,49 @@ namespace FSMForUnity.Editor
                 graphCanvas.Pan(pos - heldPosition);
                 heldPosition = pos;
             }
+        }
+    }
+
+    internal class ConnectionVisualElement : VisualElement
+    {
+
+        private Vector2 from, to;
+        private float LineWidth = 5f;
+
+        public ConnectionVisualElement()
+        {
+            var pos = style.position;
+            style.position = new StyleEnum<Position>(Position.Absolute);
+            generateVisualContent = Generate;
+        }
+
+        public void Connect(Rect from, Rect to)
+        {
+            var rect = Rect.MinMaxRect(Mathf.Min(from.center.x, to.center.x), Mathf.Min(from.center.y, to.center.y), Mathf.Max(from.center.x, to.center.x), Mathf.Max(from.center.y, to.center.y));
+            rect.x -= LineWidth;
+            rect.y -= LineWidth;
+            rect.width += LineWidth * 2;
+            rect.height += LineWidth * 2;
+            style.translate = new StyleTranslate(new Translate(new Length(rect.x), new Length(rect.y), 0f));
+            style.width = new StyleLength(new Length(rect.width));
+            style.height = new StyleLength(new Length(rect.height));
+            this.from = from.center - rect.position;
+            this.to = to.center - rect.position;
+            MarkDirtyRepaint();
+        }
+
+        private void Generate(MeshGenerationContext context)
+        {
+            var painter = context.painter2D;
+            painter.BeginPath();
+            var rect = context.visualElement.contentRect;
+            painter.MoveTo(from);
+            painter.LineTo(to);
+
+            painter.lineCap = LineCap.Round;
+            painter.lineWidth = LineWidth;
+            painter.strokeColor = Color.white;
+            painter.Stroke();
         }
     }
 
