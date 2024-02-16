@@ -111,7 +111,6 @@ namespace FSMForUnity.Editor
         {
             element.style.left = new StyleLength(new Length(container.contentRect.width / 2 + node.position.x * UnitConvert));
             element.style.top = new StyleLength(new Length(container.contentRect.height / 2 + node.position.y * UnitConvert));
-            //element.style.translate = new Translate(new Length(container.contentRect.width/2 + node.position.x * UnitConvert), new Length(container.contentRect.height / 2 + node.position.y * UnitConvert), 0f);
             element.Q<Label>(UIMap_GraphView.Title).text = index.ToString();
             element.Q<Label>(UIMap_GraphView.Subheading).text = debugMachine.GetStateName(node.state);
         }
@@ -120,6 +119,20 @@ namespace FSMForUnity.Editor
         {
             zoomLevel = Mathf.Clamp01(zoomLevel - evt.delta.y * 0.01f);
             graphCanvas.Zoom(Mathf.Lerp(1f, 10f, zoomLevel * zoomLevel), evt.localMousePosition);
+
+            var nodes = machineGraph.GetStates();
+            for (int i = 0; i < graphNodes.Count; i++)
+            {
+                var elem = graphNodes[i];
+                var node = nodes[i];
+
+                var zoom = graphCanvas.zoom;
+                elem.style.scale = new StyleScale(new Vector2(zoom, zoom)); //  + elem.contentRect.width * zoom
+                Debug.Log(elem.contentRect.width);
+                elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * UnitConvert));
+                elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2  + graphCanvas.zoom * node.position.y * UnitConvert));
+
+            }
         }
 
         private void OnPanDown(MouseDownEvent evt)
@@ -144,6 +157,16 @@ namespace FSMForUnity.Editor
                 var pos = evt.mousePosition;
                 graphCanvas.Pan(pos - heldPosition);
                 heldPosition = pos;
+
+                var nodes = machineGraph.GetStates();
+                for (int i = 0; i < graphNodes.Count; i++)
+                {
+                    var elem = graphNodes[i];
+                    var node = nodes[i];
+                    elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * UnitConvert));
+                    elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * UnitConvert));
+
+                }
             }
         }
     }

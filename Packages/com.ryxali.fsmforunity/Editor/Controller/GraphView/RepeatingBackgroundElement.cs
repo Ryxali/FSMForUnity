@@ -7,15 +7,10 @@ namespace FSMForUnity.Editor
 {
     internal class RepeatingBackgroundElement : VisualElement
     {
-
-        //public Vector2 offset { get => _offset; set { _offset = value; MarkDirtyRepaint(); } }
-
-        //public float zoom { get => _zoom; set { _zoom = Mathf.Max(1f, value); MarkDirtyRepaint(); } }
-        
         private readonly Texture texture;
 
-        private Vector2 offset;
-        private float zoom;
+        public Vector2 offset { get; private set; }
+        public float zoom { get; private set; }
 
         public RepeatingBackgroundElement(Texture texture)
         {
