@@ -135,11 +135,11 @@ namespace FSMForUnity.Editor.IMGUI
                 }
             }
 
-            StepSimulation(nodes, transitions);
+            StepSimulation(nodes, transitions, -0.05f);
             var tension = 1f;
             for (int i = 0; i < MaxSimulationCycles; i++) // !AreConstraintsSatisfied(nodes);
             {
-                tension = StepSimulation(nodes, transitions);
+                tension = StepSimulation(nodes, transitions, i < MaxSimulationCycles/2 ? -0.05f: 0f);
             }
 
             graphNodes = new GraphNode[nodes.Length];
@@ -182,13 +182,12 @@ namespace FSMForUnity.Editor.IMGUI
             return maxTension <= MaxTensionSqr;
         }
 
-        private float StepSimulation(SimGraphNode[] nodes, SimGraphConnection[] connections)
+        private float StepSimulation(SimGraphNode[] nodes, SimGraphConnection[] connections, float gravity)
         {
             // spring the transitions
             // then demagnet the nodes
             var maxTension = 0f;
 
-            const float Gravity = -0.05f;
 
             for (int i = 0; i < nodes.Length; i++)
             {
@@ -234,7 +233,7 @@ namespace FSMForUnity.Editor.IMGUI
                 var prev = Vector2.Lerp(me.previousPosition, me.position, Drag);
                 me.previousPosition = me.position;
                 // me.force += (prev - me.position) * 0.2f;
-                me.force += Vector2.down * Gravity;
+                me.force += Vector2.down * gravity;
                 me.force = me.force.normalized * Mathf.Min(me.force.magnitude, StepMaxForce);
                 me.position = me.position * 2f - prev + me.force * StepDeltaSqr;
                 maxTension = Mathf.Max(me.force.sqrMagnitude, maxTension);
