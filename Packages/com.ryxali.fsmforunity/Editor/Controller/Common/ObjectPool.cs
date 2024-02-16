@@ -21,7 +21,6 @@ namespace FSMForUnity.Editor
             if (inactiveElements.Count > 0)
             {
                 var elem = inactiveElements.Pop();
-                reset(elem);
                 return elem;
             }
             else

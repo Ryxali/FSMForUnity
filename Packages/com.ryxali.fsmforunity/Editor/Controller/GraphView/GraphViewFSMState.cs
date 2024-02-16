@@ -10,6 +10,8 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
 {
+
+
     internal class GraphViewFSMState : IFSMState
     {
         private readonly DebuggerFSMStateData stateData;
@@ -19,13 +21,17 @@ namespace FSMForUnity.Editor
         private readonly VisualTreeAsset graphNodeAsset;
         private readonly ObjectPool<VisualElement> graphNodePool;
         private readonly ObjectPool<ConnectionVisualElement> graphConnectionPool;
+
+        private readonly List<VisualElement> graphNodes = new List<VisualElement>();
+        private readonly List<ConnectionVisualElement> graphConnections = new List<ConnectionVisualElement>();
+
         private readonly Texture gridTexture;
         private readonly MachineGraph machineGraph;
 
         private bool isPanning;
         private Vector2 heldPosition;
         private float zoomLevel;
-        private const float UnitConvert = 250f;
+        private const float UnitConvert = 500f;
 
         public GraphViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
@@ -35,8 +41,8 @@ namespace FSMForUnity.Editor
             gridTexture.hideFlags = HideFlags.HideAndDontSave;
             graphCanvas = new RepeatingBackgroundElement(gridTexture);
             graphNodeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodePath);
-            graphNodePool = new ObjectPool<VisualElement>(() => graphNodeAsset.Instantiate(), elem => { });
-            graphConnectionPool = new ObjectPool<ConnectionVisualElement>(() => new ConnectionVisualElement(), elem => elem.Connect(default, default));
+            graphNodePool = new ObjectPool<VisualElement>(() => graphNodeAsset.Instantiate().Q("Box"), elem => { elem.RemoveFromHierarchy(); });
+            graphConnectionPool = new ObjectPool<ConnectionVisualElement>(() => new ConnectionVisualElement(), elem => { elem.RemoveFromHierarchy(); elem.Reset(); });
             machineGraph = new MachineGraph();
         }
 
@@ -45,25 +51,26 @@ namespace FSMForUnity.Editor
             machineGraph.Regenerate(stateData.currentlyInspecting);
             graphCanvas.Reset();
             container.Add(graphCanvas);
+            int i = 0;
             foreach (var node in machineGraph.GetStates())
             {
+                i++;
                 var elem = graphNodePool.Take();
-                //var pos = elem.style.position;
-                //pos.value = Position.Absolute;
-                var translate = elem.style.translate;
-                graphCanvas.Add(elem);
-                var left = elem.style.left;
-                var right = elem.style.right;
-                translate.value = new Translate(new Length(container.contentRect.width/2 + node.position.x * UnitConvert), new Length(container.contentRect.height / 2 + node.position.y * UnitConvert), 0f);
-                elem.style.translate = translate;
-                //elem.transform.position = node.position;
+                graphNodes.Add(elem);
+                container.Add(elem);
+                InitializeNode(stateData.currentlyInspecting, elem, node, i);
             }
             foreach (var conn in machineGraph.GetTransitions())
             {
                 var elem = graphConnectionPool.Take();
-                graphCanvas.Add(elem);
-                elem.Connect(new Rect(container.contentRect.size / 2 + conn.origin * UnitConvert, default), new Rect(container.contentRect.size / 2 + conn.destination * UnitConvert, default));
+                graphConnections.Add(elem);
+                container.Add(elem);
+                var fromElem = graphNodes[conn.originIndex];
+                var toElem = graphNodes[conn.destinationIndex];
+                elem.Connect(graphNodes[conn.originIndex], graphNodes[conn.destinationIndex]);
             }
+            foreach (var elem in graphNodes)
+                elem.BringToFront();
             container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
@@ -76,14 +83,18 @@ namespace FSMForUnity.Editor
             container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
-            foreach (var elem in graphCanvas.Children())
+            foreach (var elem in graphNodes)
             {
-                if (elem is ConnectionVisualElement vElem)
-                    graphConnectionPool.Return(vElem);
-                else
-                    graphNodePool.Return(elem);
+                elem.RemoveFromHierarchy();
+                graphNodePool.Return(elem);
             }
-            graphCanvas.Clear();
+            foreach (var elem in graphConnections)
+            {
+                elem.RemoveFromHierarchy();
+                graphConnectionPool.Return(elem);
+            }
+            graphNodes.Clear();
+            graphConnections.Clear();
             container.Remove(graphCanvas);
         }
 
@@ -94,6 +105,15 @@ namespace FSMForUnity.Editor
         void IFSMState.Destroy()
         {
             UnityEngine.Object.DestroyImmediate(gridTexture);
+        }
+
+        private void InitializeNode(DebugMachine debugMachine, VisualElement element, GraphNode node, int index)
+        {
+            element.style.left = new StyleLength(new Length(container.contentRect.width / 2 + node.position.x * UnitConvert));
+            element.style.top = new StyleLength(new Length(container.contentRect.height / 2 + node.position.y * UnitConvert));
+            //element.style.translate = new Translate(new Length(container.contentRect.width/2 + node.position.x * UnitConvert), new Length(container.contentRect.height / 2 + node.position.y * UnitConvert), 0f);
+            element.Q<Label>(UIMap_GraphView.Title).text = index.ToString();
+            element.Q<Label>(UIMap_GraphView.Subheading).text = debugMachine.GetStateName(node.state);
         }
 
         private void OnZoom(WheelEvent evt)

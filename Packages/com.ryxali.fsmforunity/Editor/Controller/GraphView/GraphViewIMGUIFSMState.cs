@@ -218,8 +218,8 @@ namespace FSMForUnity.Editor.IMGUI
                     {
                         drawTranstitionMarker.Begin();
                         const float LineWidth = 10f;
-                        var pointA = stateRect.position + transition.origin * BoxSpacing;
-                        var pointB = stateRect.position + transition.destination * BoxSpacing;
+                        var pointA = stateRect.position + transition.origin.position * BoxSpacing;
+                        var pointB = stateRect.position + transition.destination.position * BoxSpacing;
 
                         GraphGUI.DrawConnection(pannedRect, pointA, pointB, LineWidth, lineTexture);
                         drawTranstitionMarker.End();

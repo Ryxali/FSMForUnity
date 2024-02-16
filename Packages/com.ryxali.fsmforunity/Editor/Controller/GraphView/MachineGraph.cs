@@ -160,8 +160,10 @@ namespace FSMForUnity.Editor.IMGUI
                 graphConnections[i] = new GraphConnection
                 {
                     transition = transition.transition,
-                    origin = nodes[transition.from].position,
-                    destination = nodes[transition.to].position
+                    originIndex = transition.from,
+                    origin = graphNodes[transition.from],
+                    destinationIndex = transition.to,
+                    destination = graphNodes[transition.to]
                 };
             }
 

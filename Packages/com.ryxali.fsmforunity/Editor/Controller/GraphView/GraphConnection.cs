@@ -4,8 +4,10 @@ namespace FSMForUnity.Editor.IMGUI
 {
     internal struct GraphConnection
     {
-        public Vector2 origin;
-        public Vector2 destination;
         public IFSMTransition transition;
+        public int originIndex;
+        public GraphNode origin;
+        public int destinationIndex;
+        public GraphNode destination;
     }
 }
