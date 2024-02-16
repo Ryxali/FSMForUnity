@@ -33,7 +33,7 @@ namespace FSMForUnity.Editor
         private bool isPanning;
         private Vector2 heldPosition;
         private float zoomLevel;
-        private const float UnitConvert = 500f;
+        private const float UnitConvert = 300f;
 
         public GraphViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
