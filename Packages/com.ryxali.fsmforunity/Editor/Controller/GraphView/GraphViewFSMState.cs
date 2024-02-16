@@ -25,6 +25,8 @@ namespace FSMForUnity.Editor
         private readonly List<VisualElement> graphNodes = new List<VisualElement>();
         private readonly List<ConnectionVisualElement> graphConnections = new List<ConnectionVisualElement>();
 
+        private readonly VisualElement legendElement;
+
         private readonly Texture gridTexture;
         private readonly MachineGraph machineGraph;
 
@@ -44,6 +46,12 @@ namespace FSMForUnity.Editor
             graphNodePool = new ObjectPool<VisualElement>(() => graphNodeAsset.Instantiate().Q("Box"), elem => { elem.RemoveFromHierarchy(); });
             graphConnectionPool = new ObjectPool<ConnectionVisualElement>(() => new ConnectionVisualElement(), elem => { elem.RemoveFromHierarchy(); elem.Reset(); });
             machineGraph = new MachineGraph();
+
+            legendElement = new VisualElement();
+            legendElement.style.position = new StyleEnum<Position>(Position.Absolute);
+            legendElement.style.right = new StyleLength(20);
+            legendElement.style.bottom = new StyleLength(20);
+            legendElement.Add(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.LegendPath).Instantiate());
         }
 
         public void Enter()
@@ -71,6 +79,7 @@ namespace FSMForUnity.Editor
             }
             foreach (var elem in graphNodes)
                 elem.BringToFront();
+            container.Add(legendElement);
             container.RegisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
@@ -95,6 +104,7 @@ namespace FSMForUnity.Editor
             }
             graphNodes.Clear();
             graphConnections.Clear();
+            container.Remove(legendElement);
             container.Remove(graphCanvas);
         }
 
@@ -128,7 +138,7 @@ namespace FSMForUnity.Editor
 
                 var zoom = graphCanvas.zoom;
                 elem.style.scale = new StyleScale(new Vector2(zoom, zoom)); //  + elem.contentRect.width * zoom
-                Debug.Log(elem.contentRect.width);
+                Debug.Log(elem.contentRect.width); 
                 elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * UnitConvert));
                 elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2  + graphCanvas.zoom * node.position.y * UnitConvert));
 
