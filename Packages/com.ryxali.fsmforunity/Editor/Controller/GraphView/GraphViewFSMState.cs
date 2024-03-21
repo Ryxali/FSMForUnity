@@ -14,6 +14,9 @@ namespace FSMForUnity.Editor
 
     internal class GraphViewFSMState : IFSMState
     {
+        private const float NodeWidth = 150f;
+        private const float NodeHeight = 100f;
+
         private readonly DebuggerFSMStateData stateData;
         private readonly VisualElement container;
 
@@ -119,8 +122,11 @@ namespace FSMForUnity.Editor
 
         private void InitializeNode(DebugMachine debugMachine, VisualElement element, GraphNode node, int index)
         {
-            element.style.left = new StyleLength(new Length(container.contentRect.width / 2 + node.position.x * UnitConvert));
-            element.style.top = new StyleLength(new Length(container.contentRect.height / 2 + node.position.y * UnitConvert));
+            var zoom = graphCanvas.zoom;
+            element.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * node.position.x * UnitConvert));
+            element.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * node.position.y * UnitConvert));
+            element.style.width = new StyleLength(new Length(NodeWidth * zoom));
+            element.style.height = new StyleLength(new Length(NodeHeight * zoom));
             element.Q<Label>(UIMap_GraphView.Title).text = index.ToString();
             element.Q<Label>(UIMap_GraphView.Subheading).text = debugMachine.GetStateName(node.state);
         }
@@ -135,13 +141,14 @@ namespace FSMForUnity.Editor
             {
                 var elem = graphNodes[i];
                 var node = nodes[i];
-
+                // something something proper offset
                 var zoom = graphCanvas.zoom;
-                elem.style.scale = new StyleScale(new Vector2(zoom, zoom)); //  + elem.contentRect.width * zoom
-                Debug.Log(elem.contentRect.width); 
-                elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * UnitConvert));
-                elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2  + graphCanvas.zoom * node.position.y * UnitConvert));
-
+                // elem.style.scale = new StyleScale(new Vector2(zoom, zoom)); //  + elem.contentRect.width * zoom
+                Debug.Log(elem.contentRect.width);
+                elem.style.left = new StyleLength(new Length(graphCanvas.offset.x  + graphCanvas.zoom * node.position.x * UnitConvert));
+                elem.style.top = new StyleLength(new Length(graphCanvas.offset.y   + graphCanvas.zoom * node.position.y * UnitConvert));
+                elem.style.width = new StyleLength(new Length(NodeWidth * zoom));
+                elem.style.height = new StyleLength(new Length(NodeHeight * zoom));
             }
         }
 
