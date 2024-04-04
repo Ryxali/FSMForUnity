@@ -7,6 +7,8 @@ namespace FSMForUnity.Editor
 {
     internal class RepeatingBackgroundElement : VisualElement
     {
+        public new class UxmlFactory : UxmlFactory<RepeatingBackgroundElement, UxmlTraits> { }
+        public new class UxmlTraits : VisualElement.UxmlTraits { }
         private static Color defaultFgColor = new Color32(0x14, 0x14, 0x14, 0xff);
         private static Color defaultBgColor = new Color32(0x1c, 0x1c, 0x1c, 0xff);
         private static int defaultThickness = 2;
@@ -25,12 +27,41 @@ namespace FSMForUnity.Editor
         {
             this.texture = new Texture2D(defaultSize, defaultSize, TextureFormat.ARGB32, true);
             this.texture.hideFlags = HideFlags.HideAndDontSave;
+            RegenerateTexture(defaultThickness, defaultFgColor, defaultBgColor);
             generateVisualContent = Generate;
 
             style.height = new StyleLength(new Length(100f, LengthUnit.Percent));
             style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
             style.position = new StyleEnum<Position>(Position.Relative);
             zoom = 1f;
+            AddToClassList("fsmforunity-gridview");
+            RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
+        }
+
+        private void OnStylesResolved(CustomStyleResolvedEvent evt)
+        {
+            var thickness = evt.customStyle.TryGetValue(thicknessProp, out var v) ? v : defaultThickness;
+            var lineColor = evt.customStyle.TryGetValue(fgColorProp, out var fgV) ? fgV : defaultFgColor;
+            var backgroundColor = evt.customStyle.TryGetValue(bgColorProp, out var bgV) ? bgV : defaultBgColor;
+            var texSize = evt.customStyle.TryGetValue(sizeProp, out var sizeV) ? Mathf.Max(1, sizeV) : defaultSize;
+            if (texture.width != texSize)
+            {
+                Object.DestroyImmediate(texture);
+                texture = new Texture2D(texSize, texSize, TextureFormat.ARGB32, true);
+            }
+            RegenerateTexture(thickness, lineColor, backgroundColor);
+        }
+
+        private void RegenerateTexture(int thickness, Color32 lineColor, Color32 backgroundColor)
+        {
+
+            var texGen = new FillGridTexture(texture, thickness, lineColor, backgroundColor, out var textureColors);
+            var handle = texGen.Schedule(textureColors.Length, 128);
+            handle.Complete();
+            texture.SetPixelData(textureColors, 0);
+            texture.Apply(true);
+            textureColors.Dispose();
+            MarkDirtyRepaint();
         }
 
         public void Dispose()
@@ -50,6 +81,7 @@ namespace FSMForUnity.Editor
             offset += delta;
             MarkDirtyRepaint();
         }
+
 
         public void Zoom(float zoomLevel, Vector2 towards)
         {
@@ -78,21 +110,11 @@ namespace FSMForUnity.Editor
             rect.position -= cellOffset;
             rect.size += cellOffset;
 
-            var thickness = context.visualElement.customStyle.TryGetValue(thicknessProp, out var v) ? v : defaultThickness;
-            var lineColor = context.visualElement.customStyle.TryGetValue(fgColorProp, out var fgV) ? fgV : defaultFgColor;
-            var backgroundColor = context.visualElement.customStyle.TryGetValue(bgColorProp, out var bgV) ? bgV : defaultBgColor;
-            var texSize = context.visualElement.customStyle.TryGetValue(sizeProp, out var sizeV) ? Mathf.Max(1, sizeV) : defaultSize;
-            if (texture.width != texSize)
-            {
-                Object.DestroyImmediate(texture);
-                texture = new Texture2D(texSize, texSize, TextureFormat.ARGB32, true);
-            }
+            
 
             var cellJob = new CalculateCells(rect, zoomedTiling, out var cells);
             var handle = cellJob.Schedule();
 
-            var texGen = new FillGridTexture(texture, thickness, lineColor, backgroundColor, out var textureColors);
-            handle = texGen.Schedule(textureColors.Length, 128, handle);
 
             var meshWrite = new GenerateData(cells, zoomedTiling, context, texture, out var writeData, out var vertices, out var indices);
             handle = meshWrite.Schedule(cells.Length, 8, handle);
@@ -101,12 +123,9 @@ namespace FSMForUnity.Editor
 
             writeData.SetAllVertices(vertices);
             writeData.SetAllIndices(indices);
-            texture.SetPixelData(textureColors, 0);
-            texture.Apply(true);
             cells.Dispose();
             vertices.Dispose();
             indices.Dispose();
-            textureColors.Dispose();
         }
 
         private struct FillGridTexture : IJobParallelFor

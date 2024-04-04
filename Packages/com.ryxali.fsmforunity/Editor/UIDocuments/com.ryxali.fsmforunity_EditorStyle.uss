@@ -9,3 +9,10 @@ Label {
     border-bottom-width: 2px;
     border-top-width: 2px;
 }
+
+.fsmforunity-gridview {
+    --fsmforunity-grid-bgcolor: #141414;
+    --fsmforunity-grid-fgcolor: #1c1c1c;
+    --fsmforunity-grid-thickness: 2;
+    --fsmforunity-grid-size: 128;
+}

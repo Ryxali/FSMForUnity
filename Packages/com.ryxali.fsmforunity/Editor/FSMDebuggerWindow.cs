@@ -23,10 +23,11 @@ namespace FSMForUnity.Editor
 
             // A stylesheet can be added to a VisualElement.
             // The style will be applied to the VisualElement and all of its children.
-            //var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.flamebaitgames.fsmforunity/Editor/FSMDebugger.uss");
+            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.ryxali.fsmforunity/Editor/UIDocuments/com.ryxali.fsmforunity_EditorStyle.uss");
             //VisualElement labelWithStyle = new Label("Hello World! With Style");
             //labelWithStyle.styleSheets.Add(styleSheet);
             //root.Add(labelWithStyle);
+            root.styleSheets.Add(styleSheet);
         }
 
         private void OnDestroy()
