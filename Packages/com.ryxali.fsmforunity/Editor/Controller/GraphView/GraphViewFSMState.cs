@@ -2,6 +2,7 @@ using FSMForUnity.Editor.IMGUI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEngine;
@@ -10,8 +11,6 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
 {
-
-
     internal class GraphViewFSMState : IFSMState
     {
         private const float NodeWidth = 150f;
@@ -30,7 +29,6 @@ namespace FSMForUnity.Editor
 
         private readonly VisualElement legendElement;
 
-        private readonly Texture gridTexture;
         private readonly MachineGraph machineGraph;
 
         private bool isPanning;
@@ -42,9 +40,7 @@ namespace FSMForUnity.Editor
         {
             this.stateData = stateData;
             this.container = container;
-            gridTexture = IMGUIUtil.GenerateRepeatingGridTexture(128, 2, new Color(0.2f, 0.2f, 0.2f, 2f), new Color(0.6f, 0.6f, 0.6f, 1f));
-            gridTexture.hideFlags = HideFlags.HideAndDontSave;
-            graphCanvas = new RepeatingBackgroundElement(gridTexture);
+            graphCanvas = new RepeatingBackgroundElement();
             graphNodeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodePath);
             graphNodePool = new ObjectPool<VisualElement>(() => graphNodeAsset.Instantiate().Q("Box"), elem => { elem.RemoveFromHierarchy(); });
             graphConnectionPool = new ObjectPool<ConnectionVisualElement>(() => new ConnectionVisualElement(), elem => { elem.RemoveFromHierarchy(); elem.Reset(); });
@@ -113,11 +109,13 @@ namespace FSMForUnity.Editor
 
         public void Update(float delta)
         {
+            //gridTexture.SetPixels(gridTexture.GetPixels().Select(p => new Color(1 - p.r, 1 - p.g, 1 - p.b, p.a)).ToArray());
+            //gridTexture.Apply();
         }
 
         void IFSMState.Destroy()
         {
-            UnityEngine.Object.DestroyImmediate(gridTexture);
+            graphCanvas.Dispose();
         }
 
         private void InitializeNode(DebugMachine debugMachine, VisualElement element, GraphNode node, int index)
@@ -144,7 +142,6 @@ namespace FSMForUnity.Editor
                 // something something proper offset
                 var zoom = graphCanvas.zoom;
                 // elem.style.scale = new StyleScale(new Vector2(zoom, zoom)); //  + elem.contentRect.width * zoom
-                Debug.Log(elem.contentRect.width);
                 elem.style.left = new StyleLength(new Length(graphCanvas.offset.x  + graphCanvas.zoom * node.position.x * UnitConvert));
                 elem.style.top = new StyleLength(new Length(graphCanvas.offset.y   + graphCanvas.zoom * node.position.y * UnitConvert));
                 elem.style.width = new StyleLength(new Length(NodeWidth * zoom));

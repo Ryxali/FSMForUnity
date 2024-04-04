@@ -7,20 +7,35 @@ namespace FSMForUnity.Editor
 {
     internal class RepeatingBackgroundElement : VisualElement
     {
-        private readonly Texture texture;
+        private static Color defaultFgColor = new Color32(0x14, 0x14, 0x14, 0xff);
+        private static Color defaultBgColor = new Color32(0x1c, 0x1c, 0x1c, 0xff);
+        private static int defaultThickness = 2;
+        private static int defaultSize = 128;
+        private static CustomStyleProperty<Color> bgColorProp = new CustomStyleProperty<Color>("--fsmforunity-grid-bgcolor");
+        private static CustomStyleProperty<Color> fgColorProp = new CustomStyleProperty<Color>("--fsmforunity-grid-fgcolor");
+        private static CustomStyleProperty<int> thicknessProp = new CustomStyleProperty<int>("--fsmforunity-grid-thickness");
+        private static CustomStyleProperty<int> sizeProp = new CustomStyleProperty<int>("--fsmforunity-grid-size");
+
+        private Texture2D texture;
 
         public Vector2 offset { get; private set; }
         public float zoom { get; private set; }
 
-        public RepeatingBackgroundElement(Texture texture)
+        public RepeatingBackgroundElement()
         {
-            this.texture = texture;
+            this.texture = new Texture2D(defaultSize, defaultSize, TextureFormat.ARGB32, true);
+            this.texture.hideFlags = HideFlags.HideAndDontSave;
             generateVisualContent = Generate;
 
             style.height = new StyleLength(new Length(100f, LengthUnit.Percent));
             style.width = new StyleLength(new Length(100f, LengthUnit.Percent));
             style.position = new StyleEnum<Position>(Position.Relative);
             zoom = 1f;
+        }
+
+        public void Dispose()
+        {
+            Object.DestroyImmediate(texture);
         }
 
         public void Reset()
@@ -63,20 +78,77 @@ namespace FSMForUnity.Editor
             rect.position -= cellOffset;
             rect.size += cellOffset;
 
+            var thickness = context.visualElement.customStyle.TryGetValue(thicknessProp, out var v) ? v : defaultThickness;
+            var lineColor = context.visualElement.customStyle.TryGetValue(fgColorProp, out var fgV) ? fgV : defaultFgColor;
+            var backgroundColor = context.visualElement.customStyle.TryGetValue(bgColorProp, out var bgV) ? bgV : defaultBgColor;
+            var texSize = context.visualElement.customStyle.TryGetValue(sizeProp, out var sizeV) ? Mathf.Max(1, sizeV) : defaultSize;
+            if (texture.width != texSize)
+            {
+                Object.DestroyImmediate(texture);
+                texture = new Texture2D(texSize, texSize, TextureFormat.ARGB32, true);
+            }
+
             var cellJob = new CalculateCells(rect, zoomedTiling, out var cells);
             var handle = cellJob.Schedule();
 
+            var texGen = new FillGridTexture(texture, thickness, lineColor, backgroundColor, out var textureColors);
+            handle = texGen.Schedule(textureColors.Length, 128, handle);
+
             var meshWrite = new GenerateData(cells, zoomedTiling, context, texture, out var writeData, out var vertices, out var indices);
             handle = meshWrite.Schedule(cells.Length, 8, handle);
-
+            
             handle.Complete();
 
             writeData.SetAllVertices(vertices);
             writeData.SetAllIndices(indices);
-
+            texture.SetPixelData(textureColors, 0);
+            texture.Apply(true);
             cells.Dispose();
             vertices.Dispose();
             indices.Dispose();
+            textureColors.Dispose();
+        }
+
+        private struct FillGridTexture : IJobParallelFor
+        {
+            private readonly int width;
+            private readonly int thickness;
+            private readonly Color32 lineColor;
+            private readonly Color32 backgroundColor;
+            [WriteOnly]
+            private NativeArray<byte> output;
+            
+            public FillGridTexture(Texture2D texture, int thickness, Color32 lineColor, Color32 backgroundColor, out NativeArray<byte> output)
+            {
+                width = texture.width;
+                this.thickness = thickness;
+                this.lineColor = lineColor;
+                this.backgroundColor = backgroundColor;
+                this.output = output = new NativeArray<byte>(texture.width * texture.height * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            }
+
+            public void Execute(int index)
+            {
+                var pixelIndex = index / 4;
+                var x = pixelIndex % width;
+                var y = pixelIndex / width;
+                var color = y < thickness || x < thickness ? lineColor : backgroundColor;
+                switch(index % 4)
+                {
+                    case 0:
+                        output[index] = color.a;
+                        break;
+                    case 1:
+                        output[index] = color.r;
+                        break;
+                    case 2:
+                        output[index] = color.g;
+                        break;
+                    case 3:
+                        output[index] = color.b;
+                        break;
+                }
+            }
         }
 
         private struct CalculateCells : IJob
