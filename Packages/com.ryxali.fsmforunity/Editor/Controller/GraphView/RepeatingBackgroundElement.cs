@@ -9,14 +9,18 @@ namespace FSMForUnity.Editor
     {
         public new class UxmlFactory : UxmlFactory<RepeatingBackgroundElement, UxmlTraits> { }
         public new class UxmlTraits : VisualElement.UxmlTraits { }
-        private static Color defaultFgColor = new Color32(0x14, 0x14, 0x14, 0xff);
-        private static Color defaultBgColor = new Color32(0x1c, 0x1c, 0x1c, 0xff);
-        private static int defaultThickness = 2;
-        private static int defaultSize = 128;
+
+        private static readonly Color defaultFgColor = new Color32(0x14, 0x14, 0x14, 0xff);
+        private static readonly Color defaultBgColor = new Color32(0x1c, 0x1c, 0x1c, 0xff);
+        private static readonly int defaultThickness = 2;
+        private static readonly int defaultSize = 128;
+        private const string ModeGrid = "grid";
+        private const string ModePoints = "points";
         private static CustomStyleProperty<Color> bgColorProp = new CustomStyleProperty<Color>("--fsmforunity-grid-bgcolor");
         private static CustomStyleProperty<Color> fgColorProp = new CustomStyleProperty<Color>("--fsmforunity-grid-fgcolor");
         private static CustomStyleProperty<int> thicknessProp = new CustomStyleProperty<int>("--fsmforunity-grid-thickness");
         private static CustomStyleProperty<int> sizeProp = new CustomStyleProperty<int>("--fsmforunity-grid-size");
+        private static CustomStyleProperty<string> modeProp = new CustomStyleProperty<string>("--fsmforunity-grid-mode");
 
         private Texture2D texture;
 
@@ -27,7 +31,7 @@ namespace FSMForUnity.Editor
         {
             this.texture = new Texture2D(defaultSize, defaultSize, TextureFormat.ARGB32, true);
             this.texture.hideFlags = HideFlags.HideAndDontSave;
-            RegenerateTexture(defaultThickness, defaultFgColor, defaultBgColor);
+            RegenerateGridTexture(defaultThickness, defaultFgColor, defaultBgColor);
             generateVisualContent = Generate;
 
             style.height = new StyleLength(new Length(100f, LengthUnit.Percent));
@@ -44,18 +48,40 @@ namespace FSMForUnity.Editor
             var lineColor = evt.customStyle.TryGetValue(fgColorProp, out var fgV) ? fgV : defaultFgColor;
             var backgroundColor = evt.customStyle.TryGetValue(bgColorProp, out var bgV) ? bgV : defaultBgColor;
             var texSize = evt.customStyle.TryGetValue(sizeProp, out var sizeV) ? Mathf.Max(1, sizeV) : defaultSize;
+            var mode = evt.customStyle.TryGetValue(modeProp, out var modeV) ? modeV : ModeGrid;
             if (texture.width != texSize)
             {
                 Object.DestroyImmediate(texture);
                 texture = new Texture2D(texSize, texSize, TextureFormat.ARGB32, true);
             }
-            RegenerateTexture(thickness, lineColor, backgroundColor);
+            switch(mode)
+            {
+                case ModePoints:
+                    RegeneratePointsTexture(thickness, lineColor, backgroundColor);
+                    break;
+                case ModeGrid:
+                default:
+                    RegenerateGridTexture(thickness, lineColor, backgroundColor);
+                    break;
+            }
         }
 
-        private void RegenerateTexture(int thickness, Color32 lineColor, Color32 backgroundColor)
+        private void RegenerateGridTexture(int thickness, Color32 lineColor, Color32 backgroundColor)
         {
 
             var texGen = new FillGridTexture(texture, thickness, lineColor, backgroundColor, out var textureColors);
+            var handle = texGen.Schedule(textureColors.Length, 128);
+            handle.Complete();
+            texture.SetPixelData(textureColors, 0);
+            texture.Apply(true);
+            textureColors.Dispose();
+            MarkDirtyRepaint();
+        }
+
+        private void RegeneratePointsTexture(int thickness, Color32 lineColor, Color32 backgroundColor)
+        {
+
+            var texGen = new FillPointsTexture(texture, thickness, lineColor, backgroundColor, out var textureColors);
             var handle = texGen.Schedule(textureColors.Length, 128);
             handle.Complete();
             texture.SetPixelData(textureColors, 0);
@@ -101,7 +127,7 @@ namespace FSMForUnity.Editor
 
         private void Generate(MeshGenerationContext context)
         {
-            const float Tiling = 16;
+            float Tiling = texture.width / 8f;
 
             var zoomedTiling = Tiling * zoom;
 
@@ -109,8 +135,6 @@ namespace FSMForUnity.Editor
             var rect = context.visualElement.contentRect;
             rect.position -= cellOffset;
             rect.size += cellOffset;
-
-            
 
             var cellJob = new CalculateCells(rect, zoomedTiling, out var cells);
             var handle = cellJob.Schedule();
@@ -153,6 +177,52 @@ namespace FSMForUnity.Editor
                 var y = pixelIndex / width;
                 var color = y < thickness || x < thickness ? lineColor : backgroundColor;
                 switch(index % 4)
+                {
+                    case 0:
+                        output[index] = color.a;
+                        break;
+                    case 1:
+                        output[index] = color.r;
+                        break;
+                    case 2:
+                        output[index] = color.g;
+                        break;
+                    case 3:
+                        output[index] = color.b;
+                        break;
+                }
+            }
+        }
+
+        private struct FillPointsTexture : IJobParallelFor
+        {
+            private readonly int width;
+            private readonly int thickness;
+            private readonly Color32 lineColor;
+            private readonly Color32 backgroundColor;
+            [WriteOnly]
+            private NativeArray<byte> output;
+
+            public FillPointsTexture(Texture2D texture, int thickness, Color32 lineColor, Color32 backgroundColor, out NativeArray<byte> output)
+            {
+                width = texture.width;
+                this.thickness = thickness;
+                this.lineColor = lineColor;
+                this.backgroundColor = backgroundColor;
+                this.output = output = new NativeArray<byte>(texture.width * texture.height * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            }
+
+            public void Execute(int index)
+            {
+                var pixelIndex = index / 4;
+                var x = pixelIndex % width;
+                var y = pixelIndex / width;
+                var vec = new Vector2(x, y);
+                var center = new Vector2(width / 2, width / 2);
+                var dist =  Vector2.Distance(vec, center) / thickness;
+                var color = Color32.Lerp(lineColor, backgroundColor, dist < 0.9f ? 0f : Mathf.Clamp(dist, 0.9f, 1f));
+                // var color = y < thickness || x < thickness ? lineColor : backgroundColor;
+                switch (index % 4)
                 {
                     case 0:
                         output[index] = color.a;
