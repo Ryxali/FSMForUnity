@@ -41,6 +41,7 @@ internal static class FSMForUnityUIElementsRegister
                 //FSMForUnityPreferences.gridView_backgroundColor
                 properties.Add(CreateColorField("Background Color", FSMForUnityPreferences.gridView_backgroundColor));
                 properties.Add(CreateColorField("Foreground Color", FSMForUnityPreferences.gridView_gridColor));
+                
                 //properties.Add(new PropertyField(settings.FindProperty("m_SomeString")));
                 //properties.Add(new PropertyField(settings.FindProperty("m_Number")));
 
@@ -48,7 +49,7 @@ internal static class FSMForUnityUIElementsRegister
             },
 
             // Populate the search keywords to enable smart search filtering and label highlighting:
-            keywords = new HashSet<string>(new[] { "Number", "Some String" })
+            keywords = new HashSet<string>(new[] { "FSM", "Background Color", "Foreground Color" })
         };
 
         return provider;
