@@ -21,10 +21,6 @@ namespace FSMForUnity
 
         private string machineName;
 
-        public void Begin()
-        {
-        }
-
         public IFSMState AddState(string name, IFSMState state)
         {
             states.Add(state);
