@@ -77,9 +77,13 @@ namespace FSMForUnity.Editor
 
         private void RecalculateLayout()
         {
-            var from = fromRect;
-            var to = toRect;
-            var rect = Rect.MinMaxRect(Mathf.Min(from.center.x, to.center.x), Mathf.Min(from.center.y, to.center.y), Mathf.Max(from.center.x, to.center.x), Mathf.Max(from.center.y, to.center.y));
+            var from = Closest(fromRect, toRect);
+            var to = Closest(toRect, fromRect);
+            //var fromX = Mathf.Min(from.xMin - to.center.x, from.xMax - to.center.x) + to.center.x;
+            //var fromY = Mathf.Min(from.yMin - to.center.y, from.yMax - to.center.y) + to.center.y;
+            //var toX = Mathf.Min(to.xMin - from.center.x, to.xMax - from.center.x) + from.center.x;
+            //var toY = Mathf.Min(to.yMin - from.center.y, to.yMax - from.center.y) + from.center.y;
+            var rect = Rect.MinMaxRect(Mathf.Min(from.x, to.x), Mathf.Min(from.y, to.y), Mathf.Max(from.x, to.x), Mathf.Max(from.y, to.y));
             rect.x -= LineWidth;
             rect.y -= LineWidth;
             rect.width += LineWidth * 2;
@@ -88,8 +92,60 @@ namespace FSMForUnity.Editor
             style.top = new StyleLength(new Length(rect.y));
             style.width = new StyleLength(new Length(rect.width));
             style.height = new StyleLength(new Length(rect.height));
-            fromPoint = from.center - rect.position;
-            toPoint = to.center - rect.position;
+            fromPoint = from - rect.position;//from.center - rect.position;
+            toPoint = to - rect.position;// to.center - rect.position;
+        }
+
+        private static Vector2 Closest(Rect from, Rect to)
+        {
+            var candidate0 = new Vector2(from.xMax, from.center.y);
+            var candidate1 = new Vector2(from.xMin, from.center.y);
+            var candidate2 = new Vector2(from.center.x, from.yMin);
+            var candidate3 = new Vector2(from.center.x, from.yMax);
+            var candidate = candidate0;
+            var dist = Vector2.Distance(candidate0, to.center);
+            float distBuf;
+            if ((distBuf = Vector2.Distance(candidate1, to.center)) < dist)
+            {
+                dist = distBuf;
+                candidate = candidate1;
+            }
+            if ((distBuf = Vector2.Distance(candidate2, to.center)) < dist)
+            {
+                dist = distBuf;
+                candidate = candidate2;
+            }
+            if ((distBuf = Vector2.Distance(candidate3, to.center)) < dist)
+            {
+                candidate = candidate3;
+            }
+            return candidate;
+        }
+
+        private static Rect MinMax(Rect from, Rect to)
+        {
+            var fromX = Mathf.Min(from.xMin - to.center.x, from.xMax - to.center.x) + to.center.x;
+            var fromY = Mathf.Min(from.yMin - to.center.y, from.yMax - to.center.y) + to.center.y;
+            var toX = Mathf.Min(to.xMin - from.center.x, to.xMax - from.center.x) + from.center.x;
+            var toY = Mathf.Min(to.yMin - from.center.y, to.yMax - from.center.y) + from.center.y;
+
+            return Rect.MinMaxRect(Mathf.Min(fromX, toX), Mathf.Min(fromY, toY), Mathf.Max(fromX, toX), Mathf.Max(fromY, toY));
+        }
+
+        private static float Min(float a, float b, float c, float d)
+        {
+            return Mathf.Min(
+                Mathf.Min(a, b),
+                Mathf.Min(c, d)
+                );
+        }
+
+        private static float Max(float a, float b, float c, float d)
+        {
+            return Mathf.Max(
+                Mathf.Max(a, b),
+                Mathf.Max(c, d)
+                );
         }
 
         private void Generate(MeshGenerationContext context)
