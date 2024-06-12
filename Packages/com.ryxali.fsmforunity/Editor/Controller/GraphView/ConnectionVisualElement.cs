@@ -36,11 +36,15 @@ namespace FSMForUnity.Editor
                 from.resolvedStyle.top,
                 from.resolvedStyle.width,
                 from.resolvedStyle.height);
+            fromRect.x -= fromRect.width / 2f;
+            fromRect.y -= fromRect.height / 2f;
             toRect = new Rect(
                 to.resolvedStyle.left,
                 to.resolvedStyle.top,
                 to.resolvedStyle.width,
                 to.resolvedStyle.height);
+            toRect.x -= toRect.width / 2f;
+            toRect.y -= toRect.height / 2f;
 
             RecalculateLayout();
         }
@@ -59,11 +63,15 @@ namespace FSMForUnity.Editor
         private void UpdateGeometryFrom(GeometryChangedEvent evt)
         {
             fromRect = evt.newRect;
+            fromRect.x -= evt.newRect.width / 2f;
+            fromRect.y -= evt.newRect.height / 2f;
             RecalculateLayout();
         }
         private void UpdateGeometryTo(GeometryChangedEvent evt)
         {
             toRect = evt.newRect;
+            toRect.x -= evt.newRect.width / 2f;
+            toRect.y -= evt.newRect.height / 2f;
             RecalculateLayout();
         }
 
