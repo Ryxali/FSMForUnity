@@ -128,12 +128,15 @@ namespace FSMForUnity.Editor
 
         private void Generate(MeshGenerationContext context)
         {
+            const float ArrowLength = 14f;
+
             var painter = context.painter2D;
             painter.BeginPath();
             painter.MoveTo(fromPoint);
-            painter.BezierCurveTo(control0, control1, toPoint);
+            painter.LineTo(fromPoint + fromDir * ArrowLength / 1.414f);
+            painter.BezierCurveTo(control0, control1, toPoint + toDir * ArrowLength / 1.414f);
+            painter.LineTo(toPoint);
             painter.MoveTo(toPoint);
-            const float ArrowLength = 14f;
             var crossTo = new Vector2(toDir.y, -toDir.x);
             painter.LineTo(toPoint + (toDir + crossTo).normalized * ArrowLength);
             painter.MoveTo(toPoint);
