@@ -13,7 +13,7 @@ namespace FSMForUnity.Editor
 
         private Rect fromRect, toRect;
 
-        private Vector2 fromPoint, toPoint;
+        private Vector2 fromPoint, toPoint, control0, control1, fromDir, toDir;
 
         public ConnectionVisualElement()
         {
@@ -77,12 +77,8 @@ namespace FSMForUnity.Editor
 
         private void RecalculateLayout()
         {
-            var from = Closest(fromRect, toRect);
-            var to = Closest(toRect, fromRect);
-            //var fromX = Mathf.Min(from.xMin - to.center.x, from.xMax - to.center.x) + to.center.x;
-            //var fromY = Mathf.Min(from.yMin - to.center.y, from.yMax - to.center.y) + to.center.y;
-            //var toX = Mathf.Min(to.xMin - from.center.x, to.xMax - from.center.x) + from.center.x;
-            //var toY = Mathf.Min(to.yMin - from.center.y, to.yMax - from.center.y) + from.center.y;
+            var from = Closest(fromRect, toRect, out fromDir);
+            var to = Closest(toRect, fromRect, out toDir);
             var rect = Rect.MinMaxRect(Mathf.Min(from.x, to.x), Mathf.Min(from.y, to.y), Mathf.Max(from.x, to.x), Mathf.Max(from.y, to.y));
             rect.x -= LineWidth;
             rect.y -= LineWidth;
@@ -94,68 +90,54 @@ namespace FSMForUnity.Editor
             style.height = new StyleLength(new Length(rect.height));
             fromPoint = from - rect.position;//from.center - rect.position;
             toPoint = to - rect.position;// to.center - rect.position;
+            var len = Vector2.Distance(from, to) * 0.35f;
+            control0 = from + fromDir * len - rect.position;
+            control1 = to + toDir * len - rect.position;
         }
 
-        private static Vector2 Closest(Rect from, Rect to)
+        private static Vector2 Closest(Rect from, Rect to, out Vector2 direction)
         {
             var candidate0 = new Vector2(from.xMax, from.center.y);
             var candidate1 = new Vector2(from.xMin, from.center.y);
             var candidate2 = new Vector2(from.center.x, from.yMin);
             var candidate3 = new Vector2(from.center.x, from.yMax);
             var candidate = candidate0;
+            direction = Vector2.right;
+
             var dist = Vector2.Distance(candidate0, to.center);
             float distBuf;
             if ((distBuf = Vector2.Distance(candidate1, to.center)) < dist)
             {
                 dist = distBuf;
                 candidate = candidate1;
+                direction = Vector2.left;
             }
             if ((distBuf = Vector2.Distance(candidate2, to.center)) < dist)
             {
                 dist = distBuf;
                 candidate = candidate2;
+                direction = Vector2.down;
             }
-            if ((distBuf = Vector2.Distance(candidate3, to.center)) < dist)
+            if (Vector2.Distance(candidate3, to.center) < dist)
             {
                 candidate = candidate3;
+                direction = Vector2.up;
             }
             return candidate;
         }
 
-        private static Rect MinMax(Rect from, Rect to)
-        {
-            var fromX = Mathf.Min(from.xMin - to.center.x, from.xMax - to.center.x) + to.center.x;
-            var fromY = Mathf.Min(from.yMin - to.center.y, from.yMax - to.center.y) + to.center.y;
-            var toX = Mathf.Min(to.xMin - from.center.x, to.xMax - from.center.x) + from.center.x;
-            var toY = Mathf.Min(to.yMin - from.center.y, to.yMax - from.center.y) + from.center.y;
-
-            return Rect.MinMaxRect(Mathf.Min(fromX, toX), Mathf.Min(fromY, toY), Mathf.Max(fromX, toX), Mathf.Max(fromY, toY));
-        }
-
-        private static float Min(float a, float b, float c, float d)
-        {
-            return Mathf.Min(
-                Mathf.Min(a, b),
-                Mathf.Min(c, d)
-                );
-        }
-
-        private static float Max(float a, float b, float c, float d)
-        {
-            return Mathf.Max(
-                Mathf.Max(a, b),
-                Mathf.Max(c, d)
-                );
-        }
-
         private void Generate(MeshGenerationContext context)
         {
-            var from = fromPoint;
-            var to = toPoint;
             var painter = context.painter2D;
             painter.BeginPath();
-            painter.MoveTo(from);
-            painter.LineTo(to);
+            painter.MoveTo(fromPoint);
+            painter.BezierCurveTo(control0, control1, toPoint);
+            painter.MoveTo(toPoint);
+            const float ArrowLength = 14f;
+            var crossTo = new Vector2(toDir.y, -toDir.x);
+            painter.LineTo(toPoint + (toDir + crossTo).normalized * ArrowLength);
+            painter.MoveTo(toPoint);
+            painter.LineTo(toPoint + (toDir - crossTo).normalized * ArrowLength);
 
             painter.lineCap = LineCap.Round;
             painter.lineWidth = LineWidth;
