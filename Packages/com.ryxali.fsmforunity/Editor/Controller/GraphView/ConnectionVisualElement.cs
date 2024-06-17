@@ -130,7 +130,6 @@ namespace FSMForUnity.Editor
 
         private static Vector2 Offset(Rect rect, ConnectionEdge edge, float delta)
         {
-            Debug.Log($"{edge}, {delta:F2}");
             var output =  edge switch
             {
                 ConnectionEdge.Bottom => new Vector2(rect.center.x, rect.yMax),
