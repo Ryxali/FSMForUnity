@@ -36,6 +36,7 @@ namespace FSMForUnity.Editor
         private Vector2 heldPosition;
         private float zoomLevel;
         private const float UnitConvert = 150f;
+        private float scaledUnitConvert;
 
         public GraphViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
@@ -58,7 +59,7 @@ namespace FSMForUnity.Editor
         {
             machineGraph.Regenerate(stateData.currentlyInspecting);
             var connectionHandle = machineGraph.SolveConnectionAnchors(NodeWidth/ NodeWidth, NodeHeight / NodeWidth, out var edges, out var connectionCounts);
-
+            scaledUnitConvert = UnitConvert / Mathf.Min(1f, machineGraph.MinFloatDistance());
             graphCanvas.Reset();
             graphCanvas.Zoom(Mathf.Lerp(1f, 10f, zoomLevel * zoomLevel), container.contentRect.size*0.5f);//
             container.Add(graphCanvas);
@@ -133,8 +134,8 @@ namespace FSMForUnity.Editor
         private void InitializeNode(DebugMachine debugMachine, VisualElement element, GraphNode node, int index)
         {
             var zoom = graphCanvas.zoom;
-            element.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * UnitConvert));
-            element.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * UnitConvert));
+            element.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * scaledUnitConvert));
+            element.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * scaledUnitConvert));
             //element.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * node.position.x * UnitConvert));
             //element.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * node.position.y * UnitConvert));
             element.style.width = new StyleLength(new Length(NodeWidth * zoom));
@@ -155,8 +156,8 @@ namespace FSMForUnity.Editor
                 var elem = graphNodes[i];
                 var node = nodes[i];
                 var zoom = graphCanvas.zoom;
-                elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * UnitConvert));
-                elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * UnitConvert));
+                elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * scaledUnitConvert));
+                elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * scaledUnitConvert));
                 elem.style.width = new StyleLength(new Length(NodeWidth * zoom));
                 elem.style.height = new StyleLength(new Length(NodeHeight * zoom));
             }
@@ -190,8 +191,8 @@ namespace FSMForUnity.Editor
                 {
                     var elem = graphNodes[i];
                     var node = nodes[i];
-                    elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * UnitConvert));
-                    elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * UnitConvert));
+                    elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * scaledUnitConvert));
+                    elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * scaledUnitConvert));
 
                 }
             }

@@ -387,6 +387,23 @@ namespace FSMForUnity.Editor
 
         }
 
+        public float MinFloatDistance()
+        {
+            float min = float.MaxValue;
+            for (int i = 0; i < graphNodes.Length; i++)
+            {
+                var a = graphNodes[i];
+                for (int j = i + 1; j < graphNodes.Length; j++)
+                {
+                    var b = graphNodes[j];
+                    var dist = Vector2.Distance(a.position, b.position);
+                    if(dist < min)
+                        min = dist;
+                }
+            }
+            return min;
+        }
+
         public JobHandle SolveConnectionAnchors(float width, float height, out NativeArray<ConnectionEdge> edges, out NativeArray<ConnectionCount> connections)
         {
             var handle = CalculateEdgesJob.Solve(graphConnections, width, height, out edges);
