@@ -1,9 +1,227 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
-namespace FSMForUnity.Editor.IMGUI
+namespace FSMForUnity.Editor
 {
+    internal struct IndexConnectionsJob : IJobParallelFor
+    {
+        [ReadOnly]
+        private NativeArray<ConnectionEdge> edges;
+        [ReadOnly]
+        private NativeArray<int> connections;
+        [ReadOnly] // in, out, LRTB
+        private NativeArray<int> stateConnectionCount;
+        [WriteOnly]
+        private NativeArray<ConnectionCount> connectionIndices;
+
+        public static JobHandle Solve(NativeArray<ConnectionEdge> edges, GraphConnection[] connections, NativeArray<int> stateConnectionCount, out NativeArray<ConnectionCount> connectionIndices, JobHandle dependsOn = default)
+        {
+            int nStates = 0;
+            var conns = new NativeArray<int>(connections.Length * 2, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            for (int i = 0; i < conns.Length; i++)
+            {
+                var c = connections[i / 2];
+                conns[i] = i % 2 == 0 ? c.originIndex : c.destinationIndex;
+                nStates = Mathf.Max(nStates, Mathf.Max(c.destinationIndex, c.originIndex));
+            }
+
+            var job = new IndexConnectionsJob
+            {
+                edges = edges,
+                connections = conns,
+                stateConnectionCount = stateConnectionCount,
+                connectionIndices = connectionIndices = new NativeArray<ConnectionCount>(edges.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory)
+            };
+
+            dependsOn = job.Schedule(job.connectionIndices.Length, 128, dependsOn);
+            conns.Dispose(dependsOn);
+            return dependsOn;
+        }
+
+        public void Execute(int index)
+        {
+            var connection = connections[index];
+            var edge = edges[index];
+            var stateOffset = edge switch
+            {
+                ConnectionEdge.Left => 0,
+                ConnectionEdge.Right => 2,
+                ConnectionEdge.Top => 4,
+                ConnectionEdge.Bottom => 6,
+                _ => default
+            } + index % 2;
+
+            var count = stateConnectionCount[connection * 8 + stateOffset];
+            var incr = 0;
+            for (int i = index-2; i >= 0; i -= 2)
+            {
+                if (connections[i] == connection && edges[i] == edge)
+                {
+                    incr++;
+                }
+            }
+            connectionIndices[index] = new ConnectionCount
+            {
+                index = incr,
+                count = count
+            };
+        }
+    }
+
+    internal struct ConnectionCount
+    {
+        /// <summary>
+        /// node index
+        /// </summary>
+        public int index;
+        public int count;
+    }
+    
+    internal struct CountConnectionsForEdgesJob : IJobParallelFor
+    {
+        [ReadOnly]
+        private NativeArray<ConnectionEdge> edges;
+        [ReadOnly]
+        private NativeArray<int> connections;
+        [WriteOnly] // in, out, LRTB
+        private NativeArray<int> stateConnectionCount;
+
+        public static JobHandle Solve(GraphConnection[] connections, NativeArray<ConnectionEdge> edges, out NativeArray<int> stateConnectionCount, JobHandle dependsOn)
+        {
+
+            int nStates = 0;
+            var conns = new NativeArray<int>(connections.Length * 2, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            for (int i = 0; i < conns.Length; i++)
+            {
+                var c = connections[i / 2];
+                conns[i] = i % 2 == 0 ? c.originIndex : c.destinationIndex;
+                nStates = Mathf.Max(nStates, Mathf.Max(c.destinationIndex, c.originIndex));
+            }
+
+            //Debug.Log(string.Join(", ", conns));
+            var job = new CountConnectionsForEdgesJob
+            {
+                connections = conns,
+                edges = edges,
+                stateConnectionCount = stateConnectionCount = new NativeArray<int>((nStates+1) * 8, Allocator.TempJob, NativeArrayOptions.UninitializedMemory)
+            };
+
+            dependsOn = job.Schedule(job.stateConnectionCount.Length, 256, dependsOn);
+            conns.Dispose(dependsOn);
+            return dependsOn;
+        }
+
+        public void Execute(int index)
+        {
+            var edge = (index % 8) switch
+            {
+                0 => ConnectionEdge.Left,
+                1 => ConnectionEdge.Left,
+                2 => ConnectionEdge.Right,
+                3 => ConnectionEdge.Right,
+                4 => ConnectionEdge.Top,
+                5 => ConnectionEdge.Top,
+                6 => ConnectionEdge.Bottom,
+                7 => ConnectionEdge.Bottom,
+                _ => default
+            };
+            var nodeIndex = index / 8;
+            var count = 0;
+            for (int i = index % 2; i < connections.Length; i += 2)
+            {
+                if (connections[i] == nodeIndex && edges[i] == edge)
+                {
+                    count++;
+                }
+            }
+            stateConnectionCount[index] = count;
+        }
+
+    }
+
+    internal struct CalculateEdgesJob : IJobParallelFor
+    {
+        private readonly float width;
+        private readonly float height;
+        [ReadOnly]
+        private NativeArray<Vector2> toProcess;
+        [WriteOnly]
+        private NativeArray<ConnectionEdge> edges;
+
+        private CalculateEdgesJob(NativeArray<Vector2> toProcess, float width, float height, NativeArray<ConnectionEdge> edges)
+        {
+            this.width = width/2f;
+            this.height = height/2f;
+            this.toProcess = toProcess;
+            this.edges = edges;
+        }
+
+        public static JobHandle Solve(GraphConnection[] connections, float width, float height, out NativeArray<ConnectionEdge> edges, JobHandle dependsOn = default)
+        {
+            var na = new NativeArray<Vector2>(connections.Length*2, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            for (int i = 0; i < connections.Length; i++)
+            {
+                var c = connections[i];
+                na[i * 2] = c.origin.position;
+                na[i * 2 + 1] = c.destination.position;
+            }
+            edges = new NativeArray<ConnectionEdge>(na.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+
+            var job = new CalculateEdgesJob(na, width, height, edges);
+
+            dependsOn = job.Schedule(edges.Length, 128, dependsOn);
+            na.Dispose(dependsOn);
+            return dependsOn;
+        }
+
+        public void Execute(int index)
+        {
+            var ix = index;
+            var mod = index % 2;
+            var origin = toProcess[ix];
+            var destination = toProcess[ix + 1 - mod*2];
+
+            var candidate0 = origin + new Vector2(-width, 0) - destination;
+            var candidate1 = origin + new Vector2(width, 0) - destination;
+            var candidate2 = origin + new Vector2(0, -height) - destination;
+            var candidate3 = origin + new Vector2(0, height) - destination;
+            var output = ConnectionEdge.Left;
+
+            var dist = candidate0.sqrMagnitude;//Vector2.Distance(candidate0, destination);
+            if (candidate1.sqrMagnitude < dist)
+            {
+                dist = candidate1.sqrMagnitude;
+                output = ConnectionEdge.Right;
+            }
+            if (candidate2.sqrMagnitude < dist)
+            {
+                dist = candidate2.sqrMagnitude;
+                output = ConnectionEdge.Top;
+            }
+            if (candidate3.sqrMagnitude < dist)
+            {
+                output = ConnectionEdge.Bottom;
+            }
+
+            edges[index] = output;
+        }
+
+        private struct Connection
+        {
+            public Vector2 origin;
+            public Vector2 destination;
+        }
+    }
+    internal enum ConnectionEdge
+    {
+        Left,
+        Right,
+        Top,
+        Bottom
+    }
     internal class MachineGraph
     {
         private const float TransitionSpringForce = 1f;
@@ -167,6 +385,15 @@ namespace FSMForUnity.Editor.IMGUI
                 };
             }
 
+        }
+
+        public JobHandle SolveConnectionAnchors(float width, float height, out NativeArray<ConnectionEdge> edges, out NativeArray<ConnectionCount> connections)
+        {
+            var handle = CalculateEdgesJob.Solve(graphConnections, width, height, out edges);
+            handle = CountConnectionsForEdgesJob.Solve(graphConnections, edges, out var stateConnectionCount, handle);
+            handle = IndexConnectionsJob.Solve(edges, graphConnections, stateConnectionCount, out connections, handle);
+            stateConnectionCount.Dispose(handle);
+            return handle;
         }
 
         private bool AreConstraintsSatisfied(SimGraphNode[] nodes)

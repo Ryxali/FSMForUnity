@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -13,8 +14,8 @@ namespace FSMForUnity.Editor
 {
     internal class GraphViewFSMState : IFSMState
     {
-        private const float NodeWidth = 150f;
-        private const float NodeHeight = 100f;
+        private const float NodeWidth = 75f;
+        private const float NodeHeight = 50f;
 
         private readonly DebuggerFSMStateData stateData;
         private readonly VisualElement container;
@@ -34,7 +35,7 @@ namespace FSMForUnity.Editor
         private bool isPanning;
         private Vector2 heldPosition;
         private float zoomLevel;
-        private const float UnitConvert = 300f;
+        private const float UnitConvert = 150f;
 
         public GraphViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
@@ -56,6 +57,8 @@ namespace FSMForUnity.Editor
         public void Enter()
         {
             machineGraph.Regenerate(stateData.currentlyInspecting);
+            var connectionHandle = machineGraph.SolveConnectionAnchors(NodeWidth/ NodeWidth, NodeHeight / NodeWidth, out var edges, out var connectionCounts);
+
             graphCanvas.Reset();
             container.Add(graphCanvas);
             int i = 0;
@@ -67,6 +70,8 @@ namespace FSMForUnity.Editor
                 container.Add(elem);
                 InitializeNode(stateData.currentlyInspecting, elem, node, i);
             }
+            connectionHandle.Complete();
+            i = 0;
             foreach (var conn in machineGraph.GetTransitions())
             {
                 var elem = graphConnectionPool.Take();
@@ -74,8 +79,13 @@ namespace FSMForUnity.Editor
                 container.Add(elem);
                 var fromElem = graphNodes[conn.originIndex];
                 var toElem = graphNodes[conn.destinationIndex];
-                elem.Connect(graphNodes[conn.originIndex], graphNodes[conn.destinationIndex]);
+                var fromI = i * 2;
+                var toI = fromI + 1;
+                elem.Connect(graphNodes[conn.originIndex], edges[fromI], connectionCounts[fromI].index / (float)connectionCounts[fromI].count, graphNodes[conn.destinationIndex], edges[toI], connectionCounts[toI].index / (float)connectionCounts[toI].count);
+                i++;
             }
+            edges.Dispose();
+            connectionCounts.Dispose();
             foreach (var elem in graphNodes)
                 elem.BringToFront();
             container.Add(legendElement);
@@ -84,6 +94,7 @@ namespace FSMForUnity.Editor
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
         }
+
 
         public void Exit()
         {

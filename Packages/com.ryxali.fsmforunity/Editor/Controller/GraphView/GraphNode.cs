@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace FSMForUnity.Editor.IMGUI
+namespace FSMForUnity.Editor
 {
     internal struct GraphNode
     {

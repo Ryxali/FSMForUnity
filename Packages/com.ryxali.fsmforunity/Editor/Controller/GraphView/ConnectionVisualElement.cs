@@ -14,6 +14,8 @@ namespace FSMForUnity.Editor
         private Rect fromRect, toRect;
 
         private Vector2 fromPoint, toPoint, control0, control1, fromDir, toDir;
+        private ConnectionEdge fromEdge, toEdge;
+        private float fromDelta, toDelta;
 
         public ConnectionVisualElement()
         {
@@ -21,8 +23,13 @@ namespace FSMForUnity.Editor
             generateVisualContent = Generate;
         }
 
-        public void Connect(VisualElement from, VisualElement to)
+        public void Connect(VisualElement from, ConnectionEdge fromEdge, float fromDelta, VisualElement to, ConnectionEdge toEdge, float toDelta)
         {
+            Debug.Log($"{fromEdge}:{fromDelta:F2} => {toEdge}:{toDelta:F2}");
+            this.fromEdge = fromEdge;
+            this.toEdge = toEdge;
+            this.fromDelta = fromDelta;
+            this.toDelta = toDelta;
             if (this.from != null)
                 this.from.UnregisterCallback<GeometryChangedEvent>(UpdateGeometryFrom);
             this.from = from;
@@ -77,8 +84,10 @@ namespace FSMForUnity.Editor
 
         private void RecalculateLayout()
         {
-            var from = Closest(fromRect, toRect, out fromDir);
-            var to = Closest(toRect, fromRect, out toDir);
+            var from = Offset(fromRect, fromEdge, Mathf.Lerp(0.25f, 1f, fromDelta));//Closest(fromRect, toRect, out fromDir);
+            var to = Offset(toRect, toEdge, -Mathf.Lerp(0.25f, 1f, toDelta));//Closest(toRect, fromRect, out toDir);
+            fromDir = Dir(fromEdge);
+            toDir = Dir(toEdge);
             var rect = Rect.MinMaxRect(Mathf.Min(from.x, to.x), Mathf.Min(from.y, to.y), Mathf.Max(from.x, to.x), Mathf.Max(from.y, to.y));
             rect.x -= LineWidth;
             rect.y -= LineWidth;
@@ -93,6 +102,49 @@ namespace FSMForUnity.Editor
             var len = Vector2.Distance(from, to) * 0.35f;
             control0 = from + fromDir * len - rect.position;
             control1 = to + toDir * len - rect.position;
+        }
+
+        private static Vector2 Dir(ConnectionEdge edge)
+        {
+            return edge switch
+            {
+                ConnectionEdge.Bottom => Vector2.up,
+                ConnectionEdge.Top => Vector2.down,
+                ConnectionEdge.Left => Vector2.left,
+                ConnectionEdge.Right => Vector2.right,
+                _ => default
+            };
+        }
+
+        private static Vector2 InvDir(ConnectionEdge edge)
+        {
+            return edge switch
+            {
+                ConnectionEdge.Bottom => Vector2.right,
+                ConnectionEdge.Top => Vector2.left,
+                ConnectionEdge.Left => Vector2.up,
+                ConnectionEdge.Right => Vector2.down,
+                _ => default
+            };
+        }
+
+        private static Vector2 Offset(Rect rect, ConnectionEdge edge, float delta)
+        {
+            Debug.Log($"{edge}, {delta:F2}");
+            var output =  edge switch
+            {
+                ConnectionEdge.Bottom => new Vector2(rect.center.x, rect.yMax),
+                ConnectionEdge.Top => new Vector2(rect.center.x, rect.yMin),
+                ConnectionEdge.Left => new Vector2(rect.xMin, rect.center.y),
+                ConnectionEdge.Right => new Vector2(rect.xMax, rect.center.y),
+                _ => rect.center
+            };
+            var dir = InvDir(edge);
+            //dir = new Vector2(dir.y, -dir.x);
+
+            var size = Mathf.Abs(Vector2.Dot(dir, rect.size*0.5f));
+            output += dir * size * delta; 
+            return output;
         }
 
         private static Vector2 Closest(Rect from, Rect to, out Vector2 direction)

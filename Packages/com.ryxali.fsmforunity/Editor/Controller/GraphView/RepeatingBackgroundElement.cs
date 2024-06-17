@@ -42,6 +42,11 @@ namespace FSMForUnity.Editor
             RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
         }
 
+        public override string ToString()
+        {
+            return $"offset: {offset}, zoom: {zoom:F2}";
+        }
+
         private void OnStylesResolved(CustomStyleResolvedEvent evt)
         {
             var thickness = evt.customStyle.TryGetValue(thicknessProp, out var v) ? v : defaultThickness;
