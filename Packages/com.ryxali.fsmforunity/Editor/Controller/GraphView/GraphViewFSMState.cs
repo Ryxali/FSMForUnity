@@ -60,6 +60,7 @@ namespace FSMForUnity.Editor
             var connectionHandle = machineGraph.SolveConnectionAnchors(NodeWidth/ NodeWidth, NodeHeight / NodeWidth, out var edges, out var connectionCounts);
 
             graphCanvas.Reset();
+            graphCanvas.Zoom(Mathf.Lerp(1f, 10f, zoomLevel * zoomLevel), container.contentRect.size*0.5f);//
             container.Add(graphCanvas);
             int i = 0;
             foreach (var node in machineGraph.GetStates())
