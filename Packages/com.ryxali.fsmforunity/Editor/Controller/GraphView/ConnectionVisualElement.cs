@@ -7,7 +7,8 @@ namespace FSMForUnity.Editor
     internal class ConnectionVisualElement : VisualElement
     {
 
-        private float LineWidth = 5f;
+        public float Scale { get; set; } = 1f;
+        private float LineWidth = 2f;
 
         private VisualElement from, to;
 
@@ -89,19 +90,20 @@ namespace FSMForUnity.Editor
             fromDir = Dir(fromEdge);
             toDir = Dir(toEdge);
             var rect = Rect.MinMaxRect(Mathf.Min(from.x, to.x), Mathf.Min(from.y, to.y), Mathf.Max(from.x, to.x), Mathf.Max(from.y, to.y));
-            rect.x -= LineWidth;
-            rect.y -= LineWidth;
-            rect.width += LineWidth * 2;
-            rect.height += LineWidth * 2;
+            var lineWidth = LineWidth * Scale;
+            rect.x -= lineWidth;
+            rect.y -= lineWidth;
+            rect.width += lineWidth * 2;
+            rect.height += lineWidth * 2;
             style.left = new StyleLength(new Length(rect.x));
             style.top = new StyleLength(new Length(rect.y));
             style.width = new StyleLength(new Length(rect.width));
             style.height = new StyleLength(new Length(rect.height));
-            fromPoint = from - rect.position;//from.center - rect.position;
-            toPoint = to - rect.position;// to.center - rect.position;
+            fromPoint = from - rect.position + fromDir * lineWidth * 0.5f;//from.center - rect.position;
+            toPoint = to - rect.position + toDir * lineWidth* 0.5f;// to.center - rect.position;
             var len = Vector2.Distance(from, to) * 0.35f;
-            control0 = from + fromDir * len - rect.position;
-            control1 = to + toDir * len - rect.position;
+            control0 = fromPoint + fromDir * len;
+            control1 = toPoint + toDir * len;
         }
 
         private static Vector2 Dir(ConnectionEdge edge)
@@ -179,22 +181,61 @@ namespace FSMForUnity.Editor
 
         private void Generate(MeshGenerationContext context)
         {
-            const float ArrowLength = 14f;
+            const float ArrowLength = 4f;
+            float arrowLength = ArrowLength * Scale;
+            const float ArrowAngling = .3f;
+            var crossTo = new Vector2(toDir.y, -toDir.x);
+            var arr = (toDir + crossTo * ArrowAngling).normalized * arrowLength;
+            var arrLen = Vector3.Dot(toDir, arr) * 1.5f;
 
             var painter = context.painter2D;
             painter.BeginPath();
             painter.MoveTo(fromPoint);
-            painter.LineTo(fromPoint + fromDir * ArrowLength / 1.414f);
-            painter.BezierCurveTo(control0, control1, toPoint + toDir * ArrowLength / 1.414f);
+            painter.LineTo(fromPoint + fromDir * arrLen);
+            painter.BezierCurveTo(control0, control1, toPoint + toDir * arrLen);
             painter.LineTo(toPoint);
-            painter.MoveTo(toPoint);
-            var crossTo = new Vector2(toDir.y, -toDir.x);
-            painter.LineTo(toPoint + (toDir + crossTo).normalized * ArrowLength);
-            painter.MoveTo(toPoint);
-            painter.LineTo(toPoint + (toDir - crossTo).normalized * ArrowLength);
 
             painter.lineCap = LineCap.Round;
-            painter.lineWidth = LineWidth;
+            painter.lineWidth = LineWidth * Scale;
+            painter.strokeColor = Color.black;
+            painter.Stroke();
+
+            //painter.BeginPath();
+            //painter.MoveTo(fromPoint);
+            //painter.LineTo(fromPoint + fromDir * arrowLength / 1.414f);
+            //painter.BezierCurveTo(control0, control1, toPoint + toDir * arrowLength / 1.414f);
+            //painter.LineTo(toPoint);
+
+            //painter.lineCap = LineCap.Round;
+            //painter.lineWidth = LineWidth * Scale * 0.7f;
+            //painter.strokeColor = Color.white;
+            //painter.Stroke();
+
+            painter.BeginPath();
+            painter.MoveTo(toPoint);
+            painter.LineTo(toPoint + (toDir + crossTo * ArrowAngling).normalized * arrowLength);
+            painter.LineTo(toPoint + (toDir - crossTo * ArrowAngling).normalized * arrowLength);
+            painter.ClosePath();
+
+            painter.lineCap = LineCap.Round;
+            painter.lineWidth = LineWidth * Scale;
+            painter.strokeColor = Color.black;
+            painter.fillColor = Color.black;
+            painter.Fill();
+            painter.Stroke();
+            painter.lineWidth = LineWidth * Scale * 0.7f;
+            painter.strokeColor = Color.white;
+            painter.fillColor = Color.white;
+            painter.Fill();
+            painter.Stroke();
+
+            painter.BeginPath();
+            painter.MoveTo(fromPoint);
+            painter.LineTo(fromPoint + fromDir * arrLen);
+            painter.BezierCurveTo(control0, control1, toPoint + toDir * arrLen);
+            painter.LineTo(toPoint);
+
+            painter.lineWidth = LineWidth * Scale * 0.7f;
             painter.strokeColor = Color.white;
             painter.Stroke();
         }

@@ -161,6 +161,12 @@ namespace FSMForUnity.Editor
                 elem.style.width = new StyleLength(new Length(NodeWidth * zoom));
                 elem.style.height = new StyleLength(new Length(NodeHeight * zoom));
             }
+            for (int i = 0; i < graphConnections.Count; i++)
+            {
+                var elem = graphConnections[i];
+                var zoom = graphCanvas.zoom;
+                elem.Scale = zoom;//Mathf.Max(zoomLevel,0.1f);
+            }
         }
 
         private void OnPanDown(MouseDownEvent evt)
