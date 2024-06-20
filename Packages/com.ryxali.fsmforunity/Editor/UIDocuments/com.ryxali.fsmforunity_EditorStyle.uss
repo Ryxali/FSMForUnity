@@ -22,4 +22,8 @@ Label {
 {
     --fsmforunity-arrow-arrowcolor: #B2B2B2;
     --fsmforunity-arrow-arrowoutlinecolor: #0c0c0c;
+    --fsmforunity-arrow-thickness: 2;
+    --fsmforunity-arrow-outlinethickness: 0.3;
+    --fsmforunity-arrow-headlength: 4;
+    --fsmforunity-arrow-headwidth: 1;
 }
