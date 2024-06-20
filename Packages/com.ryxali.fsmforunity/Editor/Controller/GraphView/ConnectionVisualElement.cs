@@ -6,6 +6,10 @@ namespace FSMForUnity.Editor
 {
     internal class ConnectionVisualElement : VisualElement
     {
+        private static CustomStyleProperty<Color> fgColorProp = new CustomStyleProperty<Color>("--fsmforunity-arrow-arrowcolor");
+        private static CustomStyleProperty<Color> bgColorProp = new CustomStyleProperty<Color>("--fsmforunity-arrow-arrowoutlinecolor");
+        private static readonly Color defaultFgColor = new Color32(0xff, 0xff, 0xff, 0xff);
+        private static readonly Color defaultBgColor = new Color32(0x00, 0x00, 0x00, 0x00);
 
         public float Scale { get; set; } = 1f;
         private float LineWidth = 2f;
@@ -17,16 +21,27 @@ namespace FSMForUnity.Editor
         private Vector2 fromPoint, toPoint, control0, control1, fromDir, toDir;
         private ConnectionEdge fromEdge, toEdge;
         private float fromDelta, toDelta;
+        private Color fgColor = defaultFgColor;
+        private Color bgColor = defaultBgColor;
 
         public ConnectionVisualElement()
         {
             style.position = new StyleEnum<Position>(Position.Absolute);
             generateVisualContent = Generate;
+
+            RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
+            AddToClassList("fsmforunity-arrow");
+        }
+
+        private void OnStylesResolved(CustomStyleResolvedEvent evt)
+        {
+            fgColor = evt.customStyle.TryGetValue(fgColorProp, out var fgV) ? fgV : defaultFgColor;
+            bgColor = evt.customStyle.TryGetValue(bgColorProp, out var bgV) ? bgV : defaultBgColor;
+            MarkDirtyRepaint();
         }
 
         public void Connect(VisualElement from, ConnectionEdge fromEdge, float fromDelta, VisualElement to, ConnectionEdge toEdge, float toDelta)
         {
-            Debug.Log($"{fromEdge}:{fromDelta:F2} => {toEdge}:{toDelta:F2}");
             this.fromEdge = fromEdge;
             this.toEdge = toEdge;
             this.fromDelta = fromDelta;
@@ -197,19 +212,8 @@ namespace FSMForUnity.Editor
 
             painter.lineCap = LineCap.Round;
             painter.lineWidth = LineWidth * Scale;
-            painter.strokeColor = Color.black;
+            painter.strokeColor = bgColor;
             painter.Stroke();
-
-            //painter.BeginPath();
-            //painter.MoveTo(fromPoint);
-            //painter.LineTo(fromPoint + fromDir * arrowLength / 1.414f);
-            //painter.BezierCurveTo(control0, control1, toPoint + toDir * arrowLength / 1.414f);
-            //painter.LineTo(toPoint);
-
-            //painter.lineCap = LineCap.Round;
-            //painter.lineWidth = LineWidth * Scale * 0.7f;
-            //painter.strokeColor = Color.white;
-            //painter.Stroke();
 
             painter.BeginPath();
             painter.MoveTo(toPoint);
@@ -219,13 +223,13 @@ namespace FSMForUnity.Editor
 
             painter.lineCap = LineCap.Round;
             painter.lineWidth = LineWidth * Scale;
-            painter.strokeColor = Color.black;
-            painter.fillColor = Color.black;
+            painter.strokeColor = bgColor;
+            painter.fillColor = bgColor;
             painter.Fill();
             painter.Stroke();
             painter.lineWidth = LineWidth * Scale * 0.7f;
-            painter.strokeColor = Color.white;
-            painter.fillColor = Color.white;
+            painter.strokeColor = fgColor;
+            painter.fillColor = fgColor;
             painter.Fill();
             painter.Stroke();
 
@@ -236,7 +240,7 @@ namespace FSMForUnity.Editor
             painter.LineTo(toPoint);
 
             painter.lineWidth = LineWidth * Scale * 0.7f;
-            painter.strokeColor = Color.white;
+            painter.strokeColor = fgColor;
             painter.Stroke();
         }
     }

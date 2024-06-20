@@ -17,3 +17,9 @@ Label {
     --fsmforunity-grid-size: 128;
     --fsmforunity-grid-mode: "points";
 }
+
+.fsmforunity-arrow
+{
+    --fsmforunity-arrow-arrowcolor: #B2B2B2;
+    --fsmforunity-arrow-arrowoutlinecolor: #0c0c0c;
+}
