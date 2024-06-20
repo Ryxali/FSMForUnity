@@ -64,7 +64,14 @@ namespace FSMForUnity
                 from = from,
                 to = to
             };
-            return transitionNames[tuple];
+            if (transitionNames.TryGetValue(tuple, out var name))
+            {
+                return name;
+            }
+            else
+            {
+                return GetAnyTransitionName(transition, to);
+            }
         }
 
         public string GetAnyTransitionName(IFSMTransition transition, IFSMState to)

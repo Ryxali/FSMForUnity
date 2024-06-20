@@ -7,23 +7,23 @@ namespace FSMForUnity.Editor
 
     internal class ConnectionVisualElement : VisualElement
     {
-        private static StyleWithDefault<Color> fgColorProp = new StyleWithDefault<Color>("--fsmforunity-arrow-arrowcolor", new Color32(0xff, 0xff, 0xff, 0xff));
-        private static StyleWithDefault<Color> bgColorProp = new StyleWithDefault<Color>("--fsmforunity-arrow-arrowoutlinecolor", new Color32(0x00, 0x00, 0x00, 0x00));
-        private static StyleWithDefault<float> thicknessProp = new StyleWithDefault<float>("--fsmforunity-arrow-thickness", 2f);
-        private static StyleWithDefault<float> outlineThicknessProp = new StyleWithDefault<float>("--fsmforunity-arrow-outlinethickness", 0.3f);
-        private static StyleWithDefault<float> headLengthProp = new StyleWithDefault<float>("--fsmforunity-arrow-headlength", 4f);
-        private static StyleWithDefault<float> headWidthProp = new StyleWithDefault<float>("--fsmforunity-arrow-headwidth", 2f);
-
         public float Scale { get; set; } = 1f;
-        private float LineWidth = 2f;
+
+        private static readonly StyleWithDefault<Color> fgColorProp = new StyleWithDefault<Color>("--fsmforunity-arrow-arrowcolor", new Color32(0xff, 0xff, 0xff, 0xff));
+        private static readonly StyleWithDefault<Color> bgColorProp = new StyleWithDefault<Color>("--fsmforunity-arrow-arrowoutlinecolor", new Color32(0x00, 0x00, 0x00, 0x00));
+        private static readonly StyleWithDefault<float> thicknessProp = new StyleWithDefault<float>("--fsmforunity-arrow-thickness", 2f);
+        private static readonly StyleWithDefault<float> outlineThicknessProp = new StyleWithDefault<float>("--fsmforunity-arrow-outlinethickness", 0.3f);
+        private static readonly StyleWithDefault<float> headLengthProp = new StyleWithDefault<float>("--fsmforunity-arrow-headlength", 4f);
+        private static readonly StyleWithDefault<float> headWidthProp = new StyleWithDefault<float>("--fsmforunity-arrow-headwidth", 2f);
+
+        private readonly Label label;
 
         private VisualElement from, to;
-
         private Rect fromRect, toRect;
-
         private Vector2 fromPoint, toPoint, control0, control1, fromDir, toDir;
         private ConnectionEdge fromEdge, toEdge;
         private float fromDelta, toDelta;
+
         private Color fgColor = fgColorProp.defaultValue;
         private Color bgColor = bgColorProp.defaultValue;
         private float arrowThickness = thicknessProp.defaultValue;
@@ -35,7 +35,13 @@ namespace FSMForUnity.Editor
         {
             style.position = new StyleEnum<Position>(Position.Absolute);
             generateVisualContent = Generate;
-
+            label = new Label();
+            Add(label);
+            label.text = "Test with longer name";
+            label.style.position = new StyleEnum<Position>(Position.Absolute);
+            label.style.textOverflow = new StyleEnum<TextOverflow>(TextOverflow.Ellipsis);
+            label.style.whiteSpace = WhiteSpace.NoWrap;
+            label.style.overflow = Overflow.Hidden;
             RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
             AddToClassList("fsmforunity-arrow");
         }
@@ -51,7 +57,7 @@ namespace FSMForUnity.Editor
             MarkDirtyRepaint();
         }
 
-        public void Connect(VisualElement from, ConnectionEdge fromEdge, float fromDelta, VisualElement to, ConnectionEdge toEdge, float toDelta)
+        public void Connect(string label, VisualElement from, ConnectionEdge fromEdge, float fromDelta, VisualElement to, ConnectionEdge toEdge, float toDelta)
         {
             this.fromEdge = fromEdge;
             this.toEdge = toEdge;
@@ -79,6 +85,7 @@ namespace FSMForUnity.Editor
                 to.resolvedStyle.height);
             toRect.x -= toRect.width / 2f;
             toRect.y -= toRect.height / 2f;
+            this.label.text = label;
 
             RecalculateLayout();
         }
@@ -111,8 +118,8 @@ namespace FSMForUnity.Editor
 
         private void RecalculateLayout()
         {
-            var from = Offset(fromRect, fromEdge, Mathf.Lerp(0.25f, 1f, fromDelta));//Closest(fromRect, toRect, out fromDir);
-            var to = Offset(toRect, toEdge, -Mathf.Lerp(0.25f, 1f, toDelta));//Closest(toRect, fromRect, out toDir);
+            var from = Offset(fromRect, fromEdge, Mathf.Lerp(0.25f, 1f, fromDelta));
+            var to = Offset(toRect, toEdge, -Mathf.Lerp(0.25f, 1f, toDelta));
             fromDir = Dir(fromEdge);
             toDir = Dir(toEdge);
             var rect = Rect.MinMaxRect(Mathf.Min(from.x, to.x), Mathf.Min(from.y, to.y), Mathf.Max(from.x, to.x), Mathf.Max(from.y, to.y));
@@ -125,11 +132,54 @@ namespace FSMForUnity.Editor
             style.top = new StyleLength(new Length(rect.y));
             style.width = new StyleLength(new Length(rect.width));
             style.height = new StyleLength(new Length(rect.height));
-            fromPoint = from - rect.position + fromDir * lineWidth * 0.5f;//from.center - rect.position;
-            toPoint = to - rect.position + toDir * lineWidth* 0.5f;// to.center - rect.position;
+            fromPoint = from - rect.position + fromDir * lineWidth * 0.5f;
+            toPoint = to - rect.position + toDir * lineWidth* 0.5f;
             var len = Vector2.Distance(from, to) * 0.35f;
             control0 = fromPoint + fromDir * len;
             control1 = toPoint + toDir * len;
+
+            // text
+            var point = Bezier(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f);
+            var dir = BezierTan(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f).normalized;
+            var labelWidth = label.contentRect.width;
+            var dirX = new Vector2(dir.y, -dir.x);
+            if (dirX.y > 0)
+                dirX *= -1f;
+            var corner = point + dirX * (label.contentRect.height + arrowThickness * Scale);
+            label.style.left = new StyleLength(corner.x);
+            label.style.top = new StyleLength(corner.y);
+            label.style.translate = new StyleTranslate(new Translate(-labelWidth * 0.5f, 0, 0));
+            label.style.maxWidth = 50f * Scale;
+            label.style.maxHeight = 50f * Scale;
+            var angle = Vector2.SignedAngle(Vector2.right, dir);
+            if (angle > 90f) angle -= 180f;
+            else if (angle < -90f)
+                angle += 180f;
+            label.style.rotate = new StyleRotate(new Rotate(new Angle(angle, AngleUnit.Degree)));
+        }
+
+        private static Vector2 Bezier(Vector2 from, Vector2 control0, Vector2 control1, Vector2 to, float delta)
+        {
+            var deltaNeg = 1 - delta;
+            return 
+                deltaNeg * deltaNeg * deltaNeg * from 
+                + 3 * delta * (deltaNeg * deltaNeg) * control0 
+                + 3 * (delta * delta) * deltaNeg * control1 
+                + delta * delta * delta * to;
+        }
+
+        private static Vector2 BezierTan(Vector2 from, Vector2 control0, Vector2 control1, Vector2 to, float delta)
+        {
+            //-3(1-t)^2 * P0 + 3(1-t)^2 * P1 - 6t(1-t) * P1 - 3t^2 * P2 + 6t(1-t) * P2 + 3t^2 * P3 
+            var deltaNeg = 1 - delta;
+
+            return 
+                - 3 * deltaNeg * deltaNeg * from
+                + 3 * deltaNeg * deltaNeg * control0
+                - 6 * delta * deltaNeg * control0
+                - 3 * delta * delta * control1
+                + 6 * delta * deltaNeg * control1
+                + 3 * delta * delta * to;
         }
 
         private static Vector2 Dir(ConnectionEdge edge)
@@ -178,7 +228,6 @@ namespace FSMForUnity.Editor
             float arrowLength = arrowHeadLength * Scale;
             float arrowWidth = arrowHeadWidth * Scale;
             var crossTo = new Vector2(toDir.y, -toDir.x);
-            var arr = toDir * arrowLength + crossTo * arrowWidth;
 
             var painter = context.painter2D;
             painter.BeginPath();

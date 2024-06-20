@@ -83,7 +83,7 @@ namespace FSMForUnity.Editor
                 var toElem = graphNodes[conn.destinationIndex];
                 var fromI = i * 2;
                 var toI = fromI + 1;
-                elem.Connect(graphNodes[conn.originIndex], edges[fromI], connectionCounts[fromI].index / (float)connectionCounts[fromI].count, graphNodes[conn.destinationIndex], edges[toI], connectionCounts[toI].index / (float)connectionCounts[toI].count);
+                elem.Connect(stateData.currentlyInspecting.GetTransitionName(conn.transition, conn.origin.state, conn.destination.state), graphNodes[conn.originIndex], edges[fromI], connectionCounts[fromI].index / (float)connectionCounts[fromI].count, graphNodes[conn.destinationIndex], edges[toI], connectionCounts[toI].index / (float)connectionCounts[toI].count);
                 elem.Scale = graphCanvas.zoom;
                 i++;
             }
