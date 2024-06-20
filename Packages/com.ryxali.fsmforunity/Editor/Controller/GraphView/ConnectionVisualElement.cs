@@ -7,7 +7,8 @@ namespace FSMForUnity.Editor
 
     internal class ConnectionVisualElement : VisualElement
     {
-        public float Scale { get; set; } = 1f;
+        public float Scale { get => scale; set { scale = value; OnGeometryUpdated(null); } }
+        private float scale = 1f;
 
         private static readonly StyleWithDefault<Color> fgColorProp = new StyleWithDefault<Color>("--fsmforunity-arrow-arrowcolor", new Color32(0xff, 0xff, 0xff, 0xff));
         private static readonly StyleWithDefault<Color> bgColorProp = new StyleWithDefault<Color>("--fsmforunity-arrow-arrowoutlinecolor", new Color32(0x00, 0x00, 0x00, 0x00));
@@ -42,8 +43,11 @@ namespace FSMForUnity.Editor
             label.style.textOverflow = new StyleEnum<TextOverflow>(TextOverflow.Ellipsis);
             label.style.whiteSpace = WhiteSpace.NoWrap;
             label.style.overflow = Overflow.Hidden;
+            label.style.unityTextAlign = TextAnchor.LowerCenter;
             RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
+            RegisterCallback<GeometryChangedEvent>(OnGeometryUpdated);
             AddToClassList("fsmforunity-arrow");
+            label.AddToClassList("fsmforunity-arrow-label");
         }
 
         private void OnStylesResolved(CustomStyleResolvedEvent evt)
@@ -86,8 +90,31 @@ namespace FSMForUnity.Editor
             toRect.x -= toRect.width / 2f;
             toRect.y -= toRect.height / 2f;
             this.label.text = label;
-
+            
             RecalculateLayout();
+        }
+
+        public void OnGeometryUpdated(GeometryChangedEvent evt)
+        {
+            // text
+            var point = Bezier(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f);
+            var dir = BezierTan(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f).normalized;
+            var labelWidth = label.contentRect.width;
+            var dirX = new Vector2(dir.y, -dir.x);
+            if (dirX.y > 0)
+                dirX *= -1f;
+            var corner = point + dirX * (label.contentRect.height + arrowThickness * Scale);
+            label.style.left = new StyleLength(corner.x);
+            label.style.top = new StyleLength(corner.y);
+            label.style.translate = new StyleTranslate(new Translate(-labelWidth * 0.5f, 0, 0));
+            label.style.width = 50f * Scale;
+            label.style.width = 50f * Scale;
+            var angle = Vector2.SignedAngle(Vector2.right, dir);
+            if (angle > 90f) angle -= 180f;
+            else if (angle < -90f)
+                angle += 180f;
+            label.style.rotate = new StyleRotate(new Rotate(new Angle(angle, AngleUnit.Degree)));
+            label.MarkDirtyRepaint();
         }
 
         public void Reset()
@@ -138,24 +165,6 @@ namespace FSMForUnity.Editor
             control0 = fromPoint + fromDir * len;
             control1 = toPoint + toDir * len;
 
-            // text
-            var point = Bezier(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f);
-            var dir = BezierTan(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f).normalized;
-            var labelWidth = label.contentRect.width;
-            var dirX = new Vector2(dir.y, -dir.x);
-            if (dirX.y > 0)
-                dirX *= -1f;
-            var corner = point + dirX * (label.contentRect.height + arrowThickness * Scale);
-            label.style.left = new StyleLength(corner.x);
-            label.style.top = new StyleLength(corner.y);
-            label.style.translate = new StyleTranslate(new Translate(-labelWidth * 0.5f, 0, 0));
-            label.style.maxWidth = 50f * Scale;
-            label.style.maxHeight = 50f * Scale;
-            var angle = Vector2.SignedAngle(Vector2.right, dir);
-            if (angle > 90f) angle -= 180f;
-            else if (angle < -90f)
-                angle += 180f;
-            label.style.rotate = new StyleRotate(new Rotate(new Angle(angle, AngleUnit.Degree)));
         }
 
         private static Vector2 Bezier(Vector2 from, Vector2 control0, Vector2 control1, Vector2 to, float delta)
