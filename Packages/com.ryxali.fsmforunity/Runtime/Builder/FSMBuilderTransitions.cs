@@ -136,7 +136,7 @@
         {
             var transition = new LambdaFSMTransition(criteria);
             builder.AddTransition(name, transition, from, to);
-            builder.AddTransition(name, transition.Invert(), to, from);
+            builder.AddTransition($"!{name}", transition.Invert(), to, from);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@
         public static void AddBidirectionalTransition(this FSMMachine.IBuilder builder, string name, IFSMTransition transition, IFSMState from, IFSMState to)
         {
             builder.AddTransition(name, transition, from, to);
-            builder.AddTransition(name, transition.Invert(), to, from);
+            builder.AddTransition($"!{name}", transition.Invert(), to, from);
         }
 
     }

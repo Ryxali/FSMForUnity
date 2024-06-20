@@ -38,7 +38,6 @@ namespace FSMForUnity.Editor
             generateVisualContent = Generate;
             label = new Label();
             Add(label);
-            label.text = "Test with longer name";
             label.style.position = new StyleEnum<Position>(Position.Absolute);
             label.style.textOverflow = new StyleEnum<TextOverflow>(TextOverflow.Ellipsis);
             label.style.whiteSpace = WhiteSpace.NoWrap;
