@@ -58,7 +58,7 @@ namespace FSMForUnity.Editor
         public void Enter()
         {
             machineGraph.Regenerate(stateData.currentlyInspecting);
-            var connectionHandle = machineGraph.SolveConnectionAnchors(NodeWidth/ NodeWidth, NodeHeight / NodeWidth, out var edges, out var connectionCounts);
+            var connectionHandle = machineGraph.SolveConnectionAnchors(NodeWidth/ UnitConvert, NodeHeight / UnitConvert, out var edges, out var connectionCounts);
             scaledUnitConvert = UnitConvert / Mathf.Min(1f, machineGraph.MinFloatDistance());
             graphCanvas.Reset();
             graphCanvas.Zoom(Mathf.Lerp(1f, 10f, zoomLevel * zoomLevel), container.contentRect.size*0.5f);//
