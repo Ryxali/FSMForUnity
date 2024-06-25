@@ -96,11 +96,29 @@ namespace FSMForUnity.Editor
             container.RegisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
+            container.RegisterCallback<GeometryChangedEvent>(OnContainerDimensionsChange);
         }
 
+        private void OnContainerDimensionsChange(GeometryChangedEvent evt)
+        {
+            var diff = (evt.oldRect.center - evt.newRect.center) - (evt.oldRect.position - evt.newRect.position);
+            var pan = diff  * graphCanvas.zoom;
+
+            graphCanvas.Pan(pan);
+
+            var nodes = machineGraph.GetStates();
+            for (int i = 0; i < graphNodes.Count; i++)
+            {
+                var elem = graphNodes[i];
+                var node = nodes[i];
+                elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * scaledUnitConvert));
+                elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * scaledUnitConvert));
+            }
+        }
 
         public void Exit()
         {
+            container.UnregisterCallback<GeometryChangedEvent>(OnContainerDimensionsChange);
             container.UnregisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
