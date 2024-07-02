@@ -22,10 +22,10 @@ namespace FSMForUnity.Editor
 
         private readonly RepeatingBackgroundElement graphCanvas;
         private readonly VisualTreeAsset graphNodeAsset;
-        private readonly ObjectPool<VisualElement> graphNodePool;
+        private readonly ObjectPool<NodeVisualElement> graphNodePool;
         private readonly ObjectPool<ConnectionVisualElement> graphConnectionPool;
 
-        private readonly List<VisualElement> graphNodes = new List<VisualElement>();
+        private readonly List<NodeVisualElement> graphNodes = new List<NodeVisualElement>();
         private readonly List<ConnectionVisualElement> graphConnections = new List<ConnectionVisualElement>();
 
         private readonly VisualElement legendElement;
@@ -44,7 +44,7 @@ namespace FSMForUnity.Editor
             this.container = container;
             graphCanvas = new RepeatingBackgroundElement();
             graphNodeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodePath);
-            graphNodePool = new ObjectPool<VisualElement>(() => graphNodeAsset.Instantiate().Q("Box"), elem => { elem.RemoveFromHierarchy(); });
+            graphNodePool = new ObjectPool<NodeVisualElement>(() => graphNodeAsset.Instantiate().Q<NodeVisualElement>("Box"), elem => { elem.RemoveFromHierarchy(); });
             graphConnectionPool = new ObjectPool<ConnectionVisualElement>(() => new ConnectionVisualElement(), elem => { elem.RemoveFromHierarchy(); elem.Reset(); });
             machineGraph = new MachineGraph();
 
@@ -150,7 +150,7 @@ namespace FSMForUnity.Editor
             graphCanvas.Dispose();
         }
 
-        private void InitializeNode(DebugMachine debugMachine, VisualElement element, GraphNode node, int index)
+        private void InitializeNode(DebugMachine debugMachine, NodeVisualElement element, GraphNode node, int index)
         {
             var zoom = graphCanvas.zoom;
             element.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * scaledUnitConvert));
@@ -160,8 +160,8 @@ namespace FSMForUnity.Editor
             element.style.width = new StyleLength(new Length(NodeWidth * zoom));
             element.style.height = new StyleLength(new Length(NodeHeight * zoom));
             element.style.translate = new StyleTranslate(new Translate(new Length(-50f, LengthUnit.Percent), new Length(-50f, LengthUnit.Percent), 0f));
-            element.Q<Label>(UIMap_GraphView.Title).text = index.ToString();
-            element.Q<Label>(UIMap_GraphView.Subheading).text = debugMachine.GetStateName(node.state);
+            element.Title = index.ToString();
+            element.Subheading = debugMachine.GetStateName(node.state);
         }
 
         private void OnZoom(WheelEvent evt)
