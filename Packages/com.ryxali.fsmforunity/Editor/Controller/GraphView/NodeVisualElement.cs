@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,8 +29,8 @@ namespace FSMForUnity.Editor
         {
             var lightContentAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodeLightContentPath);
             var fullContentAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodeFullContentPath);
-            lightContent = lightContentAsset.Instantiate();
-            fullContent = fullContentAsset.Instantiate();
+            lightContent = lightContentAsset.Instantiate().Children().First();
+            fullContent = fullContentAsset.Instantiate().Children().First();
             RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
             RegisterCallback<GeometryChangedEvent>(OnGeometryUpdated);
         }

@@ -1,5 +1,5 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:GroupBox class="fsmforunity-border" style="flex-grow: 1; background-color: rgb(63, 61, 67);">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:GroupBox class="fsmforunity-border fsmforunity-node-box" style="background-color: rgb(63, 61, 67);">
         <ui:Label text="Entry Name" display-tooltip-when-elided="true" name="title" style="-unity-text-align: upper-center; font-size: 16px;" />
         <ui:VisualElement class="fsmforunity-border" style="width: 50%; border-left-width: 0; border-right-width: 0; border-top-width: 1px; border-bottom-width: 0; padding-bottom: 0; padding-top: 0; margin-top: 1px; margin-bottom: 2px; left: 25%;" />
         <ui:Label text="Entry Name" display-tooltip-when-elided="true" name="subheading" style="-unity-text-align: upper-center; font-size: 12px;" />

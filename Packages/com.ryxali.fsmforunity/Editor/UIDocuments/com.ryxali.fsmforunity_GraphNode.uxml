@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Packages/com.ryxali.fsmforunity/Editor/UIDocuments/com.ryxali.fsmforunity_EditorStyle.uss?fileID=7433441132597879392&amp;guid=ed6111d43bd98c24d831d5bb34ef4a59&amp;type=3#com.ryxali.fsmforunity_EditorStyle" />
-    <FSMForUnity.Editor.NodeVisualElement focusable="true" name="Box" style="position: absolute; opacity: 1; transition-property: all; transition-duration: 0s; transition-timing-function: ease; transition-delay: 0s; width: 183px; height: 188px; transform-origin: center; left: 0; top: 0; flex-grow: 1;">
-        <ui:Button display-tooltip-when-elided="true" name="box-container" style="flex-grow: 1; flex-basis: auto; opacity: 1;" />
+    <FSMForUnity.Editor.NodeVisualElement focusable="true" name="Box" class="fsmforunity-node-box" style="position: absolute; opacity: 1; transition-property: all; transition-duration: 0s; transition-timing-function: ease; transition-delay: 0s; transform-origin: center; left: 0; top: 0;">
+        <ui:Button display-tooltip-when-elided="true" name="box-container" class="fsmforunity-node-box" style="flex-grow: 1; flex-basis: auto; opacity: 1;" />
     </FSMForUnity.Editor.NodeVisualElement>
 </ui:UXML>

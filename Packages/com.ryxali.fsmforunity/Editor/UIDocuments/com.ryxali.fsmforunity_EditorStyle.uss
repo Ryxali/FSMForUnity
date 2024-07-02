@@ -30,18 +30,29 @@ Label {
 .fsmforunity-arrow-label {
     font-size: 11px;
     color: rgb(226, 226, 226);
+    white-space: nowrap;
+    text-overflow: clip;
+    overflow: hidden;
 }
 
 .fsmforunity-node-title-light {
     -unity-text-align: upper-center;
-    font-size: 10px;
+    font-size: 14px;
+    white-space: nowrap;
+    text-overflow: clip;
+    overflow: hidden;
 }
 
 .fsmforunity-node-subheading-light {
     -unity-text-align: upper-center;
-    font-size: 50%;
+    font-size: 10px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .fsmforunity-node-box
 {
+    height: 100%;
+    box-sizing: border-box;
 }
