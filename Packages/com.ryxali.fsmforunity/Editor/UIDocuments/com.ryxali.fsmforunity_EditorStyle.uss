@@ -11,25 +11,37 @@ Label {
 }
 
 .fsmforunity-gridview {
-    --fsmforunity-grid-bgcolor: #141414;
-    --fsmforunity-grid-fgcolor: #1c1c1c;
+    --fsmforunity-grid-bgcolor: rgb(20, 20, 20);
+    --fsmforunity-grid-fgcolor: rgb(28, 28, 28);
     --fsmforunity-grid-thickness: 8;
     --fsmforunity-grid-size: 128;
     --fsmforunity-grid-mode: "points";
 }
 
-.fsmforunity-arrow
-{
-    --fsmforunity-arrow-arrowcolor: #B2B2B2;
-    --fsmforunity-arrow-arrowoutlinecolor: #0c0c0c;
+.fsmforunity-arrow {
+    --fsmforunity-arrow-arrowcolor: rgb(178, 178, 178);
+    --fsmforunity-arrow-arrowoutlinecolor: rgb(12, 12, 12);
     --fsmforunity-arrow-thickness: 2;
     --fsmforunity-arrow-outlinethickness: 0.3;
     --fsmforunity-arrow-headlength: 4;
     --fsmforunity-arrow-headwidth: 1;
 }
 
-.fsmforunity-arrow-label
-{
+.fsmforunity-arrow-label {
     font-size: 11px;
-    color: #E2E2E2;
+    color: rgb(226, 226, 226);
+}
+
+.fsmforunity-node-title-light {
+    -unity-text-align: upper-center;
+    font-size: 10px;
+}
+
+.fsmforunity-node-subheading-light {
+    -unity-text-align: upper-center;
+    font-size: 50%;
+}
+
+.fsmforunity-node-box
+{
 }

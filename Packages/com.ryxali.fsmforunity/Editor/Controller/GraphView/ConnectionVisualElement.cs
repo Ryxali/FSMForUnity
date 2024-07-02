@@ -5,11 +5,16 @@ using UnityEngine.UIElements;
 namespace FSMForUnity.Editor
 {
 
+    /// <summary>
+    /// Draws an arrow between two visual elements
+    /// </summary>
     internal class ConnectionVisualElement : VisualElement
     {
         public float Scale { get => scale; set { scale = value; OnGeometryUpdated(null); } }
         private float scale = 1f;
 
+        private const string ArrowClass = "fsmforunity-arrow";
+        private const string ArrowLabelClass = "fsmforunity-arrow-label";
         private static readonly StyleWithDefault<Color> fgColorProp = new StyleWithDefault<Color>("--fsmforunity-arrow-arrowcolor", new Color32(0xff, 0xff, 0xff, 0xff));
         private static readonly StyleWithDefault<Color> bgColorProp = new StyleWithDefault<Color>("--fsmforunity-arrow-arrowoutlinecolor", new Color32(0x00, 0x00, 0x00, 0x00));
         private static readonly StyleWithDefault<float> thicknessProp = new StyleWithDefault<float>("--fsmforunity-arrow-thickness", 2f);
@@ -43,10 +48,10 @@ namespace FSMForUnity.Editor
             label.style.whiteSpace = WhiteSpace.NoWrap;
             label.style.overflow = Overflow.Hidden;
             label.style.unityTextAlign = TextAnchor.LowerCenter;
+            AddToClassList(ArrowClass);
+            label.AddToClassList(ArrowLabelClass);
             RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
             RegisterCallback<GeometryChangedEvent>(OnGeometryUpdated);
-            AddToClassList("fsmforunity-arrow");
-            label.AddToClassList("fsmforunity-arrow-label");
         }
 
         private void OnStylesResolved(CustomStyleResolvedEvent evt)
