@@ -56,7 +56,7 @@ Label {
     height: 100%;
     box-sizing: border-box;
     transition-property: background-color;
-    transition-duration: 600ms;
+    transition-duration: 300ms;
     transition-timing-function: ease-out-quart;
 }
 
@@ -82,9 +82,19 @@ Label {
     background-color: rgb(49, 211, 214);
 }
 
-.active > #box-container
+.fsmforunity-node-box.active > #box-container
 {
     background-color: rgb(238, 212, 0);
+}
+
+.fsmforunity-node-box.was-active > #box-container
+{
+    background-color: rgb(125, 108, 43);
+}
+
+.fsmforunity-node-box > #box-container
+{
+    background-color: rgb(89, 89, 89);
 }
 
 

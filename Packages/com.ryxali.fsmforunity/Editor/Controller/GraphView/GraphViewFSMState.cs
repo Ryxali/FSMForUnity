@@ -29,6 +29,7 @@ namespace FSMForUnity.Editor
         private readonly List<ConnectionVisualElement> graphConnections = new List<ConnectionVisualElement>();
 
         private readonly Dictionary<IFSMState, NodeVisualElement> stateToElement = new Dictionary<IFSMState, NodeVisualElement>(EqualityComparer_IFSMState.constant);
+        private StateQueue stateQueue;
 
         private readonly VisualElement legendElement;
 
@@ -46,7 +47,7 @@ namespace FSMForUnity.Editor
             this.container = container;
             graphCanvas = new RepeatingBackgroundElement();
             graphNodeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodePath);
-            graphNodePool = new ObjectPool<NodeVisualElement>(() => graphNodeAsset.Instantiate().Q<NodeVisualElement>("Box"), elem => { elem.RemoveFromHierarchy(); elem.RemoveFromClassList("active"); });
+            graphNodePool = new ObjectPool<NodeVisualElement>(() => graphNodeAsset.Instantiate().Q<NodeVisualElement>("Box"), elem => { elem.RemoveFromHierarchy(); });
             graphConnectionPool = new ObjectPool<ConnectionVisualElement>(() => new ConnectionVisualElement(), elem => { elem.RemoveFromHierarchy(); elem.Reset(); });
             machineGraph = new MachineGraph();
 
@@ -105,6 +106,7 @@ namespace FSMForUnity.Editor
 
         public void Exit()
         {
+            stateQueue.Reset();
             stateData.eventBroadcaster.RemoveListener(this);
             container.UnregisterCallback<GeometryChangedEvent>(OnContainerDimensionsChange);
             container.UnregisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
@@ -237,7 +239,7 @@ namespace FSMForUnity.Editor
         {
             if (stateToElement.TryGetValue(state, out var elem))
             {
-                elem.AddToClassList("active");
+                stateQueue.Start(elem);
             }
         }
 
@@ -245,28 +247,47 @@ namespace FSMForUnity.Editor
         {
             if (stateToElement.TryGetValue(state, out var elem))
             {
-                elem.AddToClassList("active");
+                stateQueue.MoveNext(elem);
             }
         }
 
         public void OnStateExit(IFSMState state)
         {
-            if (stateToElement.TryGetValue(state, out var elem))
-            {
-                elem.RemoveFromClassList("active");
-            }
         }
 
         public void OnStateExit(IFSMState state, IFSMTransition from)
         {
-            if (stateToElement.TryGetValue(state, out var elem))
-            {
-                elem.RemoveFromClassList("active");
-            }
         }
 
         public void OnStateUpdate(IFSMState state)
         {
+        }
+
+        private struct StateQueue
+        {
+            private NodeVisualElement current, previous;
+
+            public void Start(NodeVisualElement state)
+            {
+                current = state;
+            }
+
+            public void Reset()
+            {
+                current?.RemoveFromClassList("active");
+                previous?.RemoveFromClassList("was-active");
+                current = previous = null;
+            }
+
+            public void MoveNext(NodeVisualElement next)
+            {
+                current?.RemoveFromClassList("active");
+                previous?.RemoveFromClassList("was-active");
+                previous = current;
+                current = next;
+                current.AddToClassList("active");
+                previous.AddToClassList("was-active");
+            }
         }
     }
 }
