@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace FSMForUnity.Editor
 {
@@ -10,11 +11,19 @@ namespace FSMForUnity.Editor
         public void AddListener(IMachineEventListener listener)
         {
             listeners.Add(listener);
+            if (target.TryGetActive(out var state))
+            {
+                listener.OnStateEnter(state);
+            }
         }
 
         public void RemoveListener(IMachineEventListener listener)
         {
             listeners.Remove(listener);
+            if (target.TryGetActive(out var state))
+            {
+                listener.OnStateExit(state);
+            }
         }
 
         public void SetTarget(DebugMachine machine)
@@ -32,6 +41,7 @@ namespace FSMForUnity.Editor
             {
                 while (target.PollEvent(out var evt))
                 {
+                    Debug.Log("Evt! " + evt.type);
                     switch (evt.type)
                     {
                         case StateEventType.Enter:

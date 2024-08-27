@@ -12,7 +12,7 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
 {
-    internal class GraphViewFSMState : IFSMState
+    internal class GraphViewFSMState : IFSMState, IMachineEventListener
     {
         private const float NodeWidth = 75f;
         private const float NodeHeight = 50f;
@@ -27,6 +27,8 @@ namespace FSMForUnity.Editor
 
         private readonly List<NodeVisualElement> graphNodes = new List<NodeVisualElement>();
         private readonly List<ConnectionVisualElement> graphConnections = new List<ConnectionVisualElement>();
+
+        private readonly Dictionary<IFSMState, NodeVisualElement> stateToElement = new Dictionary<IFSMState, NodeVisualElement>(EqualityComparer_IFSMState.constant);
 
         private readonly VisualElement legendElement;
 
@@ -44,7 +46,7 @@ namespace FSMForUnity.Editor
             this.container = container;
             graphCanvas = new RepeatingBackgroundElement();
             graphNodeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.GraphNodePath);
-            graphNodePool = new ObjectPool<NodeVisualElement>(() => graphNodeAsset.Instantiate().Q<NodeVisualElement>("Box"), elem => { elem.RemoveFromHierarchy(); });
+            graphNodePool = new ObjectPool<NodeVisualElement>(() => graphNodeAsset.Instantiate().Q<NodeVisualElement>("Box"), elem => { elem.RemoveFromHierarchy(); elem.RemoveFromClassList("active"); });
             graphConnectionPool = new ObjectPool<ConnectionVisualElement>(() => new ConnectionVisualElement(), elem => { elem.RemoveFromHierarchy(); elem.Reset(); });
             machineGraph = new MachineGraph();
 
@@ -71,6 +73,7 @@ namespace FSMForUnity.Editor
                 graphNodes.Add(elem);
                 container.Add(elem);
                 InitializeNode(stateData.currentlyInspecting, elem, node, i);
+                stateToElement.Add(node.state, elem);
             }
             connectionHandle.Complete();
             i = 0;
@@ -97,27 +100,12 @@ namespace FSMForUnity.Editor
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
             container.RegisterCallback<GeometryChangedEvent>(OnContainerDimensionsChange);
-        }
-
-        private void OnContainerDimensionsChange(GeometryChangedEvent evt)
-        {
-            var diff = (evt.oldRect.center - evt.newRect.center) - (evt.oldRect.position - evt.newRect.position);
-            var pan = diff  * graphCanvas.zoom;
-
-            graphCanvas.Pan(pan);
-
-            var nodes = machineGraph.GetStates();
-            for (int i = 0; i < graphNodes.Count; i++)
-            {
-                var elem = graphNodes[i];
-                var node = nodes[i];
-                elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * scaledUnitConvert));
-                elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * scaledUnitConvert));
-            }
+            stateData.eventBroadcaster.AddListener(this);
         }
 
         public void Exit()
         {
+            stateData.eventBroadcaster.RemoveListener(this);
             container.UnregisterCallback<GeometryChangedEvent>(OnContainerDimensionsChange);
             container.UnregisterCallback<MouseDownEvent>(OnPanDown, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
@@ -137,6 +125,7 @@ namespace FSMForUnity.Editor
             graphConnections.Clear();
             container.Remove(legendElement);
             container.Remove(graphCanvas);
+            stateToElement.Clear();
         }
 
         public void Update(float delta)
@@ -221,6 +210,64 @@ namespace FSMForUnity.Editor
 
                 }
             }
+        }
+
+        public void OnTargetChanged(in DebugMachine machine)
+        {
+        }
+
+        private void OnContainerDimensionsChange(GeometryChangedEvent evt)
+        {
+            var diff = (evt.oldRect.center - evt.newRect.center) - (evt.oldRect.position - evt.newRect.position);
+            var pan = diff * graphCanvas.zoom;
+
+            graphCanvas.Pan(pan);
+
+            var nodes = machineGraph.GetStates();
+            for (int i = 0; i < graphNodes.Count; i++)
+            {
+                var elem = graphNodes[i];
+                var node = nodes[i];
+                elem.style.left = new StyleLength(new Length(graphCanvas.offset.x + graphCanvas.zoom * container.contentRect.width / 2 + graphCanvas.zoom * node.position.x * scaledUnitConvert));
+                elem.style.top = new StyleLength(new Length(graphCanvas.offset.y + graphCanvas.zoom * container.contentRect.height / 2 + graphCanvas.zoom * node.position.y * scaledUnitConvert));
+            }
+        }
+
+        public void OnStateEnter(IFSMState state)
+        {
+            Debug.Log("State Enter!");
+            if (stateToElement.TryGetValue(state, out var elem))
+            {
+                elem.AddToClassList("active");
+            }
+        }
+
+        public void OnStateEnter(IFSMState state, IFSMTransition through)
+        {
+            if (stateToElement.TryGetValue(state, out var elem))
+            {
+                elem.AddToClassList("active");
+            }
+        }
+
+        public void OnStateExit(IFSMState state)
+        {
+            if (stateToElement.TryGetValue(state, out var elem))
+            {
+                elem.RemoveFromClassList("active");
+            }
+        }
+
+        public void OnStateExit(IFSMState state, IFSMTransition from)
+        {
+            if (stateToElement.TryGetValue(state, out var elem))
+            {
+                elem.RemoveFromClassList("active");
+            }
+        }
+
+        public void OnStateUpdate(IFSMState state)
+        {
         }
     }
 }

@@ -56,3 +56,32 @@ Label {
     height: 100%;
     box-sizing: border-box;
 }
+
+/* State Colors */
+
+#Legend > * > .active
+{
+    background-color: rgb(238, 212, 0);
+}
+
+#Legend > * > .was-active
+{
+    background-color: rgb(125, 108, 43);
+}
+
+#Legend > * > .dormant
+{
+    background-color: rgb(89, 89, 89);
+}
+
+#Legend > * > .signal-sent
+{
+    background-color: rgb(49, 211, 214);
+}
+
+.active > #box-container
+{
+    background-color: rgb(238, 212, 0);
+}
+
+
