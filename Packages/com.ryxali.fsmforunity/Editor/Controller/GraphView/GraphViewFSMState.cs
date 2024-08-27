@@ -235,7 +235,6 @@ namespace FSMForUnity.Editor
 
         public void OnStateEnter(IFSMState state)
         {
-            Debug.Log("State Enter!");
             if (stateToElement.TryGetValue(state, out var elem))
             {
                 elem.AddToClassList("active");

@@ -41,7 +41,6 @@ namespace FSMForUnity.Editor
             {
                 while (target.PollEvent(out var evt))
                 {
-                    Debug.Log("Evt! " + evt.type);
                     switch (evt.type)
                     {
                         case StateEventType.Enter:
