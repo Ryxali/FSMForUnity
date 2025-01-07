@@ -44,6 +44,9 @@ namespace FSMForUnity
             routineStack = new Stack<IEnumerator>(DefaultRoutineStackSize);
         }
 
+
+        public bool HasReachedEnd() => routineStack.Count == 0;
+
         /// <summary>
         /// Constructor that lets you define routine stack capacity. By giving it an exact value
         /// you can minimize memory overhead as well as GC allocations.
@@ -58,7 +61,12 @@ namespace FSMForUnity
         void IFSMState.Enter()
         {
             deltaTime.value = 0f;
-            routineStack.Push(Enter(deltaTime));
+            var enter = Enter(deltaTime);
+            if (enter != null)
+            {
+                routineStack.Push(enter);
+                ((IFSMState)this).Update(0f);
+            }
         }
 
         void IFSMState.Exit()
@@ -160,7 +168,7 @@ namespace FSMForUnity
         /// A special construct for coroutines. The delta time value will be automatically
         /// be updated before each iteration of the coroutine.
         /// </summary>
-        protected sealed class DeltaTime
+        public sealed class DeltaTime
         {
             /// <summary>
             /// The current delta time value, identical to the deltaTime value
