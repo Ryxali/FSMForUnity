@@ -105,6 +105,10 @@ namespace FSMForUnity.Editor
             container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
             container.RegisterCallback<GeometryChangedEvent>(OnContainerDimensionsChange);
             stateData.eventBroadcaster.AddListener(this);
+            if (stateData.currentlyInspecting.TryGetActive(out var active))
+            {
+                OnStateEnter(active);
+            }
         }
 
         public void Exit()
@@ -280,6 +284,7 @@ namespace FSMForUnity.Editor
             public void Start(NodeVisualElement state)
             {
                 current = state;
+                current.AddToClassList("active");
             }
 
             public void Reset()
