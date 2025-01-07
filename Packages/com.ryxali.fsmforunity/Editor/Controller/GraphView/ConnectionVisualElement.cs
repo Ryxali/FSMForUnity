@@ -67,7 +67,6 @@ namespace FSMForUnity.Editor
 
         public void Pulse()
         {
-            Debug.Log("PULSE");
             PulseElement.Run(this, Interp, GetScale);
         }
 
@@ -114,7 +113,6 @@ namespace FSMForUnity.Editor
 
         public void OnGeometryUpdated(GeometryChangedEvent evt)
         {
-            Debug.Log("ConnGEOUpdate");
             // text
             var point = Bezier(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f);
             var dir = BezierTan(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f).normalized;

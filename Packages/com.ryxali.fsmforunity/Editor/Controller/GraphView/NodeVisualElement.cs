@@ -41,14 +41,12 @@ namespace FSMForUnity.Editor
             boxContainer = this.Q(UIMap_GraphView.BoxContainer);
             if (InLightContentTreshold(evt.newRect.size))
             {
-                Debug.Log($"LIGHT '{evt.newRect.size}");
                 //lightContent.RemoveFromHierarchy();
                 fullContent.RemoveFromHierarchy();
                 boxContainer.Add(lightContent);
             }
             else
             {
-                Debug.Log($"FULL '{evt.newRect.size}");
                 lightContent.RemoveFromHierarchy();
                 //fullContent.RemoveFromHierarchy();
                 boxContainer.Add(fullContent);
