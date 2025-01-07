@@ -40,7 +40,7 @@ namespace FSMForUnity.Editor
 
             var defaultState = machine.DefaultState;
             var nodes = new SimGraphNode[states.Length];
-            var transitionCount = states.Sum(s => machine.TryGetTransitionsFrom(s, out var t) ? t.Length : 0) + (machine.TryGetAnyTransitions(out var t) ? t.Length : 0);//machine.stateTransitions.Sum(kv => kv.Value.Count()) + machine.anyTransitions.Length * (machine.states.Length-1);
+            var transitionCount = states.Sum(s => machine.TryGetTransitionsFrom(s, out var t) ? t.Length : 0) + (machine.TryGetAnyTransitions(out var t) ? t.Length : 0) * machine.States.Length;//machine.stateTransitions.Sum(kv => kv.Value.Count()) + machine.anyTransitions.Length * (machine.states.Length-1);
             var transitions = new SimGraphConnection[transitionCount];
 
             nodes[0] = new SimGraphNode
