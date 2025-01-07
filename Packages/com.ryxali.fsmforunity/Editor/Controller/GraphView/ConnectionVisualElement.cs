@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -65,6 +65,20 @@ namespace FSMForUnity.Editor
             MarkDirtyRepaint();
         }
 
+        public void Pulse()
+        {
+            Debug.Log("PULSE");
+            PulseElement.Run(this, Interp, GetScale);
+        }
+
+        private Vector2 Interp(float delta)
+        {
+            return Bezier(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, delta);
+        }
+
+        private float GetScale() => Scale;
+
+
         public void Connect(string label, VisualElement from, ConnectionEdge fromEdge, float fromDelta, VisualElement to, ConnectionEdge toEdge, float toDelta)
         {
             this.fromEdge = fromEdge;
@@ -100,6 +114,7 @@ namespace FSMForUnity.Editor
 
         public void OnGeometryUpdated(GeometryChangedEvent evt)
         {
+            Debug.Log("ConnGEOUpdate");
             // text
             var point = Bezier(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f);
             var dir = BezierTan(fromPoint + fromDir * arrowHeadLength * Scale, control0, control1, toPoint + toDir * arrowHeadLength * Scale, 0.5f).normalized;
@@ -119,6 +134,10 @@ namespace FSMForUnity.Editor
                 angle += 180f;
             label.style.rotate = new StyleRotate(new Rotate(new Angle(angle, AngleUnit.Degree)));
             label.MarkDirtyRepaint();
+            foreach (var pulseElem in this.Query().Children<PulseElement>().Build())
+            {
+                pulseElem.ForceUpdate();
+            }
         }
 
         public void Reset()

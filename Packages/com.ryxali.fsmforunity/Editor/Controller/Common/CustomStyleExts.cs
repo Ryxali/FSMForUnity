@@ -14,5 +14,10 @@ namespace FSMForUnity.Editor
         {
             return style.TryGetValue(styleWithDefault.property, out var f) ? f : styleWithDefault.defaultValue;
         }
+
+        public static int ValueOrDefault(this ICustomStyle style, StyleWithDefault<int> styleWithDefault)
+        {
+            return style.TryGetValue(styleWithDefault.property, out var f) ? f : styleWithDefault.defaultValue;
+        }
     }
 }

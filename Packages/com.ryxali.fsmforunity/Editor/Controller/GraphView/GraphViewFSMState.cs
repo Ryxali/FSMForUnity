@@ -29,6 +29,7 @@ namespace FSMForUnity.Editor
         private readonly List<ConnectionVisualElement> graphConnections = new List<ConnectionVisualElement>();
 
         private readonly Dictionary<IFSMState, NodeVisualElement> stateToElement = new Dictionary<IFSMState, NodeVisualElement>(EqualityComparer_IFSMState.constant);
+        private readonly Dictionary<FromToTransition, ConnectionVisualElement> transitionToElement = new Dictionary<FromToTransition, ConnectionVisualElement>(EqualityComparer_FromToTransition.constant);
         private StateQueue stateQueue;
 
         private readonly VisualElement legendElement;
@@ -88,6 +89,8 @@ namespace FSMForUnity.Editor
                 var fromI = i * 2;
                 var toI = fromI + 1;
                 elem.Connect(stateData.currentlyInspecting.GetTransitionName(conn.transition, conn.origin.state, conn.destination.state), graphNodes[conn.originIndex], edges[fromI], connectionCounts[fromI].index / (float)connectionCounts[fromI].count, graphNodes[conn.destinationIndex], edges[toI], connectionCounts[toI].index / (float)connectionCounts[toI].count);
+                transitionToElement.Add(new FromToTransition { from = conn.origin.state, to = conn.destination.state, transition = conn.transition }, elem);
+                transitionToElement.Add(new FromToTransition { from = null, to = conn.destination.state, transition = conn.transition }, elem);
                 elem.Scale = graphCanvas.zoom;
                 i++;
             }
@@ -128,6 +131,7 @@ namespace FSMForUnity.Editor
             container.Remove(legendElement);
             container.Remove(graphCanvas);
             stateToElement.Clear();
+            transitionToElement.Clear();
         }
 
         public void Update(float delta)
@@ -245,10 +249,16 @@ namespace FSMForUnity.Editor
 
         public void OnStateEnter(IFSMState state, IFSMTransition through)
         {
+            if (transitionToElement.TryGetValue(new FromToTransition { from = null, to = state, transition = through }, out var connElem))
+            {
+                connElem.Pulse();
+            }
+
             if (stateToElement.TryGetValue(state, out var elem))
             {
                 stateQueue.MoveNext(elem);
             }
+            
         }
 
         public void OnStateExit(IFSMState state)

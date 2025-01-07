@@ -34,6 +34,14 @@ Label {
     text-overflow: clip;
     overflow: hidden;
 }
+.fsmforunity-arrow-pulse {
+    translate: -50% -50%;
+    background-color: rgb(188, 188, 188);
+    width: 5px;
+    height: 5px;
+    border-radius: 5px;
+    --fsmforunity-arrow-pulse-duration: 300;
+}
 
 .fsmforunity-node-title-light {
     -unity-text-align: upper-center;
