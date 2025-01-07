@@ -106,8 +106,10 @@ namespace FSMForUnity
         {
             if (!IsEnabled || treatRedundantEnableAsReset)
             {
+#if DEBUG
                 machineMarker.Begin();
                 enableMarker.Begin();
+#endif
                 if (IsEnabled)
                 {
 #if DEBUG
@@ -123,7 +125,9 @@ namespace FSMForUnity
                 {
                     current = defaultState;
                     currentTransitions = stateTransitions.TryGetValue(current, out var t) ? t : null;
+#if DEBUG
                     currentStateMarker = stateMarkers[current];
+#endif
                 }
 
 #if DEBUG
@@ -133,8 +137,10 @@ namespace FSMForUnity
                 current.Enter();
 #endif
                 EvaluateTransitions();
+#if DEBUG
                 enableMarker.End();
                 machineMarker.End();
+#endif
             }
         }
 
@@ -145,8 +151,10 @@ namespace FSMForUnity
         {
             if (IsEnabled)
             {
+#if DEBUG
                 machineMarker.Begin();
                 disableMarker.Begin();
+#endif
                 IsEnabled = false;
 #if DEBUG
                 eventTransmitter.SendStateEvent(StateEventType.Exit, current);
@@ -155,8 +163,10 @@ namespace FSMForUnity
                 current.Exit();
 #endif
                 current = null;
+#if DEBUG
                 disableMarker.End();
                 machineMarker.End();
+#endif
             }
         }
 
@@ -171,8 +181,10 @@ namespace FSMForUnity
         {
             if (IsEnabled)
             {
+#if DEBUG
                 machineMarker.Begin();
                 updateMarker.Begin();
+#endif
 
                 EvaluateTransitions();
 #if DEBUG
@@ -183,19 +195,25 @@ namespace FSMForUnity
 #endif
                 EvaluateTransitions();
 
+#if DEBUG
                 updateMarker.End();
                 machineMarker.End();
+#endif
             }
         }
 
         private void EvaluateTransitions()
         {
+#if DEBUG
             fsmEvaluateTransitions.Begin();
+#endif
             int c = 0;
             var movedNext = false;
             do
             {
+#if DEBUG
                 fsmEvaluateTransitionPass.Begin();
+#endif
                 c++;
                 if (currentTransitions != null)
                 {
@@ -203,50 +221,57 @@ namespace FSMForUnity
                 }
                 if (!movedNext && anyTransitions != null)
                 {
-                    movedNext = TransitionsMoveNext(anyTransitions);
+                    movedNext = TransitionsMoveNext(anyTransitions, false);
                 }
+#if DEBUG
                 fsmEvaluateTransitionPass.End();
+#endif
             } while (movedNext && c <= FSMConfig.MaxTransitionIterations);
+#if DEBUG
             fsmEvaluateTransitions.End();
+#endif
         }
 
-        private bool TransitionsMoveNext(TransitionMapping[] transitions)
+        private bool TransitionsMoveNext(TransitionMapping[] transitions, bool allowTransitionToSelf = true)
         {
             for (int i = 0; i < transitions.Length; i++)
             {
                 var mapping = transitions[i];
-#if DEBUG
-                var shouldTransition = mapping.transition.ShouldTransitionProfiled(transitionMarkers[mapping.transition]);
-#else
-                var shouldTransition = mapping.transition.ShouldTransition();
-#endif
-                if (shouldTransition)
+                if (allowTransitionToSelf || !EqualityComparer_IFSMState.constant.Equals(mapping.to, current))
                 {
 #if DEBUG
-                    eventTransmitter.SendTransitionEvent(StateEventType.Exit, current, mapping.transition);
-                    current.ExitProfiled(currentStateMarker);
+                    var shouldTransition = mapping.transition.ShouldTransitionProfiled(transitionMarkers[mapping.transition]);
 #else
-                    current.Exit();
+                    var shouldTransition = mapping.transition.ShouldTransition();
 #endif
-                    current = mapping.to;
-                    currentTransitions = stateTransitions.TryGetValue(current, out var t) ? t : null;
+                    if (shouldTransition)
+                    {
 #if DEBUG
-                    currentStateMarker = stateMarkers[current];
+                        eventTransmitter.SendTransitionEvent(StateEventType.Exit, current, mapping.transition);
+                        current.ExitProfiled(currentStateMarker);
+#else
+                        current.Exit();
+#endif
+                        current = mapping.to;
+                        currentTransitions = stateTransitions.TryGetValue(current, out var t) ? t : null;
+#if DEBUG
+                        currentStateMarker = stateMarkers[current];
 #endif
 
 #if DEBUG
-                    mapping.transition.PassThroughProfiled(transitionMarkers[mapping.transition]);
+                        mapping.transition.PassThroughProfiled(transitionMarkers[mapping.transition]);
 #else
-                    mapping.transition.PassThrough();
+                        mapping.transition.PassThrough();
 #endif
 
 #if DEBUG
-                    eventTransmitter.SendTransitionEvent(StateEventType.Enter, current, mapping.transition);
-                    mapping.to.EnterProfiled(currentStateMarker);
+                        eventTransmitter.SendTransitionEvent(StateEventType.Enter, current, mapping.transition);
+                        mapping.to.EnterProfiled(currentStateMarker);
 #else
-                    mapping.to.Enter();
+                        mapping.to.Enter();
 #endif
-                    return true;
+                        return true;
+                    }
                 }
             }
             return false;
