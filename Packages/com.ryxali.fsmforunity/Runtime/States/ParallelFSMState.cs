@@ -69,7 +69,7 @@ namespace FSMForUnity
         public void Exit()
         {
             var len = states.Length;
-            for (int i = 0; i < len; i++)
+            for (int i = len-1; i >= 0; i--)
             {
 #if DEBUG
                 var m = markers[i];
