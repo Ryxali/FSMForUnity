@@ -29,6 +29,7 @@ namespace FSMForUnity.Editor
         private Vector2 fromPoint, toPoint, control0, control1, fromDir, toDir;
         private ConnectionEdge fromEdge, toEdge;
         private float fromDelta, toDelta;
+        private int pulseDuration = PulseElement.pulseDuration.defaultValue;
 
         private Color fgColor = fgColorProp.defaultValue;
         private Color bgColor = bgColorProp.defaultValue;
@@ -36,6 +37,8 @@ namespace FSMForUnity.Editor
         private float arrowOutlineThickness = 1f - outlineThicknessProp.defaultValue;
         private float arrowHeadLength = headLengthProp.defaultValue;
         private float arrowHeadWidth = headWidthProp.defaultValue;
+
+        private readonly IVisualElementScheduledItem pulse;
 
         public ConnectionVisualElement()
         {
@@ -50,6 +53,8 @@ namespace FSMForUnity.Editor
             label.style.unityTextAlign = TextAnchor.LowerCenter;
             AddToClassList(ArrowClass);
             label.AddToClassList(ArrowLabelClass);
+            pulse = schedule.Execute(() => EnableInClassList("fsmforunity-arrow--signal", false));
+            pulse.Pause();
             RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
             RegisterCallback<GeometryChangedEvent>(OnGeometryUpdated);
         }
@@ -62,12 +67,16 @@ namespace FSMForUnity.Editor
             arrowOutlineThickness = 1f - evt.customStyle.ValueOrDefault(outlineThicknessProp);
             arrowHeadLength = evt.customStyle.ValueOrDefault(headLengthProp);
             arrowHeadWidth = evt.customStyle.ValueOrDefault(headWidthProp);
+            pulseDuration = evt.customStyle.ValueOrDefault(PulseElement.pulseDuration);
             MarkDirtyRepaint();
         }
 
         public void Pulse()
         {
             PulseElement.Run(this, Interp, GetScale);
+            EnableInClassList("fsmforunity-arrow--signal", true);
+            pulse.ExecuteLater(pulseDuration);
+
         }
 
         private Vector2 Interp(float delta)

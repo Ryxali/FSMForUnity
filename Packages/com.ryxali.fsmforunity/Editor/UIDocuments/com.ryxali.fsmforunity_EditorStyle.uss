@@ -25,6 +25,7 @@ Label {
     --fsmforunity-arrow-outlinethickness: 0.3;
     --fsmforunity-arrow-headlength: 4;
     --fsmforunity-arrow-headwidth: 1;
+    --fsmforunity-arrow-pulse-duration: 300;
 }
 
 .fsmforunity-arrow-label {
@@ -36,11 +37,17 @@ Label {
 }
 .fsmforunity-arrow-pulse {
     translate: -50% -50%;
-    background-color: rgb(188, 188, 188);
-    width: 5px;
-    height: 5px;
-    border-radius: 5px;
+    background-color: rgb(49, 211, 214);
+    border-color: rgb(49, 211, 214);
+
+    width: 8px;
+    height: 8px;
+    border-radius: 8px;
     --fsmforunity-arrow-pulse-duration: 300;
+}
+.fsmforunity-arrow.fsmforunity-arrow--signal
+{
+    --fsmforunity-arrow-arrowcolor: rgb(49, 211, 214);
 }
 
 .fsmforunity-node-title-light {

@@ -6,7 +6,7 @@ namespace FSMForUnity.Editor
 {
     internal sealed class PulseElement : VisualElement
     {
-        private static readonly StyleWithDefault<int> pulseDuration = new StyleWithDefault<int>("--fsmforunity-arrow-pulse-duration", 500);
+        public static readonly StyleWithDefault<int> pulseDuration = new StyleWithDefault<int>("--fsmforunity-arrow-pulse-duration", 500);
 
         private static readonly ObjectPool<PulseElement> pulseElements = new ObjectPool<PulseElement>(() => new PulseElement(), e => e.Reset());
 
@@ -28,7 +28,6 @@ namespace FSMForUnity.Editor
         private PulseElement()
         {
             style.position = Position.Absolute;
-            style.backgroundColor = Color.white;
             AddToClassList("fsmforunity-arrow-pulse");
             pulse = schedule.Execute(Update).Every(16).Until(IsDone);
             pulse.Pause();
