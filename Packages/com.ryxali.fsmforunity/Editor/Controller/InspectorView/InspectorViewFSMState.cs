@@ -73,9 +73,14 @@ namespace FSMForUnity.Editor
 
         public void Update(float delta)
         {
-            if (stateData.currentlyInspecting.TryGetActive(out var activeState))
+            var observedState = stateData.selectedState;
+            if (observedState == null && stateData.currentlyInspecting.TryGetActive(out var activeState))
             {
-                stateHierarchy.Refresh(activeState);
+                observedState = activeState;
+            }
+            if (observedState != null)
+            {
+                stateHierarchy.Refresh(observedState);
                 stateHierarchy.Bind(treeView);
                 refreshItemsMarker.Begin();
                 treeView.RefreshItems();

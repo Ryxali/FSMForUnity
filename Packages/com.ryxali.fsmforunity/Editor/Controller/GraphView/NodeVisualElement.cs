@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -6,6 +7,7 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
 {
+
     internal class NodeVisualElement : VisualElement
     {
         public new class UxmlFactory : UxmlFactory<NodeVisualElement, UxmlTraits> { }
@@ -33,8 +35,29 @@ namespace FSMForUnity.Editor
             fullContent = fullContentAsset.Instantiate().Children().First();
             RegisterCallback<CustomStyleResolvedEvent>(OnStylesResolved);
             RegisterCallback<GeometryChangedEvent>(OnGeometryUpdated);
+            RegisterCallback<FocusInEvent>(OnFocus);
+            RegisterCallback<FocusOutEvent>(OnLostFocus);
         }
 
+        private void OnLostFocus(FocusOutEvent evt)
+        {
+            using (var e = NodeDeselectedEvent.GetPooled())
+            {
+                e.target = this;
+                e.element = this;
+                SendEvent(e);
+            }
+        }
+
+        private void OnFocus(FocusInEvent evt)
+        {
+            using (var e = NodeSelectedEvent.GetPooled())
+            {
+                e.target = this;
+                e.element = this;
+                SendEvent(e);
+            }
+        }
 
         private void OnGeometryUpdated(GeometryChangedEvent evt)
         {

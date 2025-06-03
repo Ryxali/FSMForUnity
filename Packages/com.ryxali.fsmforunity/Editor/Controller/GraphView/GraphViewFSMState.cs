@@ -104,11 +104,36 @@ namespace FSMForUnity.Editor
             container.RegisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.RegisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
             container.RegisterCallback<GeometryChangedEvent>(OnContainerDimensionsChange);
+            container.RegisterCallback<NodeSelectedEvent>(OnNodeSelected);
+            container.RegisterCallback<NodeDeselectedEvent>(OnNodeDeselected);
             stateData.eventBroadcaster.AddListener(this);
             if (stateData.currentlyInspecting.TryGetActive(out var active))
             {
                 OnStateEnter(active);
+                stateData.selectedState = active;
             }
+            else
+            {
+                stateData.selectedState = null;
+            }
+        }
+
+        private void OnNodeDeselected(NodeDeselectedEvent evt)
+        {
+            if (stateData.currentlyInspecting.TryGetActive(out var active))
+            {
+                stateData.selectedState = active;
+            }
+            else
+            {
+                stateData.selectedState = null;
+            }
+        }
+
+        private void OnNodeSelected(NodeSelectedEvent evt)
+        {
+            var elem = evt.element;
+            stateData.selectedState = stateToElement.First(k => k.Value == elem).Key;
         }
 
         public void Exit()
