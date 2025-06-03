@@ -183,7 +183,6 @@ namespace FSMForUnity.Editor
                             to = machine.GetStateName(evt.state),
                             type = evt.type
                         });
-                        updateSourceTick = evt.tick;
                     }
                     else
                     {
@@ -198,7 +197,6 @@ namespace FSMForUnity.Editor
                         });
                     }
                     previousState = evt.state;
-                    updateSourceTick = evt.tick;
                     break;
                 case StateEventType.Update:
                     items.Add(new Event
