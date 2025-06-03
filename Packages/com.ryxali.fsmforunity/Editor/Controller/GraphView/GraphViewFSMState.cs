@@ -110,7 +110,7 @@ namespace FSMForUnity.Editor
             stateData.eventBroadcaster.AddListener(this);
             if (stateData.currentlyInspecting.TryGetActive(out var active))
             {
-                OnStateEnter(active);
+                OnStateEnter(active, -1);
                 stateData.selectedState = active;
             }
             else
@@ -281,7 +281,7 @@ namespace FSMForUnity.Editor
             }
         }
 
-        public void OnStateEnter(IFSMState state)
+        public void OnStateEnter(IFSMState state, int tick)
         {
             if (stateToElement.TryGetValue(state, out var elem))
             {
@@ -289,7 +289,7 @@ namespace FSMForUnity.Editor
             }
         }
 
-        public void OnStateEnter(IFSMState state, IFSMTransition through)
+        public void OnStateEnter(IFSMState state, IFSMTransition through, int tick)
         {
             if (transitionToElement.TryGetValue(new FromToTransition { from = null, to = state, transition = through }, out var connElem))
             {
@@ -303,15 +303,15 @@ namespace FSMForUnity.Editor
             
         }
 
-        public void OnStateExit(IFSMState state)
+        public void OnStateExit(IFSMState state, int tick)
         {
         }
 
-        public void OnStateExit(IFSMState state, IFSMTransition from)
+        public void OnStateExit(IFSMState state, IFSMTransition from, int tick)
         {
         }
 
-        public void OnStateUpdate(IFSMState state)
+        public void OnStateUpdate(IFSMState state, int tick)
         {
         }
 

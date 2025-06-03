@@ -11,6 +11,8 @@ namespace FSMForUnity
         private int cyclicalCount;
         private MachineEvent current;
 
+        private int tick;
+
         public EventTrail(int capacity)
         {
             cyclicalArray = new MachineEvent[capacity];
@@ -19,6 +21,9 @@ namespace FSMForUnity
 
         public void Enqueue(MachineEvent evt)
         {
+            evt.tick = tick;
+            if(evt.type == StateEventType.Update)
+                tick++;
             if (evt.type == current.type)
             {
                 current.count++;

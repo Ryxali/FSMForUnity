@@ -8,5 +8,6 @@ namespace FSMForUnity
         public IFSMState state;
         public IFSMTransition transition;
         public int count;
+        public int tick;
     }
 }

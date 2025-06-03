@@ -163,31 +163,31 @@ namespace FSMForUnity.Editor.IMGUI
         {
             // Debug.Log("Target Changed");
         }
-        void IMachineEventListener.OnStateEnter(IFSMState state)
+        void IMachineEventListener.OnStateEnter(IFSMState state, int tick)
         {
             var node = animatedNodes[nodeToIndex[state]];
             node.enterPulse = 1f;
             animatedNodes[nodeToIndex[state]] = node;
         }
-        void IMachineEventListener.OnStateEnter(IFSMState state, IFSMTransition through)
+        void IMachineEventListener.OnStateEnter(IFSMState state, IFSMTransition through, int tick)
         {
             var node = animatedNodes[nodeToIndex[state]];
             node.enterPulse = 1f;
             animatedNodes[nodeToIndex[state]] = node;
         }
-        void IMachineEventListener.OnStateExit(IFSMState state)
+        void IMachineEventListener.OnStateExit(IFSMState state, int tick)
         {
             var node = animatedNodes[nodeToIndex[state]];
             node.exitPulse = 1f;
             animatedNodes[nodeToIndex[state]] = node;
         }
-        void IMachineEventListener.OnStateExit(IFSMState state, IFSMTransition from)
+        void IMachineEventListener.OnStateExit(IFSMState state, IFSMTransition from, int tick)
         {
             var node = animatedNodes[nodeToIndex[state]];
             node.exitPulse = 1f;
             animatedNodes[nodeToIndex[state]] = node;
         }
-        void IMachineEventListener.OnStateUpdate(IFSMState state)
+        void IMachineEventListener.OnStateUpdate(IFSMState state, int tick)
         {
             var node = animatedNodes[nodeToIndex[state]];
             node.updatePulse = 1f;

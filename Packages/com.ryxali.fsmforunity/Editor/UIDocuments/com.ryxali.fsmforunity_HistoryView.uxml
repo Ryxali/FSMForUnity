@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:MultiColumnListView allow-add="false" allow-remove="false" show-alternating-row-backgrounds="ContentOnly">
+        <ui:Columns reorderable="false">
+            <ui:Column name="event" title="Event" stretchable="true" binding-path="eventName" sortable="false" />
+            <ui:Column title="Tick" name="tick" stretchable="true" binding-path="tick" sortable="false" />
+            <ui:Column title="Signal" name="signal" stretchable="true" binding-path="signal" sortable="false" />
+            <ui:Column name="from" title="From" stretchable="true" binding-path="from" sortable="false" />
+            <ui:Column name="to" title="To" stretchable="true" binding-path="to" sortable="false" />
+        </ui:Columns>
+        <ui:SortColumnDescriptions />
+    </ui:MultiColumnListView>
+</ui:UXML>

@@ -4,7 +4,7 @@ using Unity.Profiling;
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace FSMForUnity.Editor    
+namespace FSMForUnity.Editor
 {
 
     internal class InspectorViewFSMState : IFSMState

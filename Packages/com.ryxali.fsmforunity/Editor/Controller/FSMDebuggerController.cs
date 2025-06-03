@@ -37,6 +37,10 @@ namespace FSMForUnity.Editor
             inspectorBuilder.AddBidirectionalTransition("Graph selected", () => stateData.currentlyInspecting.IsValid, inspectorNoSelected, inspectorSelected);
             inspectorBuilder.SetDebuggingInfo("FSM Debugger Inspector", null);
 
+            var historyBuilder = FSMMachine.Build();
+            historyBuilder.AddState(new HistoryViewFSMState(stateData, root.Q(UIMap_HistoryView.HistoryView)));
+            historyBuilder.SetDebuggingInfo("FSM Debugger History", null);
+
             var selectionBuilder = FSMMachine.Build();
             var noSelection = selectionBuilder.AddState("No Selection", new EmptyFSMState());
             var newSelection = selectionBuilder.AddLambdaState("New Selection", enter: () => stateData.currentlyInspecting = stateData.wantToInspectNext);
@@ -46,7 +50,8 @@ namespace FSMForUnity.Editor
                 new LambdaFSMState(enter: () => stateData.selectedState = null),
                 new LambdaFSMState(enter: () => stateData.eventBroadcaster.SetTarget(stateData.currentlyInspecting), update: (dt) => stateData.eventBroadcaster.Poll()),
                 new SubstateFSMState(graphBuilder.Complete()),
-                new SubstateFSMState(inspectorBuilder.Complete())
+                new SubstateFSMState(inspectorBuilder.Complete()),
+                new SubstateFSMState(historyBuilder.Complete())
             );
             selectionBuilder.AddLambdaTransition("Lost selection", () => !stateData.currentlyInspecting.IsValid, haveSelection, noSelection);
             selectionBuilder.AddLambdaTransition("New selection", () => stateData.wantToInspectNext.IsValid, noSelection, newSelection);
