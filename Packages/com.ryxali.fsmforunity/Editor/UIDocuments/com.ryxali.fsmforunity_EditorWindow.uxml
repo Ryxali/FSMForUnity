@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <ui:VisualElement tooltip="Root for alignment" style="flex-direction: row; width: 100%; height: 100%; justify-content: space-between; flex-grow: 1; align-items: stretch;">
+    <ui:VisualElement style="flex-direction: row; width: 100%; height: 100%; justify-content: space-between; flex-grow: 1; align-items: stretch;">
         <ui:TwoPaneSplitView fixed-pane-initial-dimension="350" orientation="Vertical">
             <ui:TwoPaneSplitView fixed-pane-initial-dimension="900">
                 <ui:TwoPaneSplitView fixed-pane-initial-dimension="250">
