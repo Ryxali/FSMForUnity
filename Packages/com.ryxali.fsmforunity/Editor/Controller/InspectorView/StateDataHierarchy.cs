@@ -97,6 +97,30 @@ namespace FSMForUnity.Editor
                             }, arrayFields));
                             addElementMarker.End();
                         }
+                        else if (value is System.Delegate && value != null)
+                        {
+
+                            var childFields = listPool.Take();
+
+                            var childValue = typeof(System.Delegate).GetField("m_target", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(value);
+                            if (childValue != null)
+                            {
+                                refreshStack.Push(new StackData
+                                {
+                                    element = childValue,
+                                    depth = elem.depth + 1,
+                                    fields = childFields
+                                });
+                            }
+                            addElementMarker.Begin();
+                            elem.fields.Add(new TreeViewItemData<InspectorEntry>(idCounter++, new InspectorEntry
+                            {
+                                name = field.Name,
+                                type = reflectionCache.GetTypeName(field.FieldType),
+                                value = value
+                            }, childFields));
+                            addElementMarker.End();
+                        }
                         else
                         {
                             var childFields = listPool.Take();
