@@ -18,6 +18,8 @@ namespace FSMForUnity.Editor
         private readonly StateDataHierarchy stateHierarchy = new StateDataHierarchy();
         private readonly ObjectPool<Label> labelPool = new ObjectPool<Label>(() => new Label(), l => l.text = string.Empty);
 
+        private IFSMState currentlyInspecting;
+
         public InspectorViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
             this.stateData = stateData;
@@ -81,11 +83,15 @@ namespace FSMForUnity.Editor
             if (observedState != null)
             {
                 stateHierarchy.Refresh(observedState);
-                stateHierarchy.Bind(treeView);
+                if (currentlyInspecting != observedState)
+                {
+                    stateHierarchy.Bind(treeView);
+                }
                 refreshItemsMarker.Begin();
                 treeView.RefreshItems();
                 refreshItemsMarker.End();
             }
+            currentlyInspecting = observedState;
         }
 
         public void Destroy()

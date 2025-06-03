@@ -106,6 +106,7 @@ namespace FSMForUnity.Editor
             container.RegisterCallback<GeometryChangedEvent>(OnContainerDimensionsChange);
             container.RegisterCallback<NodeSelectedEvent>(OnNodeSelected);
             container.RegisterCallback<NodeDeselectedEvent>(OnNodeDeselected);
+            container.RegisterCallback<ClickEvent>(OnClickBackground);
             stateData.eventBroadcaster.AddListener(this);
             if (stateData.currentlyInspecting.TryGetActive(out var active))
             {
@@ -120,20 +121,29 @@ namespace FSMForUnity.Editor
 
         private void OnNodeDeselected(NodeDeselectedEvent evt)
         {
-            if (stateData.currentlyInspecting.TryGetActive(out var active))
-            {
-                stateData.selectedState = active;
-            }
-            else
-            {
-                stateData.selectedState = null;
-            }
+            //if (stateData.currentlyInspecting.TryGetActive(out var active))
+            //{
+            //    stateData.selectedState = active;
+            //}
+            //else
+            //{
+            //    stateData.selectedState = null;
+            //}
         }
 
         private void OnNodeSelected(NodeSelectedEvent evt)
         {
             var elem = evt.element;
             stateData.selectedState = stateToElement.First(k => k.Value == elem).Key;
+        }
+
+        private void OnClickBackground(ClickEvent evt)
+        {
+            if (evt.target == container || evt.target == graphCanvas)
+            {
+                stateData.selectedState = null;
+
+            }
         }
 
         public void Exit()
@@ -145,6 +155,9 @@ namespace FSMForUnity.Editor
             container.UnregisterCallback<MouseUpEvent>(OnPanUp, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<MouseMoveEvent>(OnPanDrag, TrickleDown.NoTrickleDown);
             container.UnregisterCallback<WheelEvent>(OnZoom, TrickleDown.NoTrickleDown);
+            container.UnregisterCallback<NodeSelectedEvent>(OnNodeSelected);
+            container.UnregisterCallback<NodeDeselectedEvent>(OnNodeDeselected);
+            container.UnregisterCallback<ClickEvent>(OnClickBackground);
             foreach (var elem in graphNodes)
             {
                 elem.RemoveFromHierarchy();

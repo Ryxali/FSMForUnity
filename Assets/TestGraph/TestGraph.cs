@@ -10,7 +10,7 @@ public class TestGraph
     {
         var builder = FSMMachine.Build();
         var a = builder.AddLambdaState("A");
-        var b = builder.AddLambdaState("B");
+        var b = builder.AddState("B", new TestState());
         var c = builder.AddLambdaState("C");
         var d = builder.AddLambdaState("D");
         builder.AddLambdaTransition(() => true, a, b);
@@ -23,4 +23,33 @@ public class TestGraph
         fsm.Update(0f);
     }
 #endif
+
+
+    private class TestState : IFSMState
+    {
+        public int counter = 5;
+        public string text = "Hello World";
+        public bool toggle = true;
+
+        private Complex complex = new Complex { a = 1, b = false };
+
+
+        private struct Complex
+        {
+            public int a;
+            public bool b;
+        }
+
+        public void Enter()
+        {
+        }
+
+        public void Exit()
+        {
+        }
+
+        public void Update(float delta)
+        {
+        }
+    }
 }
