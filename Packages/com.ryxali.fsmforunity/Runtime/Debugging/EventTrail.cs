@@ -1,8 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 
 namespace FSMForUnity
 {
-    internal class EventTrail
+    internal class EventTrail //: IEnumerable<MachineEvent>
     {
         private readonly MachineEvent[] cyclicalArray;
         private readonly List<MachineEvent> trail;
@@ -10,6 +11,7 @@ namespace FSMForUnity
         private int cyclicalIndexStart;
         private int cyclicalCount;
         private MachineEvent current;
+        private IFSMState tail;
 
         private int tick;
 
@@ -19,10 +21,13 @@ namespace FSMForUnity
             trail = new List<MachineEvent>();
         }
 
+        public IFSMState GetTail() => tail;
+
         public void Enqueue(MachineEvent evt)
         {
             evt.tick = tick;
-            if(evt.type == StateEventType.Update)
+            
+            if (evt.type == StateEventType.Update)
                 tick++;
             if (evt.type == current.type)
             {
@@ -40,6 +45,7 @@ namespace FSMForUnity
             if (cyclicalCount >= cyclicalArray.Length)
             {
                 cyclicalCount--;
+                tail = cyclicalArray[cyclicalIndexStart].state;
                 cyclicalIndexStart = (cyclicalIndexStart + 1) % cyclicalArray.Length;
             }
             cyclicalArray[index] = evt;
@@ -61,6 +67,7 @@ namespace FSMForUnity
             }
         }
 
-        public IEnumerable<MachineEvent> GetHistory() => trail;
+        public IReadOnlyList<MachineEvent> GetHistory() => trail;
+
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
 {
-    internal class HistoryViewFSMState : IFSMState, IMachineEventListener
+    internal class HistoryViewFSMState : IFSMState
     {
         private readonly DebuggerFSMStateData stateData;
         private readonly VisualElement container;
@@ -123,7 +123,7 @@ namespace FSMForUnity.Editor
         }
 
         private IFSMState previousState;
-        private int updateSourceTick;
+        private int lastSize;
 
         public struct Event
         {
@@ -157,13 +157,65 @@ namespace FSMForUnity.Editor
         public void Enter()
         {
             container.Add(inspectorRoot);
-            OnTargetChanged(in stateData.currentlyInspecting);
-            stateData.eventBroadcaster.AddListener(this, false);
+
+            var machine = stateData.currentlyInspecting;
+            foreach (var evt in machine.GetHistory())
+            {
+                AddEvent(in evt);
+            }
+            lastSize = machine.GetHistory().Count;
+        }
+
+        private void AddEvent(in MachineEvent evt)
+        {
+            var machine = stateData.currentlyInspecting;
+            switch (evt.type)
+            {
+                case StateEventType.Enter:
+                    if (evt.HasTransition && previousState != null)
+                    {
+                        items.Add(new Event
+                        {
+                            eventName = evt.type.ToString(),
+                            tick = evt.tick.ToString(),
+                            signal = machine.GetTransitionName(evt.transition, previousState, evt.state),
+                            from = machine.GetStateName(previousState),
+                            to = machine.GetStateName(evt.state),
+                            type = evt.type
+                        });
+                        updateSourceTick = evt.tick;
+                    }
+                    else
+                    {
+                        items.Add(new Event
+                        {
+                            eventName = evt.type.ToString(),
+                            tick = evt.tick.ToString(),
+                            signal = "FSM Enable",
+                            from = "FSM Root",
+                            to = machine.GetStateName(evt.state),
+                            type = evt.type
+                        });
+                    }
+                    previousState = evt.state;
+                    updateSourceTick = evt.tick;
+                    break;
+                case StateEventType.Update:
+                    items.Add(new Event
+                    {
+                        eventName = evt.type.ToString(),
+                        tick = $"{evt.tick}-{evt.tick + evt.count}",
+                        signal = "FSM.Update",
+                        from = "N/A",
+                        to = machine.GetStateName(evt.state),
+                        type = evt.type
+                    });
+                    break;
+            }
         }
 
         public void Exit()
         {
-            stateData.eventBroadcaster.RemoveListener(this, false);
             items.Clear();
             multiColumnListView.Clear();
             container.Remove(inspectorRoot);
@@ -171,125 +223,31 @@ namespace FSMForUnity.Editor
 
         public void Update(float delta)
         {
-        }
-
-        public void OnTargetChanged(in DebugMachine machine)
-        {
-            items.Clear();
-            previousState = null;
-            updateSourceTick = 0;
-            multiColumnListView.Clear();
-            if (machine.IsValid)
+            var history = stateData.currentlyInspecting.GetHistory();
+            if (items.Count > 0)
             {
-                foreach (var evt in machine.GetHistory())
+                var peek = items[items.Count - 1];
+                if (peek.type == StateEventType.Update)
                 {
-                    switch (evt.type)
-                    {
-                        case StateEventType.Enter:
-                            if (evt.HasTransition && previousState != null)
-                            {
-                                items.Add(new Event
-                                {
-                                    eventName = evt.type.ToString(),
-                                    tick = evt.tick.ToString(),
-                                    signal = machine.GetTransitionName(evt.transition, previousState, evt.state),
-                                    from = machine.GetStateName(previousState),
-                                    to = machine.GetStateName(evt.state),
-                                    type = evt.type
-                                });
-                                updateSourceTick = evt.tick;
-                            }
-                            else
-                            {
-                                items.Add(new Event
-                                {
-                                    eventName = evt.type.ToString(),
-                                    tick = evt.count.ToString(),
-                                    signal = "FSM Enable",
-                                    from = "FSM Root",
-                                    to = machine.GetStateName(evt.state),
-                                    type = evt.type
-                                });
-                            }
-                            previousState = evt.state;
-                            updateSourceTick = evt.tick;
-                            break;
-                        case StateEventType.Update:
-                            items.Add(new Event
-                            {
-                                eventName = evt.type.ToString(),
-                                tick = $"{updateSourceTick}-{updateSourceTick+evt.count}",
-                                signal = "FSM.Update",
-                                from = "N/A",
-                                to = machine.GetStateName(evt.state),
-                                type = evt.type
-                            });
-                            break;
-                    }
+                    var evt = history[lastSize-1];
+                    peek.tick = $"{evt.tick}-{evt.tick+evt.count}";
+                    items[items.Count - 1] = peek;
+                    multiColumnListView.RefreshItem(0);
                 }
             }
-            multiColumnListView.Rebuild();
-        }
-
-        public void OnStateEnter(IFSMState state, int tick)
-        {
-            items.Add(new Event
+            if (lastSize != history.Count)
             {
-                eventName = StateEventType.Enter.ToString(),
-                tick = tick.ToString(),
-                signal = "FSM Enable",
-                from = "FSM Root",
-                to = stateData.currentlyInspecting.GetStateName(state),
-                type = StateEventType.Enter
-            }); ;
-            previousState = state;
-        }
-
-        public void OnStateEnter(IFSMState state, IFSMTransition through, int tick)
-        {
-            items.Add(new Event
-            {
-                eventName = StateEventType.Enter.ToString(),
-                tick = tick.ToString(),
-                signal = stateData.currentlyInspecting.GetTransitionName(through, previousState, state),
-                from = stateData.currentlyInspecting.GetStateName(previousState),
-                to = stateData.currentlyInspecting.GetStateName(state),
-                type = StateEventType.Enter
-            });
-            previousState = state;
-        }
-
-        public void OnStateExit(IFSMState state, int tick)
-        {
-        }
-
-        public void OnStateExit(IFSMState state, IFSMTransition from, int tick)
-        {
-        }
-
-        public void OnStateUpdate(IFSMState state, int tick)
-        {
-            var current = items[items.Count - 1];
-            if (current.type == StateEventType.Update)
-            {
-                current.tick = $"{updateSourceTick}-{tick}";
-                items[items.Count - 1] = current;
-                multiColumnListView.RefreshItem(0);
-            }
-            else
-            {
-                updateSourceTick = tick;
-                items.Add(new Event
+                var t = lastSize;
+                for (; lastSize < history.Count; lastSize++)
                 {
-                    eventName = StateEventType.Update.ToString(),
-                    tick = tick.ToString(),
-                    signal = "FSM.Update",
-                    from = "N/A",
-                    to = stateData.currentlyInspecting.GetStateName(state),
-                    type = StateEventType.Update
-                });
+                    var evt = history[lastSize];
+                    AddEvent(in evt);
+                }
                 multiColumnListView.Rebuild();
+                if (multiColumnListView.selectedIndex > 0)
+                    multiColumnListView.selectedIndex += lastSize - t;
             }
         }
+
     }
 }

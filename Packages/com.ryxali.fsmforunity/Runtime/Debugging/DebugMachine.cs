@@ -89,7 +89,9 @@ namespace FSMForUnity
             return eventHistory.Dequeue(out evt);
         }
 
-        public IEnumerable<MachineEvent> GetHistory() => eventHistory.GetHistory();
+        public IFSMState GetTail() => eventHistory.GetTail();
+
+        public IReadOnlyList<MachineEvent> GetHistory() => eventHistory.GetHistory();
 
         public override bool Equals(object obj)
         {
