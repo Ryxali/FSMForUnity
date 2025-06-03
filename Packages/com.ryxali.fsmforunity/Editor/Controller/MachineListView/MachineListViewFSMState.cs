@@ -51,8 +51,56 @@ namespace FSMForUnity.Editor
         private void RefreshMachinesInList(IReadOnlyList<DebugMachine> list)
         {
             listMachines.Clear();
-            listMachines.AddRange(list);
+            // TODO build tree from machines and child machines
+            // start by finding all machines that aren't a child to anyone, then populate a tree
+            var stack = new Stack<MachineNode>();
+            var machineList = new List<MachineNode>();
+            foreach (var machine in list)
+            {
+                bool isChild = false;
+                foreach (var test in list)
+                {
+                    isChild |= machine.IsChildOf(in test);
+                }
+                if (!isChild)
+                {
+                    stack.Push(new MachineNode { machine = machine });
+                    machineList.Add(stack.Peek());
+                }
+            }
+            while (stack.Count > 0)
+            {
+                var node = stack.Pop();
+                foreach (var test in list)
+                {
+                    if (test.IsChildOf(node.machine))
+                    {
+                        var n = new MachineNode { machine = test };
+                        node.children.Add(n);
+                        stack.Push(n);
+                    }
+                }
+            }
+            // TODO switch to tree list
+            foreach (var root in machineList)
+            {
+                stack.Push(root);
+                while (stack.Count > 0)
+                {
+                    var n = stack.Pop();
+                    listMachines.Add(n.machine);
+                    foreach (var m in n.children)
+                        stack.Push(m);
+                }
+            }
+            //listMachines.AddRange(list);
             listView.RefreshItems();
+        }
+
+        private class MachineNode
+        {
+            public DebugMachine machine;
+            public List<MachineNode> children = new List<MachineNode>();
         }
 
         public void Update(float delta)

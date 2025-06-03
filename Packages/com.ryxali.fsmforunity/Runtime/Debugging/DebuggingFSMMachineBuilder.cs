@@ -1,5 +1,7 @@
 ﻿#if DEBUG
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace FSMForUnity
@@ -8,9 +10,15 @@ namespace FSMForUnity
     {
         private readonly FSMMachine.IBuilder builder;
 
+        private const BindingFlags GetFieldsFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
         private Dictionary<IFSMState, string> stateNames = new Dictionary<IFSMState, string>(EqualityComparer_IFSMState.constant);
         private Dictionary<FromToTransition, string> transitionNames = new Dictionary<FromToTransition, string>(EqualityComparer_FromToTransition.constant);
         private Dictionary<AnyTransition, string> anyTransitionNames = new Dictionary<AnyTransition, string>(EqualityComparer_AnyTransition.constant);
+        private List<FSMMachine> substates = new List<FSMMachine>();
+        private readonly Stack<System.Type> typeStack = new Stack<System.Type>(32);
+        private readonly Stack<(object obj, int depth)> valueStack = new Stack<(object, int)>(32);
+        private readonly HashSet<object> toSkip = new HashSet<object>();
 
         private Object debugObject;
 
@@ -24,6 +32,44 @@ namespace FSMForUnity
             if (string.IsNullOrEmpty(name))
                 name = state.GetType().Name;
             stateNames.Add(state, name);
+            valueStack.Push((state, 0));
+            while (valueStack.Count > 0)
+            {
+                var stack = valueStack.Pop();
+                var obj = stack.obj;
+                if (obj is FSMMachine machine)
+                {
+                    substates.Add(machine);
+                }
+                else if (obj is IEnumerable en)
+                {
+                    foreach (var e in en)
+                    {
+                        if (e != null && toSkip.Add(e))
+                            valueStack.Push((e, stack.depth+1));
+                    }
+                }
+                else if(stack.depth < 4)
+                {
+                    typeStack.Push(obj.GetType());
+                    while (typeStack.Count > 0)
+                    {
+                        var type = typeStack.Pop();
+                        foreach (var field in type.GetFields(GetFieldsFlags))
+                        {
+                            if (!typeof(System.Delegate).IsAssignableFrom(field.FieldType) && !field.FieldType.IsPrimitive)
+                            {
+                                var fieldObj = field.GetValue(obj);
+                                if (fieldObj != null && toSkip.Add(fieldObj))
+                                    valueStack.Push((fieldObj, stack.depth+1));
+                            }
+                        }
+                        if (type.BaseType != typeof(object) && type.BaseType != typeof(UnityEngine.Object))
+                            typeStack.Push(type.BaseType);
+                    }
+                }
+            }
+            toSkip.Clear();
             return builder.AddState(name, state);
         }
 
@@ -60,8 +106,9 @@ namespace FSMForUnity
             var machine = builder.Complete(behaviourParameters);
             var eventTrail = new EventTrail(FSMConfig.DebugCyclicEventBufferSize);
             machine.eventTransmitter = new MachineEventTransmitter(eventTrail);
-            var debugMachine = new DebugMachine(machine, stateNames, transitionNames, anyTransitionNames, eventTrail, trace);
+            var debugMachine = new DebugMachine(machine, substates, stateNames, transitionNames, anyTransitionNames, eventTrail, trace);
             DebuggingLinker.Link(debugMachine, debugObject);
+            substates.Clear();
             stateNames = new Dictionary<IFSMState, string>();
             transitionNames = new Dictionary<FromToTransition, string>();
             anyTransitionNames = new Dictionary<AnyTransition, string>();

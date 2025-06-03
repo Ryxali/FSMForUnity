@@ -14,6 +14,7 @@ namespace FSMForUnity
 
         public IFSMState[] States => machine.GetAllStates();
 
+        private readonly HashSet<IDebuggableMachine> children;
         private readonly IDebuggableMachine machine;
         private readonly Dictionary<IFSMState, string> stateNames;
         private readonly Dictionary<FromToTransition, string> transitionNames;
@@ -25,6 +26,7 @@ namespace FSMForUnity
         private readonly StackTrace stackTrace;
 
         public DebugMachine(IDebuggableMachine machine,
+            IEnumerable<IDebuggableMachine> children,
             Dictionary<IFSMState, string> stateNames,
             Dictionary<FromToTransition, string> transitionNames,
             Dictionary<AnyTransition, string> anyTransitionNames,
@@ -36,6 +38,7 @@ namespace FSMForUnity
             this.anyTransitionNames = anyTransitionNames;
             this.eventHistory = eventHistory;
             this.stackTrace = stackTrace;
+            this.children = new HashSet<IDebuggableMachine>(children);
         }
 
         public DebugMachine(IDebuggableMachine machine)
@@ -46,6 +49,12 @@ namespace FSMForUnity
             anyTransitionNames = null;
             eventHistory = null;
             stackTrace = null;
+            children = null;
+        }
+
+        public bool IsChildOf(in DebugMachine machine)
+        {
+            return machine.children.Contains(this.machine);
         }
 
         public bool TryGetActive(out IFSMState state) => machine.TryGetActive(out state);
