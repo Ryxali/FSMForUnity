@@ -21,7 +21,6 @@ namespace FSMForUnity.Editor
 
         private readonly List<TreeViewItemData<DebugMachine>> listMachines = new List<TreeViewItemData<DebugMachine>>();
         private readonly DebuggerFSMStateData stateData;
-        private bool showEditorMachines = false;
 
         public MachineListViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
@@ -40,22 +39,6 @@ namespace FSMForUnity.Editor
             listView.selectionType = SelectionType.Single;
         }
 
-        private DropdownMenuAction.Status ShowEditorMachinesToggleStatus(DropdownMenuAction arg)
-        {
-            return showEditorMachines ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal;
-        }
-
-        private void OnShowEditorMachinesToggle(DropdownMenuAction evt)
-        {
-            showEditorMachines = !showEditorMachines;
-            RefreshMachinesInList(DebuggingLinker.GetAllMachines());
-        }
-
-        private void List_onSelectedIndicesChange(IEnumerable<object> selected)
-        {
-            OnElementClick(listView.selectedIndex);
-        }
-
         public void Enter()
         {
             RefreshMachinesInList(DebuggingLinker.GetAllMachines());
@@ -63,6 +46,24 @@ namespace FSMForUnity.Editor
             OnElementClick(listView.selectedIndex);
             listView.itemsChosen += List_onSelectedIndicesChange;
             DebuggingLinker.onAllMachinesChanged += RefreshMachinesInList;
+            FSMForUnityPreferences.settings_showEditorMachines.onChanged += OnSettingsChange;
+        }
+
+        public void Update(float delta)
+        {
+        }
+
+        public void Exit()
+        {
+            DebuggingLinker.onAllMachinesChanged -= RefreshMachinesInList;
+            listView.itemsChosen -= List_onSelectedIndicesChange;
+            FSMForUnityPreferences.settings_showEditorMachines.onChanged -= OnSettingsChange;
+            listViewRoot.RemoveFromHierarchy();
+        }
+
+        public void Destroy()
+        {
+            listElements.Clear();
         }
 
         private void RefreshMachinesInList(IReadOnlyList<DebugMachine> list)
@@ -72,7 +73,7 @@ namespace FSMForUnity.Editor
             var stack = new Stack<(DebugMachine machine, List<TreeViewItemData<DebugMachine>> children)>();
             foreach (var machine in list)
             {
-                if (machine.IsEditorMachine && machine.IsEditorMachine != showEditorMachines)
+                if (machine.IsEditorMachine && machine.IsEditorMachine != FSMForUnityPreferences.settings_showEditorMachines.value)
                     continue;
                 bool isChild = false;
                 foreach (var test in list)
@@ -102,20 +103,24 @@ namespace FSMForUnity.Editor
             listView.RefreshItems();
         }
 
-        public void Update(float delta)
+        private DropdownMenuAction.Status ShowEditorMachinesToggleStatus(DropdownMenuAction arg)
         {
+            return FSMForUnityPreferences.settings_showEditorMachines.value ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal;
         }
 
-        public void Exit()
+        private void OnShowEditorMachinesToggle(DropdownMenuAction evt)
         {
-            DebuggingLinker.onAllMachinesChanged -= RefreshMachinesInList;
-            listView.itemsChosen -= List_onSelectedIndicesChange;
-            listViewRoot.RemoveFromHierarchy();
+            FSMForUnityPreferences.settings_showEditorMachines.value = !FSMForUnityPreferences.settings_showEditorMachines.value;
         }
 
-        public void Destroy()
+        private void List_onSelectedIndicesChange(IEnumerable<object> selected)
         {
-            listElements.Clear();
+            OnElementClick(listView.selectedIndex);
+        }
+
+        private void OnSettingsChange(bool obj)
+        {
+            RefreshMachinesInList(DebuggingLinker.GetAllMachines());
         }
 
         private void OnElementClick(int index)

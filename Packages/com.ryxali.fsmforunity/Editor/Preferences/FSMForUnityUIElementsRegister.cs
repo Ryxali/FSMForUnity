@@ -38,10 +38,9 @@ internal static class FSMForUnityUIElementsRegister
                 };
                 properties.AddToClassList("property-list");
                 rootElement.Add(properties);
-                //FSMForUnityPreferences.gridView_backgroundColor
-                properties.Add(CreateColorField("Background Color", FSMForUnityPreferences.gridView_backgroundColor));
-                properties.Add(CreateColorField("Foreground Color", FSMForUnityPreferences.gridView_gridColor));
-                
+                //properties.Add(CreateColorField("Background Color", FSMForUnityPreferences.gridView_backgroundColor));
+                //properties.Add(CreateColorField("Foreground Color", FSMForUnityPreferences.gridView_gridColor));
+                properties.Add(CreateToggleField("Show Editor Machines", FSMForUnityPreferences.settings_showEditorMachines));
                 //properties.Add(new PropertyField(settings.FindProperty("m_SomeString")));
                 //properties.Add(new PropertyField(settings.FindProperty("m_Number")));
 
@@ -53,6 +52,15 @@ internal static class FSMForUnityUIElementsRegister
         };
 
         return provider;
+    }
+
+    private static Toggle CreateToggleField(string title, EditorPrefToggle prefToggle)
+    {
+        var field = new Toggle(title);
+        field.value = prefToggle.value;
+        prefToggle.onChanged += v => field.SetValueWithoutNotify(v);
+        field.RegisterValueChangedCallback(cb => prefToggle.value = cb.newValue);
+        return field;
     }
 
     private static ColorField CreateColorField(string title, EditorPrefColor prefColor)
