@@ -7,6 +7,7 @@ namespace FSMForUnity
     internal struct DebugMachine
     {
         public bool IsValid => machine != null;
+        public bool IsEditorMachine { get; }
 
         public string Name => machine.GetName();
 
@@ -32,6 +33,17 @@ namespace FSMForUnity
             Dictionary<AnyTransition, string> anyTransitionNames,
             EventTrail eventHistory, StackTrace stackTrace)
         {
+            var declaringType = stackTrace.GetFrame(0).GetMethod().DeclaringType;
+            IsEditorMachine = false;
+            foreach (var asm in declaringType.Assembly.GetReferencedAssemblies())
+            {
+                if (asm.FullName.StartsWith("UnityEditor"))
+                {
+                    IsEditorMachine = true;
+                    break;
+                }
+            }
+
             this.machine = machine;
             this.stateNames = stateNames;
             this.transitionNames = transitionNames;
@@ -44,6 +56,7 @@ namespace FSMForUnity
         public DebugMachine(IDebuggableMachine machine)
         {
             this.machine = machine;
+            IsEditorMachine = false;
             stateNames = null;
             transitionNames = null;
             anyTransitionNames = null;

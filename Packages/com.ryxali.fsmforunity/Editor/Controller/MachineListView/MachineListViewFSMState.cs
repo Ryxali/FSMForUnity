@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
@@ -15,9 +16,12 @@ namespace FSMForUnity.Editor
         private readonly VisualTreeAsset listEntryAsset;
         private readonly List<VisualElement> listElements = new List<VisualElement>(512);
         private readonly TreeView listView;
+        private readonly ToolbarMenu optionsMenu;
+
 
         private readonly List<TreeViewItemData<DebugMachine>> listMachines = new List<TreeViewItemData<DebugMachine>>();
         private readonly DebuggerFSMStateData stateData;
+        private bool showEditorMachines = false;
 
         public MachineListViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
         {
@@ -28,10 +32,23 @@ namespace FSMForUnity.Editor
             listViewRoot = visualTree.Instantiate();
 
             listView = listViewRoot.Q<TreeView>(UIMap_ListView.Items);
+            optionsMenu = listViewRoot.Q<ToolbarMenu>();
+            optionsMenu.menu.AppendAction("Show Editor Machines", OnShowEditorMachinesToggle, ShowEditorMachinesToggleStatus);
             listView.SetRootItems(listMachines);
             listView.makeItem = () => listEntryAsset.Instantiate();
             listView.bindItem = (elem, i) => elem.Q<Label>(UIMap_ListView.ListEntryLabel).text = listView.GetItemDataForIndex<DebugMachine>(i).Name;
             listView.selectionType = SelectionType.Single;
+        }
+
+        private DropdownMenuAction.Status ShowEditorMachinesToggleStatus(DropdownMenuAction arg)
+        {
+            return showEditorMachines ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal;
+        }
+
+        private void OnShowEditorMachinesToggle(DropdownMenuAction evt)
+        {
+            showEditorMachines = !showEditorMachines;
+            RefreshMachinesInList(DebuggingLinker.GetAllMachines());
         }
 
         private void List_onSelectedIndicesChange(IEnumerable<object> selected)
@@ -55,6 +72,8 @@ namespace FSMForUnity.Editor
             var stack = new Stack<(DebugMachine machine, List<TreeViewItemData<DebugMachine>> children)>();
             foreach (var machine in list)
             {
+                if (machine.IsEditorMachine && machine.IsEditorMachine != showEditorMachines)
+                    continue;
                 bool isChild = false;
                 foreach (var test in list)
                 {

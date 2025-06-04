@@ -2,8 +2,8 @@
     <Style src="project://database/Packages/com.ryxali.fsmforunity/Editor/UIDocuments/com.ryxali.fsmforunity_EditorStyle.uss?fileID=7433441132597879392&amp;guid=ed6111d43bd98c24d831d5bb34ef4a59&amp;type=3#com.ryxali.fsmforunity_EditorStyle" />
     <uie:Toolbar>
         <ui:Label text="Active Machines" display-tooltip-when-elided="true" style="min-width: 180px;" />
-        <uie:ToolbarMenu display-tooltip-when-elided="true">
-            <ui:Label text="Menu?" display-tooltip-when-elided="true" />
+        <uie:ToolbarMenu display-tooltip-when-elided="true" name="options-menu">
+            <ui:Label text="Options" display-tooltip-when-elided="true" />
         </uie:ToolbarMenu>
     </uie:Toolbar>
     <ui:TreeView name="items" />
