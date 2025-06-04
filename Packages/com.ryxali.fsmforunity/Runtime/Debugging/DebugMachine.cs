@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using UnityEditor.Compilation;
 
 namespace FSMForUnity
 {
@@ -33,17 +35,21 @@ namespace FSMForUnity
             Dictionary<AnyTransition, string> anyTransitionNames,
             EventTrail eventHistory, StackTrace stackTrace)
         {
-            var declaringType = stackTrace.GetFrame(0).GetMethod().DeclaringType;
-            IsEditorMachine = false;
-            foreach (var asm in declaringType.Assembly.GetReferencedAssemblies())
+
+            var t = new StackTrace(1, false);
+            Type declaringType = null;
+            for (var en = t.GetFrames().GetEnumerator(); en.MoveNext() && declaringType == null;)
             {
-                if (asm.FullName.StartsWith("UnityEditor"))
+                var type = ((StackFrame)en.Current).GetMethod().DeclaringType;
+                UnityEngine.Debug.Log(type);
+                if (!typeof(FSMMachine.IBuilder).IsAssignableFrom(type))
                 {
-                    IsEditorMachine = true;
-                    break;
+                    declaringType = type;
                 }
             }
-
+            
+            IsEditorMachine = !CompilationPipeline.GetAssemblies(AssembliesType.PlayerWithoutTestAssemblies).Any(a => string.Equals(a.name, declaringType.Assembly.GetName().Name));
+            
             this.machine = machine;
             this.stateNames = stateNames;
             this.transitionNames = transitionNames;
