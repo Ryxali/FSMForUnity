@@ -69,10 +69,9 @@ Label {
 .fsmforunity-node-box
 {
     height: 100%;
-    box-sizing: border-box;
     transition-property: background-color;
     transition-duration: 300ms;
-    transition-timing-function: ease-out-quart;
+    transition-timing-function: linear;
 }
 
 /* State Colors */
@@ -85,7 +84,7 @@ Label {
     padding: 4px;
     transition-property: opacity;
     transition-duration: 50ms;
-    transition-timing-function: ease-out-quart;
+    transition-timing-function: linear;
 }
 #Legend.hovered
 {

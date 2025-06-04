@@ -32,6 +32,7 @@ namespace FSMForUnity
         private readonly ProfilerMarker machineMarker;
         [FSMDebuggerHidden]
         private ProfilerMarker currentStateMarker;
+        [FSMDebuggerHidden]
         internal MachineEventTransmitter eventTransmitter;
 #endif
         #endregion

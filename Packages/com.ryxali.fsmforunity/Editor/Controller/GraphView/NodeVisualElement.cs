@@ -7,12 +7,15 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
 {
-
-    internal class NodeVisualElement : VisualElement
+#if UNITY_6000_0_OR_NEWER
+    [UxmlElement]
+#endif
+    internal partial class NodeVisualElement : VisualElement
     {
+#if !UNITY_6000_0_OR_NEWER
         public new class UxmlFactory : UxmlFactory<NodeVisualElement, UxmlTraits> { }
         public new class UxmlTraits : VisualElement.UxmlTraits { }
-
+#endif
         public string Title { get => title; set { title = lightContent.Q<Label>(UIMap_GraphView.Title).text = fullContent.Q<Label>(UIMap_GraphView.Title).text = value; } }
 
         public string Subheading { get => subheading; set { subheading = lightContent.Q<Label>(UIMap_GraphView.Subheading).text = fullContent.Q<Label>(UIMap_GraphView.Subheading).text = value; } }

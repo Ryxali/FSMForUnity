@@ -5,10 +5,15 @@ using UnityEngine.UIElements;
 
 namespace FSMForUnity.Editor
 {
-    internal class RepeatingBackgroundElement : VisualElement
+#if UNITY_6000_0_OR_NEWER
+    [UxmlElement]
+#endif
+    internal partial class RepeatingBackgroundElement : VisualElement
     {
+#if !UNITY_6000_0_OR_NEWER
         public new class UxmlFactory : UxmlFactory<RepeatingBackgroundElement, UxmlTraits> { }
         public new class UxmlTraits : VisualElement.UxmlTraits { }
+#endif
 
         private static readonly Color defaultFgColor = new Color32(0x14, 0x14, 0x14, 0xff);
         private static readonly Color defaultBgColor = new Color32(0x1c, 0x1c, 0x1c, 0xff);
@@ -304,7 +309,11 @@ namespace FSMForUnity.Editor
                 this.vertices = vertices = new NativeArray<Vertex>(5 * cellOrigins.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
                 this.indices = indices = new NativeArray<ushort>(cellOrigins.Length * 12, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
                 writeData = context.Allocate(vertices.Length, indices.Length, texture);
+#if UNITY_6000_0_OR_NEWER
+                uvRegion = new Rect(0, 0, 1, 1);
+#else
                 uvRegion = writeData.uvRegion;
+#endif
             }
 
             public void Execute(int index)
