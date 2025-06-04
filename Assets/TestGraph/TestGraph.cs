@@ -8,10 +8,11 @@ public class TestGraph
     [UnityEditor.InitializeOnLoadMethod]
     private static void Test()
     {
+        int q = 5;
         var builder = FSMMachine.Build();
         var a = builder.AddLambdaState("A");
         var b = builder.AddState("B", new TestState());
-        var c = builder.AddLambdaState("C");
+        var c = builder.AddLambdaState("C", enter: () => q++);
         var d = builder.AddLambdaState("D");
         builder.AddLambdaTransition(() => true, a, b);
         builder.AddLambdaTransition(() => false, b, c);
