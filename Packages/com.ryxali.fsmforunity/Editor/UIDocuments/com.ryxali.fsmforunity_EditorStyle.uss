@@ -79,32 +79,61 @@ Label {
 
 #Legend
 {
-    background-color: rgba(56, 56, 56, 0.7);
+    background-color: rgba(56, 56, 56, 1);
+    opacity: 0.1;
     border-radius: 4px;
+    padding: 4px;
+    transition-property: opacity;
+    transition-duration: 50ms;
+    transition-timing-function: ease-out-quart;
+}
+#Legend.hovered
+{
+    opacity: 1;
 }
 
 #Legend > * > .active
 {
     background-color: rgb(238, 212, 0);
-    border-radius: 4px;
 }
 
 #Legend > * > .was-active
 {
     background-color: rgb(125, 108, 43);
-    border-radius: 4px;
 }
 
 #Legend > * > .dormant
 {
     background-color: rgb(89, 89, 89);
-    border-radius: 4px;
 }
 
 #Legend > * > .signal-sent
 {
     background-color: rgb(49, 211, 214);
-    border-radius: 4px;
+}
+#Legend > * > .icon
+{
+    margin: 0px 4px 0px 0px;
+    border-color: rgb(43, 43, 43);
+    border-width: 1px;
+    border-radius: 3px;
+    width: 9px;
+    height: 9px;
+    align-self: center;
+}
+#Legend > * > Label
+{
+    margin: 0px;
+    padding: 0px;
+    font-size: 11px;
+}
+#Legend > *.last-child
+{
+    margin: 0px;
+}
+#Legend > *
+{
+    margin: 0px 0px 2px 0px;
 }
 
 .fsmforunity-node-box.active > #box-container

@@ -57,6 +57,23 @@ namespace FSMForUnity.Editor
             legendElement.style.right = new StyleLength(20);
             legendElement.style.bottom = new StyleLength(20);
             legendElement.Add(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_GraphView.LegendPath).Instantiate());
+            legendElement.Q("Legend").RegisterCallback<PointerEnterEvent>(OnLegendHover);
+            legendElement.Q("Legend").RegisterCallback<PointerLeaveEvent>(OnLegendEndHover);
+        }
+        private int hovering;
+        private void OnLegendEndHover(PointerLeaveEvent evt)
+        {
+            if (evt.target is VisualElement elem)
+                hovering--;
+
+            legendElement.Q("Legend").EnableInClassList("hovered", hovering > 0);
+        }
+
+        private void OnLegendHover(PointerEnterEvent evt)
+        {
+            if (evt.target is VisualElement elem)
+                hovering++;
+            legendElement.Q("Legend").EnableInClassList("hovered", hovering > 0);
         }
 
         public void Enter()
