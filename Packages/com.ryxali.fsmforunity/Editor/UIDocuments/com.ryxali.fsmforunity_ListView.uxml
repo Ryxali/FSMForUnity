@@ -6,5 +6,5 @@
             <ui:Label text="Menu?" display-tooltip-when-elided="true" />
         </uie:ToolbarMenu>
     </uie:Toolbar>
-    <ui:ListView focusable="true" name="items" style="flex-grow: 1;" />
+    <ui:TreeView name="items" />
 </ui:UXML>

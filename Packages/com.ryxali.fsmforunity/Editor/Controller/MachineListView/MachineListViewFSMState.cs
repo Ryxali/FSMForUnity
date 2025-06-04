@@ -14,9 +14,9 @@ namespace FSMForUnity.Editor
         private readonly VisualElement listViewRoot;
         private readonly VisualTreeAsset listEntryAsset;
         private readonly List<VisualElement> listElements = new List<VisualElement>(512);
-        private readonly ListView listView;
+        private readonly TreeView listView;
 
-        private readonly List<DebugMachine> listMachines = new List<DebugMachine>();
+        private readonly List<TreeViewItemData<DebugMachine>> listMachines = new List<TreeViewItemData<DebugMachine>>();
         private readonly DebuggerFSMStateData stateData;
 
         public MachineListViewFSMState(DebuggerFSMStateData stateData, VisualElement container)
@@ -27,10 +27,10 @@ namespace FSMForUnity.Editor
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UIMap_ListView.Path);
             listViewRoot = visualTree.Instantiate();
 
-            listView = listViewRoot.Q<ListView>(UIMap_ListView.Items);
-            listView.itemsSource = listMachines;
+            listView = listViewRoot.Q<TreeView>(UIMap_ListView.Items);
+            listView.SetRootItems(listMachines);
             listView.makeItem = () => listEntryAsset.Instantiate();
-            listView.bindItem = (elem, i) => elem.Q<Label>(UIMap_ListView.ListEntryLabel).text = listMachines[i].Name;
+            listView.bindItem = (elem, i) => elem.Q<Label>(UIMap_ListView.ListEntryLabel).text = listView.GetItemDataForIndex<DebugMachine>(i).Name;
             listView.selectionType = SelectionType.Single;
         }
 
@@ -44,7 +44,7 @@ namespace FSMForUnity.Editor
             RefreshMachinesInList(DebuggingLinker.GetAllMachines());
             container.Add(listViewRoot);
             OnElementClick(listView.selectedIndex);
-            listView.onItemsChosen += List_onSelectedIndicesChange;
+            listView.itemsChosen += List_onSelectedIndicesChange;
             DebuggingLinker.onAllMachinesChanged += RefreshMachinesInList;
         }
 
@@ -53,8 +53,8 @@ namespace FSMForUnity.Editor
             listMachines.Clear();
             // TODO build tree from machines and child machines
             // start by finding all machines that aren't a child to anyone, then populate a tree
-            var stack = new Stack<MachineNode>();
-            var machineList = new List<MachineNode>();
+            int id = 0;
+            var stack = new Stack<(DebugMachine machine, List<TreeViewItemData<DebugMachine>> children)>();
             foreach (var machine in list)
             {
                 bool isChild = false;
@@ -64,8 +64,8 @@ namespace FSMForUnity.Editor
                 }
                 if (!isChild)
                 {
-                    stack.Push(new MachineNode { machine = machine });
-                    machineList.Add(stack.Peek());
+                    stack.Push((machine, new List<TreeViewItemData<DebugMachine>>()));
+                    listMachines.Add(new TreeViewItemData<DebugMachine>(id++, machine, stack.Peek().children));
                 }
             }
             while (stack.Count > 0)
@@ -75,33 +75,34 @@ namespace FSMForUnity.Editor
                 {
                     if (test.IsChildOf(node.machine))
                     {
-                        var n = new MachineNode { machine = test };
+                        stack.Push((test, new List<TreeViewItemData<DebugMachine>>()));
+                        var n = new TreeViewItemData<DebugMachine>(id++, test, stack.Peek().children);// { machine = test };
                         node.children.Add(n);
-                        stack.Push(n);
                     }
                 }
             }
             // TODO switch to tree list
-            foreach (var root in machineList)
-            {
-                stack.Push(root);
-                while (stack.Count > 0)
-                {
-                    var n = stack.Pop();
-                    listMachines.Add(n.machine);
-                    foreach (var m in n.children)
-                        stack.Push(m);
-                }
-            }
+            //foreach (var root in machineList)
+            //{
+            //    stack.Push(root);
+            //    while (stack.Count > 0)
+            //    {
+            //        var n = stack.Pop();
+            //        listMachines.Add(n.machine);
+            //        foreach (var m in n.children)
+            //            stack.Push(m);
+            //    }
+            //}
             //listMachines.AddRange(list);
+            listView.SetRootItems(listMachines);
             listView.RefreshItems();
         }
 
-        private class MachineNode
-        {
-            public DebugMachine machine;
-            public List<MachineNode> children = new List<MachineNode>();
-        }
+        //private class MachineNode
+        //{
+        //    public DebugMachine machine;
+        //    public List<MachineNode> children = new List<MachineNode>();
+        //}
 
         public void Update(float delta)
         {
@@ -110,7 +111,7 @@ namespace FSMForUnity.Editor
         public void Exit()
         {
             DebuggingLinker.onAllMachinesChanged -= RefreshMachinesInList;
-            listView.onItemsChosen -= List_onSelectedIndicesChange;
+            listView.itemsChosen -= List_onSelectedIndicesChange;
             listViewRoot.RemoveFromHierarchy();
         }
 
@@ -121,8 +122,8 @@ namespace FSMForUnity.Editor
 
         private void OnElementClick(int index)
         {
-            if(0 <= index && index < listMachines.Count)
-                stateData.wantToInspectNext = listMachines[index];
+            if(index >= 0)
+                stateData.wantToInspectNext = listView.GetItemDataForIndex<DebugMachine>(index);
         }
     }
 }
