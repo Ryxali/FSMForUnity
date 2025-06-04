@@ -51,8 +51,6 @@ namespace FSMForUnity.Editor
         private void RefreshMachinesInList(IReadOnlyList<DebugMachine> list)
         {
             listMachines.Clear();
-            // TODO build tree from machines and child machines
-            // start by finding all machines that aren't a child to anyone, then populate a tree
             int id = 0;
             var stack = new Stack<(DebugMachine machine, List<TreeViewItemData<DebugMachine>> children)>();
             foreach (var machine in list)
@@ -81,28 +79,9 @@ namespace FSMForUnity.Editor
                     }
                 }
             }
-            // TODO switch to tree list
-            //foreach (var root in machineList)
-            //{
-            //    stack.Push(root);
-            //    while (stack.Count > 0)
-            //    {
-            //        var n = stack.Pop();
-            //        listMachines.Add(n.machine);
-            //        foreach (var m in n.children)
-            //            stack.Push(m);
-            //    }
-            //}
-            //listMachines.AddRange(list);
             listView.SetRootItems(listMachines);
             listView.RefreshItems();
         }
-
-        //private class MachineNode
-        //{
-        //    public DebugMachine machine;
-        //    public List<MachineNode> children = new List<MachineNode>();
-        //}
 
         public void Update(float delta)
         {
