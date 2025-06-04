@@ -77,24 +77,33 @@ Label {
 
 /* State Colors */
 
+#Legend
+{
+    border-radius: 4px;
+}
+
 #Legend > * > .active
 {
     background-color: rgb(238, 212, 0);
+    border-radius: 4px;
 }
 
 #Legend > * > .was-active
 {
     background-color: rgb(125, 108, 43);
+    border-radius: 4px;
 }
 
 #Legend > * > .dormant
 {
     background-color: rgb(89, 89, 89);
+    border-radius: 4px;
 }
 
 #Legend > * > .signal-sent
 {
     background-color: rgb(49, 211, 214);
+    border-radius: 4px;
 }
 
 .fsmforunity-node-box.active > #box-container
