@@ -79,6 +79,7 @@ Label {
 
 #Legend
 {
+    background-color: rgba(56, 56, 56, 0.7);
     border-radius: 4px;
 }
 

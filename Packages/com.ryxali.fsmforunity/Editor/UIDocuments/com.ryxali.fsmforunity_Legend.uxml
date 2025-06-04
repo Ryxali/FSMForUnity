@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Packages/com.ryxali.fsmforunity/Editor/UIDocuments/com.ryxali.fsmforunity_EditorStyle.uss?fileID=7433441132597879392&amp;guid=ed6111d43bd98c24d831d5bb34ef4a59&amp;type=3#com.ryxali.fsmforunity_EditorStyle" />
-    <ui:VisualElement name="Legend" style="padding-top: 2px; padding-bottom: 2px; padding-left: 2px; padding-right: 2px; background-color: rgb(56, 56, 56); flex-direction: column; flex-wrap: nowrap; max-width: 180px;">
+    <ui:VisualElement name="Legend" style="padding-top: 2px; padding-bottom: 2px; padding-left: 2px; padding-right: 2px; flex-direction: column; flex-wrap: nowrap; max-width: 180px;">
         <ui:VisualElement style="flex-direction: row; width: 100%; margin-bottom: 2px;">
             <ui:VisualElement class="active" style="width: 15px; height: 15px; margin-right: 6px; border-left-color: rgb(43, 43, 43); border-right-color: rgb(43, 43, 43); border-top-color: rgb(43, 43, 43); border-bottom-color: rgb(43, 43, 43); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;" />
             <ui:Label tabindex="-1" text="Active" display-tooltip-when-elided="true" style="flex-grow: 1;" />
