@@ -1,26 +1,24 @@
 {
   "name": "com.ryxali.fsmforunity",
-  "version": "1.0.0",
   "displayName": "FSM For Unity",
-  "description": "This is an example package",
+  "description": "Fsm For Unity is a solution to build finite state machines in C#, accompanied with a visual debugger.",
+  "version": "1.0.0",
   "unity": "2019.1",
-  "unityRelease": "0b5",
-  "documentationUrl": "https://example.com/",
-  "changelogUrl": "https://example.com/changelog.html",
-  "licensesUrl": "https://example.com/licensing.html",
-  "dependencies": {
- },
- "keywords": [
-    "FSM",
-    "Finite",
-    "State",
-    "Machine",
-    "C#"
-  ],
   "author": {
-    "name": "Ryxali",
-    "url": "https://www.unity3d.com"
+    "name": "Niklas Lindblad"
   },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ryxali/FSMForUnity.git?path=/Packages/com.ryxali.fsmforunity"
+  },
+  "keywords": [
+     "FSM",
+     "Finite",
+     "State",
+     "Machine",
+     "C#"
+  ],
   "samples": [
     {
       "displayName": "Simple Ping Pong FSM",
