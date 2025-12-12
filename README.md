@@ -18,7 +18,7 @@ It is also designed to have a robust method of constructing a machine, exposing 
 * Includes a visual debugger for viewing your state machines in play mode.
 
 ## Wiki
-See [Quick Start](https://github.com/Ryxali/FSMForUnity/wiki) for the wiki.
+See [here](https://github.com/Ryxali/FSMForUnity/wiki) for the wiki.
 ## Installation
 Add it in package manager with github url: `https://github.com/Ryxali/FSMForUnity.git?path=/Packages/com.ryxali.fsmforunity`
 ## Getting Started
