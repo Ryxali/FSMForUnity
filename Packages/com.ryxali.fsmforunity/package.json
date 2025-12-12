@@ -12,6 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/Ryxali/FSMForUnity.git?path=/Packages/com.ryxali.fsmforunity"
   },
+  "documentationUrl": "https://github.com/Ryxali/FSMForUnity/wiki",
   "keywords": [
      "FSM",
      "Finite",
