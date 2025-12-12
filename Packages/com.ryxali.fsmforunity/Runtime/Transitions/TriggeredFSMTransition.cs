@@ -12,6 +12,9 @@ namespace FSMForUnity
     {
         private bool isSet;
 
+        /// <summary>
+        /// Open the path to go through this transition once.
+        /// </summary>
         public void Trigger()
         {
             isSet = true;
