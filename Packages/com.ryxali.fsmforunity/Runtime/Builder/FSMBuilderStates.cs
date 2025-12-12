@@ -1,4 +1,6 @@
-﻿namespace FSMForUnity
+﻿using System.Collections;
+
+namespace FSMForUnity
 {
     public static class FSMBuilderStates
     {
@@ -78,6 +80,46 @@
         public static IFSMState AddSubstate(this FSMMachine.IBuilder builder, string name, FSMMachine machine)
         {
             return builder.AddState(name, new SubstateFSMState(machine));
+        }
+
+        /// <summary>
+        /// Add a coroutine as a state to the machine. The coroutine cannot be a lambda method (e.g. '() => ...').
+        /// </summary>
+        /// <param name="builder">The builder to add the state to.</param>
+        /// <param name="enter">The coroutine method to execute. Cannot be a lambda method (e.g. '() => ...')</param>
+        /// <param name="exit">An optional method to execute when leaving this state.</param>
+        /// <returns></returns>
+        public static DeferredCoroutineFSMState AddDeferredCoroutineState(this FSMMachine.IBuilder builder, System.Func<IEnumerator> enter, System.Action exit = null)
+        {
+            return builder.AddDeferredCoroutineState(null, enter, exit);
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="AddDeferredCoroutineState(FSMMachine.IBuilder, System.Func{IEnumerator}, System.Action)"/>
+        /// </summary>
+        public static DeferredCoroutineFSMState AddDeferredCoroutineState(this FSMMachine.IBuilder builder, System.Func<CoroutineFSMState.DeltaTime, IEnumerator> enter, System.Action exit = null)
+        {
+            return builder.AddDeferredCoroutineState(null, enter, exit);
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="AddDeferredCoroutineState(FSMMachine.IBuilder, System.Func{IEnumerator}, System.Action)"/>
+        /// </summary>
+        public static DeferredCoroutineFSMState AddDeferredCoroutineState(this FSMMachine.IBuilder builder, string name, System.Func<IEnumerator> enter, System.Action exit = null)
+        {
+            var state = new DeferredCoroutineFSMState(enter, exit);
+            builder.AddState(name, state);
+            return state;
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="AddDeferredCoroutineState(FSMMachine.IBuilder, System.Func{IEnumerator}, System.Action)"/>
+        /// </summary>
+        public static DeferredCoroutineFSMState AddDeferredCoroutineState(this FSMMachine.IBuilder builder, string name, System.Func<CoroutineFSMState.DeltaTime, IEnumerator> enter, System.Action exit = null)
+        {
+            var state = new DeferredCoroutineFSMState(enter, exit);
+            builder.AddState(name, state);
+            return state;
         }
     }
 
