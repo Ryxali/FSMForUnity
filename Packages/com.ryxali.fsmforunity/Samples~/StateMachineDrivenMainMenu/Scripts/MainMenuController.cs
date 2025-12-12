@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using FSMForUnity;
+using UnityEngine;
 
 /// <summary>
 /// With this sample, we control the state in <see cref="MainMenuPanels"/>
@@ -48,7 +46,8 @@ public class MainMenuController : MonoBehaviour
         panels.loadingPanel.interactable = false;
 
         // We could make a state for a quit behaviour, but this is also fine in most use cases.
-        panels.quitButton.onClick.AddListener(() => {
+        panels.quitButton.onClick.AddListener(() =>
+        {
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -104,11 +103,11 @@ public class MainMenuController : MonoBehaviour
 
         // Fade Main Menu to Settings
         builder.AddTransition(mainToSettingsOut, mainMenuState, mainMenuToSettingsFadeState);
-        builder.AddTransition(new AllPassesTransition(mainToSettingsOut, mainToSettingsIn), mainMenuToSettingsFadeState, settingsState);
+        builder.AddTransition(new AllPassesFSMTransition(mainToSettingsOut, mainToSettingsIn), mainMenuToSettingsFadeState, settingsState);
 
         // Fade Settings to Main Menu
         builder.AddTransition(mainToSettingsOut, settingsState, settingsToMainMenuFadeState);
-        builder.AddTransition(new AllPassesTransition(mainToSettingsOut, mainToSettingsIn), settingsToMainMenuFadeState, mainMenuState);
+        builder.AddTransition(new AllPassesFSMTransition(mainToSettingsOut, mainToSettingsIn), settingsToMainMenuFadeState, mainMenuState);
 
         // Fade Main Menu to loading
         builder.AddTransition(mainToLoadingOut, mainMenuState, mainMenuToLoadingFadeState);

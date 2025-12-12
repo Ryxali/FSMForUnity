@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using FSMForUnity;
+using UnityEngine;
 
 /// <summary>
 /// A state that makes a canvas group visible and enables
@@ -20,12 +18,12 @@ public class ApproachFSMState : IFSMState
 
     public void Enter()
     {
-
+        stateData.myMaterial.SetColor("_Color", Color.red);
     }
 
     public void Exit()
     {
-
+        stateData.myMaterial.SetColor("_Color", stateData.defaultColor);
     }
 
     public void Update(float delta)

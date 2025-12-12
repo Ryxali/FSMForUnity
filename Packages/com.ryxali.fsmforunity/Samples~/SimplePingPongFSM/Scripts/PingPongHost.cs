@@ -1,6 +1,4 @@
 using FSMForUnity;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -13,37 +11,43 @@ using UnityEngine;
 [AddComponentMenu("")]
 public class PingPongHost : MonoBehaviour
 {
-	private FSMMachine fsm;
-	[SerializeField]
-	private float cooldown = 1f;
+    private FSMMachine fsm;
+    [SerializeField]
+    private float cooldown = 1f;
 
-	private void Awake()
-	{
-		var builder = FSMMachine.Build();
+    private void Awake()
+    {
+        var builder = FSMMachine.Build();
 
-		var pingState = builder.AddState(new PingState());
-		var pongState = builder.AddState(new PongState());
+        var pingState = builder.AddState(new PingState());
+        var pongState = builder.AddState(new PongState());
 
-		var transition = new AutoTimedTransition(cooldown);
+        var transition = new AutoTimedTransition(cooldown);
 
-		builder.AddTransition(transition, pingState, pongState);
-		builder.AddTransition(transition, pongState, pingState);
+        builder.AddTransition(transition, pingState, pongState);
+        builder.AddTransition(transition, pongState, pingState);
 
-		fsm = builder.Complete();
-	}
+        fsm = builder.Complete();
+    }
 
-	private void OnEnable()
-	{
-		fsm.Enable();
-	}
+    private void OnEnable()
+    {
+        fsm.Enable();
+    }
 
-	private void OnDisable()
-	{
-		fsm.Disable();
-	}
+    private void OnDisable()
+    {
+        fsm.Disable();
+    }
 
-	private void Update()
-	{
-		fsm.Update(Time.deltaTime);
-	}
+    private void Update()
+    {
+        fsm.Update(Time.deltaTime);
+    }
+
+    private void OnDestroy()
+    {
+        fsm.Destroy();
+        fsm = null;
+    }
 }

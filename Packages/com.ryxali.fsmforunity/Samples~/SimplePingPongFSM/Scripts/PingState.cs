@@ -1,23 +1,23 @@
-using UnityEngine;
 using FSMForUnity;
+using UnityEngine;
 
 public class PingState : IFSMState
 {
-	public void Enter()
-	{
-		Debug.Log("Ping!");
-	}
+    public void Enter()
+    {
+        Debug.Log("Ping!");
+    }
 
-	public void Exit()
-	{
-	}
+    public void Exit()
+    {
+    }
 
-	public void Update(float delta)
-	{
-	}
+    public void Update(float delta)
+    {
+    }
 
-	public void Destroy()
-	{
-		Debug.Log("Ping Destroyed");
-	}
+    public void Destroy()
+    {
+        Debug.Log("Ping Destroyed");
+    }
 }

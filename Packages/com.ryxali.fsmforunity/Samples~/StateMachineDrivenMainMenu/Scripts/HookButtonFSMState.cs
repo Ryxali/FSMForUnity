@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using FSMForUnity;
+using UnityEngine.UI;
 
 /// <summary>
 /// When this state is active, we map the click of the supplied button

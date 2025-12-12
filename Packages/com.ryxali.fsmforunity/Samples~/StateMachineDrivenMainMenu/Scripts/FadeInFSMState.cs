@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using FSMForUnity;
+using System.Collections;
+using UnityEngine;
 
 /// <summary>
 /// A coroutine state that will fade a canvas group so it becomes visible
@@ -19,25 +18,25 @@ public class FadeInFSMState : CoroutineFSMState
         this.transition = transition;
     }
 
-    protected override IEnumerator OnEnter()
+    protected override IEnumerator Enter(DeltaTime deltaTime)
     {
         var t = 0f;
 
-        while(t < 1f)
+        while (t < 1f)
         {
             canvasGroup.alpha = t;
             t += deltaTime;
             yield return null;
         }
         canvasGroup.alpha = 1f;
-    }
-
-    protected override void OnCoroutineEnd()
-    {
         transition.Trigger();
     }
 
-    public override void Destroy()
+    protected override void Exit()
+    {
+    }
+
+    protected override void Destroy()
     {
 
     }
