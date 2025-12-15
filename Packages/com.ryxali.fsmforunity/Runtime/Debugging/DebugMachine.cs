@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using UnityEditor.Compilation;
 
 namespace FSMForUnity
 {
@@ -47,9 +46,11 @@ namespace FSMForUnity
                     declaringType = type;
                 }
             }
-            
-            IsEditorMachine = !CompilationPipeline.GetAssemblies(AssembliesType.PlayerWithoutTestAssemblies).Any(a => string.Equals(a.name, declaringType.Assembly.GetName().Name));
-            
+#if UNITY_EDITOR
+            IsEditorMachine = !UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies).Any(a => string.Equals(a.name, declaringType.Assembly.GetName().Name));
+#else
+            IsEditorMachine = false;
+#endif
             this.machine = machine;
             this.stateNames = stateNames;
             this.transitionNames = transitionNames;
