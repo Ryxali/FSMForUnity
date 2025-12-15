@@ -58,7 +58,16 @@ namespace FSMForUnity
         public static void Link(DebugMachine machine, Object associatedObject)
         {
             if (associatedObject)
-                linkedMachines.Add(associatedObject, machine);
+            {
+                if (!linkedMachines.ContainsKey(associatedObject))
+                {
+                    linkedMachines.Add(associatedObject, machine);
+                }
+                else
+                {
+                    Debug.LogWarning("Associating multiple machines with the same object is currently not supported");
+                }
+            }
             allMachines.Add(machine);
             onAllMachinesChanged(allMachines);
         }
