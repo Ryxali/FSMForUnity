@@ -40,7 +40,6 @@ namespace FSMForUnity
             for (var en = t.GetFrames().GetEnumerator(); en.MoveNext() && declaringType == null;)
             {
                 var type = ((StackFrame)en.Current).GetMethod().DeclaringType;
-                UnityEngine.Debug.Log(type);
                 if (!typeof(FSMMachine.IBuilder).IsAssignableFrom(type))
                 {
                     declaringType = type;
