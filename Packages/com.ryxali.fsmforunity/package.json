@@ -2,7 +2,7 @@
   "name": "com.ryxali.fsmforunity",
   "displayName": "FSM For Unity",
   "description": "Fsm For Unity is a solution to build finite state machines in C#, accompanied with a visual debugger.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2019.1",
   "author": {
     "name": "Niklas Lindblad"
